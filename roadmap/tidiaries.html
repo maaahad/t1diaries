@@ -1,0 +1,3204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>InRange — T1D platform MVP plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --paper: #EFF2F6;
+      --card: #FFFFFF;
+      --ink: #0E141B;
+      --muted: #5B6674;
+      --faint: #8A94A2;
+      --rule: #D5DBE3;
+      --trace: #4A2FE7;
+      --trace-soft: #EDE9FE;
+      --band: #CDEBD8;
+      --band-line: #2E9E63;
+      --high: #E8A33D;
+      --high-soft: #FDF1DE;
+      --low: #D9455F;
+      --low-soft: #FCE9EC;
+      --r: 10px;
+      --maxw: 1180px;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.62;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: "Bricolage Grotesque", "IBM Plex Sans", sans-serif;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      line-height: 1.1;
+      margin: 0
+    }
+
+    code,
+    kbd,
+    .mono {
+      font-family: "IBM Plex Mono", ui-monospace, monospace
+    }
+
+    a {
+      color: var(--trace);
+      text-underline-offset: 3px
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--trace);
+      outline-offset: 3px;
+      border-radius: 4px
+    }
+
+    /* ---------- masthead ---------- */
+    .masthead {
+      background: var(--ink);
+      color: #fff;
+      padding: 26px 0 0
+    }
+
+    .wrap {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 0 22px
+    }
+
+    .brandrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      align-items: baseline;
+      justify-content: space-between
+    }
+
+    .brand {
+      font-family: "Bricolage Grotesque", sans-serif;
+      font-weight: 800;
+      font-size: 26px;
+      letter-spacing: -.04em
+    }
+
+    .brand em {
+      font-style: normal;
+      color: var(--band)
+    }
+
+    .metaline {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11.5px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #8E9AAB
+    }
+
+    .lede {
+      max-width: 60ch;
+      margin: 16px 0 24px;
+      color: #C8D0DC;
+      font-size: 17px
+    }
+
+    /* ---------- tabs ---------- */
+    .tabbar {
+      background: var(--ink);
+      border-top: 1px solid #232C39;
+      position: sticky;
+      top: 0;
+      z-index: 40
+    }
+
+    .tabscroll {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 0 12px;
+      display: flex;
+      gap: 2px;
+      overflow-x: auto;
+      scrollbar-width: thin
+    }
+
+    .tab {
+      flex: 0 0 auto;
+      background: none;
+      border: 0;
+      cursor: pointer;
+      color: #93A0B1;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 14px 14px;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+    }
+
+    .tab:hover {
+      color: #fff
+    }
+
+    .tab[aria-selected="true"] {
+      color: #fff;
+      border-bottom-color: var(--band-line)
+    }
+
+    /* ---------- layout ---------- */
+    main {
+      padding: 38px 0 90px
+    }
+
+    .panel[hidden] {
+      display: none
+    }
+
+    .sec {
+      margin: 0 0 46px
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 6px
+    }
+
+    .sec-head h2 {
+      font-size: clamp(22px, 3.4vw, 32px)
+    }
+
+    .eyebrow {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--faint)
+    }
+
+    .sec-sub {
+      color: var(--muted);
+      max-width: 70ch;
+      margin: 8px 0 22px
+    }
+
+    .corridor {
+      height: 8px;
+      border-radius: 4px;
+      background: var(--band);
+      border-top: 1px solid var(--band-line);
+      border-bottom: 1px solid var(--band-line);
+      opacity: .75;
+      margin: 0 0 26px
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-radius: var(--r);
+      padding: 20px 22px
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px
+    }
+
+    .g2 {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))
+    }
+
+    .g3 {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr))
+    }
+
+    /* ---------- hero chart ---------- */
+    .chartbox {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-radius: var(--r);
+      padding: 18px 10px 6px;
+      overflow-x: auto
+    }
+
+    .chartbox svg {
+      display: block;
+      min-width: 760px;
+      width: 100%;
+      height: auto
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      padding: 12px 14px 16px;
+      font-size: 13px;
+      color: var(--muted)
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block
+    }
+
+    .wk {
+      cursor: pointer
+    }
+
+    .wk:hover circle {
+      r: 9
+    }
+
+    .trace-path {
+      stroke-dasharray: 2400;
+      stroke-dashoffset: 2400;
+      animation: draw 1.9s cubic-bezier(.22, .7, .2, 1) .25s forwards
+    }
+
+    @keyframes draw {
+      to {
+        stroke-dashoffset: 0
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      .trace-path {
+        animation: none;
+        stroke-dashoffset: 0
+      }
+    }
+
+    /* ---------- module blocks ---------- */
+    .mod {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-radius: var(--r);
+      margin-bottom: 18px;
+      overflow: hidden
+    }
+
+    .mod>header {
+      display: flex;
+      gap: 14px;
+      align-items: baseline;
+      flex-wrap: wrap;
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--rule);
+      background: linear-gradient(180deg, #FBFCFD, #F4F6F9)
+    }
+
+    .mod>header h3 {
+      font-size: 20px
+    }
+
+    .modid {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      color: #fff;
+      background: var(--ink);
+      padding: 3px 8px;
+      border-radius: 5px;
+      letter-spacing: .06em
+    }
+
+    .mod-body {
+      padding: 18px 22px 6px
+    }
+
+    .feat {
+      border-left: 2px solid var(--rule);
+      padding: 2px 0 2px 16px;
+      margin: 0 0 18px
+    }
+
+    .feat h4 {
+      font-size: 15.5px;
+      margin-bottom: 3px
+    }
+
+    .feat p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14.5px
+    }
+
+    .fid {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11.5px;
+      color: var(--trace);
+      margin-right: 8px
+    }
+
+    .accept {
+      margin: 8px 0 0;
+      padding: 0;
+      list-style: none;
+      font-size: 13.5px;
+      color: var(--ink)
+    }
+
+    .accept li {
+      padding-left: 18px;
+      position: relative;
+      margin: 3px 0
+    }
+
+    .accept li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 9px;
+      height: 2px;
+      background: var(--band-line)
+    }
+
+    /* ---------- pills ---------- */
+    .pill {
+      display: inline-block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10.5px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 20px;
+      border: 1px solid var(--rule);
+      color: var(--muted);
+      background: #fff;
+      white-space: nowrap
+    }
+
+    .pill.must {
+      background: var(--trace-soft);
+      border-color: #C9BEFB;
+      color: #3B22C4
+    }
+
+    .pill.should {
+      background: var(--band);
+      border-color: #A9D8BC;
+      color: #1E6E44
+    }
+
+    .pill.could {
+      background: var(--high-soft);
+      border-color: #EFD5A6;
+      color: #8A5B12
+    }
+
+    .pill.out {
+      background: var(--low-soft);
+      border-color: #F0C0C8;
+      color: #A32637
+    }
+
+    .pill.wk {
+      background: #EEF1F5
+    }
+
+    /* ---------- tables ---------- */
+    .tablewrap {
+      overflow-x: auto;
+      border: 1px solid var(--rule);
+      border-radius: var(--r);
+      background: var(--card)
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 720px;
+      font-size: 14px
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top
+    }
+
+    thead th {
+      position: sticky;
+      top: 47px;
+      background: #F4F6F9;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10.5px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      z-index: 2
+    }
+
+    tbody tr:hover {
+      background: #F8FAFC
+    }
+
+    td.id {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12.5px;
+      color: var(--trace);
+      white-space: nowrap
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0
+    }
+
+    caption {
+      caption-side: top;
+      text-align: left;
+      padding: 12px 14px;
+      color: var(--muted);
+      font-size: 13.5px;
+      border-bottom: 1px solid var(--rule)
+    }
+
+    /* ---------- filter bar ---------- */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 14px;
+      align-items: center
+    }
+
+    .filters button {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 7px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--rule);
+      background: #fff;
+      color: var(--muted);
+      cursor: pointer
+    }
+
+    .filters button[aria-pressed="true"] {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: #fff
+    }
+
+    .count {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      color: var(--faint);
+      margin-left: auto
+    }
+
+    /* ---------- sprint ---------- */
+    .sprint {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-radius: var(--r);
+      margin-bottom: 16px;
+      overflow: hidden;
+      scroll-margin-top: 70px
+    }
+
+    .sprint>header {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--rule)
+    }
+
+    .wknum {
+      font-family: "Bricolage Grotesque", sans-serif;
+      font-weight: 800;
+      font-size: 30px;
+      line-height: 1;
+      color: var(--trace);
+      min-width: 52px;
+      letter-spacing: -.04em
+    }
+
+    .sprint.risk .wknum {
+      color: var(--high)
+    }
+
+    .sprint>header h3 {
+      font-size: 19px;
+      margin-bottom: 4px
+    }
+
+    .sprint>header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14.5px;
+      max-width: 62ch
+    }
+
+    .sprint-body {
+      display: grid;
+      gap: 0;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr))
+    }
+
+    .col {
+      padding: 16px 22px;
+      border-right: 1px solid var(--rule)
+    }
+
+    .col:last-child {
+      border-right: 0
+    }
+
+    .col h5 {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin: 0 0 8px;
+      font-weight: 500
+    }
+
+    .col ul {
+      margin: 0;
+      padding-left: 16px;
+      font-size: 14px;
+      color: var(--ink)
+    }
+
+    .col li {
+      margin: 5px 0
+    }
+
+    .exit {
+      background: #F8FAFC;
+      border-top: 1px solid var(--rule);
+      padding: 12px 22px;
+      font-size: 14px
+    }
+
+    .exit strong {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--faint);
+      font-weight: 500;
+      display: block;
+      margin-bottom: 3px
+    }
+
+    /* ---------- source list ---------- */
+    .srcgroup {
+      margin-bottom: 26px
+    }
+
+    .srcgroup>h3 {
+      font-size: 18px;
+      margin-bottom: 4px
+    }
+
+    .srcgroup>p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 14.5px;
+      max-width: 70ch
+    }
+
+    /* ---------- pipeline ---------- */
+    .pipe {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      margin-bottom: 22px
+    }
+
+    .step {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-left: 3px solid var(--trace);
+      border-radius: var(--r);
+      padding: 14px 16px
+    }
+
+    .step .n {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      color: var(--faint);
+      letter-spacing: .1em
+    }
+
+    .step h4 {
+      font-size: 15px;
+      margin: 2px 0 5px
+    }
+
+    .step p {
+      margin: 0;
+      font-size: 13.5px;
+      color: var(--muted)
+    }
+
+    /* ---------- callouts ---------- */
+    .note {
+      border-radius: var(--r);
+      padding: 14px 18px;
+      font-size: 14.5px;
+      margin: 0 0 20px;
+      border: 1px solid
+    }
+
+    .note.warn {
+      background: var(--high-soft);
+      border-color: #EFD5A6
+    }
+
+    .note.stop {
+      background: var(--low-soft);
+      border-color: #F0C0C8
+    }
+
+    .note.ok {
+      background: var(--band);
+      border-color: #A9D8BC
+    }
+
+    .note b {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 4px
+    }
+
+    /* ---------- copy block ---------- */
+    .copywrap {
+      position: relative;
+      background: var(--ink);
+      border-radius: var(--r);
+      overflow: hidden
+    }
+
+    .copywrap header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid #232C39
+    }
+
+    .copywrap header span {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #8E9AAB
+    }
+
+    .copybtn {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      background: var(--band);
+      color: #12351F;
+      border: 0;
+      border-radius: 5px;
+      padding: 6px 12px;
+      cursor: pointer
+    }
+
+    .copybtn:hover {
+      background: #B9E2C8
+    }
+
+    .copywrap pre {
+      margin: 0;
+      padding: 18px;
+      overflow-x: auto;
+      color: #DDE3EC;
+      font-size: 13px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-wrap: break-word
+    }
+
+    .kpi {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      margin-bottom: 24px
+    }
+
+    .kpi div {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-radius: var(--r);
+      padding: 14px 16px
+    }
+
+    .kpi b {
+      display: block;
+      font-family: "Bricolage Grotesque", sans-serif;
+      font-size: 26px;
+      letter-spacing: -.03em
+    }
+
+    .kpi span {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10.5px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--faint)
+    }
+
+    footer {
+      border-top: 1px solid var(--rule);
+      padding: 24px 0 60px;
+      color: var(--faint);
+      font-size: 13px
+    }
+
+    @media(max-width:640px) {
+      .col {
+        border-right: 0;
+        border-bottom: 1px solid var(--rule)
+      }
+
+      thead th {
+        top: 0
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="masthead">
+    <div class="wrap">
+      <div class="brandrow">
+        <div class="brand">In<em>Range</em></div>
+        <div class="metaline">MVP plan · 8 weeks · 1 developer · Rust + Next.js</div>
+      </div>
+      <p class="lede">A publishing and reference platform for the type 1 diabetes community: stories from parents and
+        people living with T1D, a filtered feed of device and research news, a device reference, and the epidemiology in
+        charts you can actually interrogate.</p>
+    </div>
+  </header>
+
+  <nav class="tabbar" aria-label="Sections">
+    <div class="tabscroll" role="tablist">
+      <button class="tab" role="tab" id="t-overview" aria-controls="p-overview" aria-selected="true">Overview</button>
+      <button class="tab" role="tab" id="t-features" aria-controls="p-features" aria-selected="false">Features</button>
+      <button class="tab" role="tab" id="t-registry" aria-controls="p-registry" aria-selected="false">All
+        features</button>
+      <button class="tab" role="tab" id="t-roadmap" aria-controls="p-roadmap" aria-selected="false">Roadmap</button>
+      <button class="tab" role="tab" id="t-sources" aria-controls="p-sources" aria-selected="false">News
+        sources</button>
+      <button class="tab" role="tab" id="t-collect" aria-controls="p-collect" aria-selected="false">Collection</button>
+      <button class="tab" role="tab" id="t-stats" aria-controls="p-stats" aria-selected="false">Statistics</button>
+      <button class="tab" role="tab" id="t-figma" aria-controls="p-figma" aria-selected="false">Figma prompt</button>
+    </div>
+  </nav>
+
+  <main class="wrap">
+
+    <!-- =============== OVERVIEW =============== -->
+    <section class="panel" id="p-overview" role="tabpanel" aria-labelledby="t-overview">
+
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">The plan, as a trace</span></div>
+        <p class="sec-sub">Eight one-week sprints. The line is weekly delivery risk; the green corridor is the range a
+          solo developer can hold at roughly 30 focused hours a week. Two weeks run above range — the ingestion engine
+          and the statistics pipeline. Everything else is scoped to give those two room. Select a week to jump to it.
+        </p>
+
+        <div class="chartbox">
+          <svg viewBox="0 0 960 300" role="img"
+            aria-label="Line chart of weekly delivery risk across eight sprints. Weeks 3 and 6 run above the safe range.">
+            <rect x="52" y="86" width="880" height="98" fill="#CDEBD8" opacity=".65" />
+            <line x1="52" y1="86" x2="932" y2="86" stroke="#2E9E63" stroke-width="1" stroke-dasharray="5 4" />
+            <line x1="52" y1="184" x2="932" y2="184" stroke="#2E9E63" stroke-width="1" stroke-dasharray="5 4" />
+            <text x="58" y="80" font-family="IBM Plex Mono" font-size="10" fill="#2E9E63" letter-spacing="1.4">IN RANGE
+              — SUSTAINABLE PACE</text>
+            <line x1="52" y1="232" x2="932" y2="232" stroke="#D5DBE3" stroke-width="1" />
+
+            <path class="trace-path" d="M 60 196 L 172 150 L 284 58 L 396 138 L 508 156 L 620 66 L 732 128 L 900 176"
+              fill="none" stroke="#4A2FE7" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" />
+
+            <g font-family="IBM Plex Mono" font-size="10.5" fill="#5B6674">
+              <g class="wk" data-week="1">
+                <circle cx="60" cy="196" r="6" fill="#4A2FE7" /><text x="60" y="252" text-anchor="middle"
+                  fill="#0E141B">W1</text><text x="60" y="268" text-anchor="middle">Foundations</text>
+              </g>
+              <g class="wk" data-week="2">
+                <circle cx="172" cy="150" r="6" fill="#4A2FE7" /><text x="172" y="252" text-anchor="middle"
+                  fill="#0E141B">W2</text><text x="172" y="268" text-anchor="middle">Stories</text>
+              </g>
+              <g class="wk" data-week="3">
+                <circle cx="284" cy="58" r="7" fill="#E8A33D" /><text x="284" y="252" text-anchor="middle"
+                  fill="#0E141B">W3</text><text x="284" y="268" text-anchor="middle">Ingestion</text><text x="284"
+                  y="42" text-anchor="middle" fill="#E8A33D">above range</text>
+              </g>
+              <g class="wk" data-week="4">
+                <circle cx="396" cy="138" r="6" fill="#4A2FE7" /><text x="396" y="252" text-anchor="middle"
+                  fill="#0E141B">W4</text><text x="396" y="268" text-anchor="middle">Signal UI</text>
+              </g>
+              <g class="wk" data-week="5">
+                <circle cx="508" cy="156" r="6" fill="#4A2FE7" /><text x="508" y="252" text-anchor="middle"
+                  fill="#0E141B">W5</text><text x="508" y="268" text-anchor="middle">Devices</text>
+              </g>
+              <g class="wk" data-week="6">
+                <circle cx="620" cy="66" r="7" fill="#E8A33D" /><text x="620" y="252" text-anchor="middle"
+                  fill="#0E141B">W6</text><text x="620" y="268" text-anchor="middle">Numbers</text><text x="620" y="50"
+                  text-anchor="middle" fill="#E8A33D">above range</text>
+              </g>
+              <g class="wk" data-week="7">
+                <circle cx="732" cy="128" r="6" fill="#4A2FE7" /><text x="732" y="252" text-anchor="middle"
+                  fill="#0E141B">W7</text><text x="732" y="268" text-anchor="middle">Community</text>
+              </g>
+              <g class="wk" data-week="8">
+                <circle cx="900" cy="176" r="6" fill="#4A2FE7" /><text x="900" y="252" text-anchor="middle"
+                  fill="#0E141B">W8</text><text x="900" y="268" text-anchor="middle">Launch</text>
+              </g>
+            </g>
+          </svg>
+          <div class="legend">
+            <span><i class="dot" style="background:#4A2FE7"></i> Week inside a sustainable load</span>
+            <span><i class="dot" style="background:#E8A33D"></i> Week that will overrun without cuts prepared in
+              advance</span>
+            <span><i class="dot" style="background:#CDEBD8;border:1px solid #2E9E63"></i> Target corridor ≈ 30
+              h/week</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="corridor"></div>
+
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Shape of the thing</span>
+          <h2>What ships in eight weeks</h2>
+        </div>
+        <div class="kpi">
+          <div><span>Timeline</span><b>8 weeks</b></div>
+          <div><span>Budget</span><b>~240 h</b></div>
+          <div><span>Must-have features</span><b>38</b></div>
+          <div><span>Surfaces</span><b>4</b></div>
+          <div><span>Explicit non-goals</span><b>11</b></div>
+        </div>
+
+        <div class="grid g2">
+          <div class="card">
+            <h3>The four surfaces</h3>
+            <p style="color:var(--muted);font-size:14.5px">Each one has to stand alone. If a visitor only ever uses one
+              of these, it still has to be worth the visit.</p>
+            <div class="feat">
+              <h4>Stories</h4>
+              <p>Long-form writing by parents, adults with T1D, teens and caregivers. Markdown editor, drafts, tags by
+                audience and topic, content warnings, comments, reading lists.</p>
+            </div>
+            <div class="feat">
+              <h4>Signal</h4>
+              <p>An aggregated, de-duplicated, categorised feed of device news, regulatory filings, trials and papers —
+                with a human editorial gate before anything is published.</p>
+            </div>
+            <div class="feat">
+              <h4>Devices</h4>
+              <p>A structured reference for CGMs, pumps, AID systems and pens: specs, regional availability,
+                compatibility, every field stamped with a source and a verification date.</p>
+            </div>
+            <div class="feat">
+              <h4>Numbers</h4>
+              <p>Interactive epidemiology — incidence, prevalence, technology uptake, outcomes by registry — each chart
+                carrying its dataset version, licence and caveats.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Who it is for</h3>
+            <p style="color:var(--muted);font-size:14.5px">Three readers drive every scoping decision. Anything that
+              serves none of them is out.</p>
+            <div class="feat">
+              <h4>A parent, four weeks after diagnosis</h4>
+              <p>Wants to know what other parents did, what a closed loop actually is, and whether the thing they read
+                at 2 a.m. is real. Needs plain language and a clear line between story and evidence.</p>
+            </div>
+            <div class="feat">
+              <h4>An adult with T1D choosing hardware</h4>
+              <p>Wants to compare a pump against their CGM and phone, know what is approved in their country, and follow
+                what's coming. Needs specs with sources, not marketing copy.</p>
+            </div>
+            <div class="feat">
+              <h4>An informed follower of the field</h4>
+              <p>Clinician, researcher, advocate or the extremely online patient. Wants trials, preprints, filings and
+                registry data without wading through supplement ads.</p>
+            </div>
+            <p style="font-size:14px;color:var(--muted);margin-top:14px"><b>Not in the MVP audience:</b> clinicians
+              managing patients in-app, and anyone expecting live glucose data.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Boundaries</span>
+          <h2>Explicit non-goals</h2>
+        </div>
+        <p class="sec-sub">Written down so they can be pointed at when week six gets tempting. Each of these is a
+          plausible next quarter, not this one.</p>
+        <div class="grid g3">
+          <div class="card">
+            <h4>No health data</h4>
+            <p style="color:var(--muted);font-size:14px;margin:6px 0 0">No CGM or pump uploads, no Nightscout sync, no
+              glucose or dosing records. This keeps the platform out of medical-device and health-data territory for the
+              MVP.</p>
+          </div>
+          <div class="card">
+            <h4>No dosing guidance</h4>
+            <p style="color:var(--muted);font-size:14px;margin:6px 0 0">No calculators, correction factors or basal
+              suggestions. Any user content drifting that way triggers a safety interstitial.</p>
+          </div>
+          <div class="card">
+            <h4>No native app</h4>
+            <p style="color:var(--muted);font-size:14px;margin:6px 0 0">Responsive web only. A PWA manifest is the
+              ceiling.</p>
+          </div>
+          <div class="card">
+            <h4>No forums or DMs</h4>
+            <p style="color:var(--muted);font-size:14px;margin:6px 0 0">Comments on stories only. Private messaging
+              multiplies the moderation surface far beyond one person's capacity.</p>
+          </div>
+          <div class="card">
+            <h4>No i18n</h4>
+            <p style="color:var(--muted);font-size:14px;margin:6px 0 0">English only, but content and URL schemas are
+              designed so locales can be added without a migration.</p>
+          </div>
+          <div class="card">
+            <h4>No payments</h4>
+            <p style="color:var(--muted);font-size:14px;margin:6px 0 0">No subscriptions, donations or ads. Revenue is a
+              post-launch conversation.</p>
+          </div>
+          <div class="card">
+            <h4>No trained models</h4>
+            <p style="color:var(--muted);font-size:14px;margin:6px 0 0">Classification is rules plus embeddings plus an
+              LLM call behind an editor's approval. Nothing bespoke is trained.</p>
+          </div>
+          <div class="card">
+            <h4>No full-text reproduction</h4>
+            <p style="color:var(--muted);font-size:14px;margin:6px 0 0">Aggregated items store a headline, a short
+              excerpt and a canonical link. Never the article body.</p>
+          </div>
+          <div class="card">
+            <h4>No microservices</h4>
+            <p style="color:var(--muted);font-size:14px;margin:6px 0 0">One Rust binary with two run modes: API server
+              and ingestion worker. One Postgres.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== FEATURES =============== -->
+    <section class="panel" id="p-features" role="tabpanel" aria-labelledby="t-features" hidden>
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Feature by feature</span>
+          <h2>What each module does</h2>
+        </div>
+        <p class="sec-sub">Eight modules. Each feature carries an ID used throughout the backend spec, a priority, and
+          the sprint it lands in. Acceptance criteria are written as the checks you run before calling it done.</p>
+
+        <!-- M1 -->
+        <article class="mod">
+          <header><span class="modid">M1</span>
+            <h3>Accounts &amp; identity</h3><span class="pill">Week 1</span>
+          </header>
+          <div class="mod-body">
+            <div class="feat">
+              <h4><span class="fid">F-01</span>Email and password sign-up <span class="pill must">Must</span></h4>
+              <p>Argon2id hashing, minimum-length policy with a breach-list check, no security questions, no forced
+                rotation.</p>
+              <ul class="accept">
+                <li>Password never logged, never in a GraphQL error</li>
+                <li>Timing-equal response for existing vs unknown email</li>
+                <li>Signup rate-limited per IP and per email domain</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-02</span>Email verification and password reset <span class="pill must">Must</span>
+              </h4>
+              <p>Single-use tokens with a 30-minute expiry, sent through a transactional provider. Unverified accounts
+                can read but not publish.</p>
+              <ul class="accept">
+                <li>Token invalidated on use and on password change</li>
+                <li>Reset does not reveal whether the address exists</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-03</span>Sessions and device list <span class="pill must">Must</span></h4>
+              <p>Server-side sessions in a signed, HttpOnly, SameSite=Lax cookie. Users see active sessions and can end
+                all of them.</p>
+              <ul class="accept">
+                <li>Session rotates on privilege change</li>
+                <li>"Sign out everywhere" kills tokens within one request cycle</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-04</span>Public profile <span class="pill must">Must</span></h4>
+              <p>Handle, display name, avatar, short bio, self-declared connection to T1D (living with, parent, partner,
+                caregiver, clinician, researcher), optional diagnosis year, optional country.</p>
+              <ul class="accept">
+                <li>Every optional field defaults to hidden</li>
+                <li>Handle is immutable after first publish, display name is not</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-05</span>Pseudonymity controls <span class="pill must">Must</span></h4>
+              <p>A person can write under a handle with no other identifying field visible. Diagnosis year and country
+                are opt-in per field, not per profile.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-06</span>Export and delete account <span class="pill must">Must</span></h4>
+              <p>JSON export of profile, stories, comments and saved items. Deletion anonymises authored content by
+                default, with a hard-delete option.</p>
+              <ul class="accept">
+                <li>Export delivered within the session, not by email</li>
+                <li>Deletion completes in under 30 days and is logged</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-07</span>Roles <span class="pill must">Must</span></h4>
+              <p>Reader, author, editor, admin. Roles gate GraphQL fields through guards, not through the frontend.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-08</span>Social sign-in <span class="pill out">Post-MVP</span></h4>
+              <p>Google and Apple. Deferred: adds an account-linking edge case set that is not worth a week-one day.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- M2 -->
+        <article class="mod">
+          <header><span class="modid">M2</span>
+            <h3>Stories</h3><span class="pill">Week 2, comments in Week 7</span>
+          </header>
+          <div class="mod-body">
+            <div class="feat">
+              <h4><span class="fid">F-10</span>Markdown editor with autosave <span class="pill must">Must</span></h4>
+              <p>A plain writing surface with live preview, autosave every few seconds to a draft revision, and recovery
+                after a crash. Restricted Markdown: no raw HTML, no scripts, no iframes except an allowlist.</p>
+              <ul class="accept">
+                <li>Draft survives a hard browser kill</li>
+                <li>Sanitiser runs server-side on render, not only on save</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-11</span>Images <span class="pill must">Must</span></h4>
+              <p>Cover image and inline images to S3-compatible storage. Server-side resize to three widths, WebP
+                output, EXIF stripped including GPS.</p>
+              <ul class="accept">
+                <li>Uploads capped by size and MIME sniffed, not trusted by extension</li>
+                <li>Alt text required before publish</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-12</span>Publish, unpublish, slug <span class="pill must">Must</span></h4>
+              <p>Stable slug reserved at first publish, redirect kept if the title changes. Reading time computed at
+                publish.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-13</span>Taxonomy <span class="pill must">Must</span></h4>
+              <p>Three axes: audience (newly diagnosed, parent, teen, adult, partner), topic (school, sleep, travel,
+                burnout, tech, insurance, exercise, food), and referenced devices. Curated vocabulary, not free tags.
+              </p>
+              <ul class="accept">
+                <li>Every story needs at least one audience and one topic</li>
+                <li>Device tags resolve to real device records, no orphans</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-14</span>Content warnings <span class="pill must">Must</span></h4>
+              <p>Author-set flags for DKA, hospitalisation, disordered eating, diabetes distress and bereavement.
+                Flagged stories show an interstitial with a skip link and, where relevant, support signposting.</p>
+              <ul class="accept">
+                <li>Interstitial is server-rendered, so it survives with JS off</li>
+                <li>Flag also suppresses the story from the front-page carousel</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-15</span>Series <span class="pill should">Should</span></h4>
+              <p>Ordered multi-part stories with previous/next navigation. Cheap to add once slugs exist.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-16</span>"This helped me" <span class="pill should">Should</span></h4>
+              <p>One reaction type only, deliberately. No downvote, no like count race. Sorted feeds use it as a weak
+                signal.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-17</span>Comments <span class="pill should">Should</span></h4>
+              <p>One level of threading, Markdown-lite, editable for 15 minutes, author can close comments on their own
+                story.</p>
+              <ul class="accept">
+                <li>New accounts throttled to a low daily comment count</li>
+                <li>Links in comments limited and nofollow</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-18</span>Report content <span class="pill must">Must</span></h4>
+              <p>Any reader can report a story or comment with a reason code. Reports land in the moderation queue with
+                the reported content snapshotted.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-19</span>Reading list <span class="pill should">Should</span></h4>
+              <p>Save stories, news items and devices into one list with a filter by type.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-20</span>Author dashboard <span class="pill could">Could</span></h4>
+              <p>Views, reactions and comments per story. Aggregate counts only — no per-reader analytics, ever.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-21</span>Outbound RSS <span class="pill should">Should</span></h4>
+              <p>Full-content feed for stories, summary feed for Signal. Cheap, and it makes the platform a good citizen
+                of the ecosystem it aggregates from.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- M3 -->
+        <article class="mod">
+          <header><span class="modid">M3</span>
+            <h3>Signal — news aggregator</h3><span class="pill">Weeks 3–4</span>
+          </header>
+          <div class="mod-body">
+            <div class="feat">
+              <h4><span class="fid">F-30</span>Source registry <span class="pill must">Must</span></h4>
+              <p>Every source is a database row: kind (RSS, Atom, JSON Feed, REST API, GitHub releases, scraped page),
+                endpoint, poll cadence, trust tier, licence note, default category, active flag. Sources are added
+                through an admin form, never in code.</p>
+              <ul class="accept">
+                <li>Adding a working source takes under two minutes with no deploy</li>
+                <li>Disabling a source stops fetches within one scheduler tick</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-31</span>Polite fetcher <span class="pill must">Must</span></h4>
+              <p>Conditional GET with ETag and Last-Modified, per-host concurrency limit, exponential backoff on
+                failure, a descriptive User-Agent with a contact URL, and robots.txt respected for anything scraped.</p>
+              <ul class="accept">
+                <li>Unchanged feeds cost a 304 and no parsing</li>
+                <li>Five consecutive failures auto-pause the source and alert</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-32</span>Adapters <span class="pill must">Must</span></h4>
+              <p>A common trait with implementations for generic feeds plus purpose-built adapters for PubMed, Europe
+                PMC, ClinicalTrials.gov, openFDA, Crossref and GitHub releases. Each adapter emits the same normalised
+                item.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-33</span>Canonicalisation and dedup <span class="pill must">Must</span></h4>
+              <p>Strip tracking parameters, resolve redirects, prefer DOI or PMID or NCT ID as the identity key, and
+                fall back to a SimHash over title plus lede. The same trial covered by six outlets becomes one item with
+                six mentions.</p>
+              <ul class="accept">
+                <li>A story syndicated to three sites produces one card</li>
+                <li>Merging is reversible from the admin console</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-34</span>Classification <span class="pill must">Must</span></h4>
+              <p>Nine categories: CGM, pumps, AID and algorithms, insulin and drugs, cell and immune therapy, screening
+                and prevention, access and policy, open source and DIY, data and apps. Keyword rules first, embeddings
+                for the ambiguous remainder, editor confirms.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-35</span>Entity tagging <span class="pill should">Should</span></h4>
+              <p>Link items to manufacturers, devices, trial registry IDs and journals so a device page can show its own
+                news.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-36</span>Editorial queue <span class="pill must">Must</span></h4>
+              <p>Nothing reaches the public feed unreviewed. Editors approve, rewrite the two-sentence summary, retag,
+                pin or bin. Bulk actions and keyboard shortcuts, because this is a daily chore.</p>
+              <ul class="accept">
+                <li>Triaging 50 items takes under ten minutes</li>
+                <li>Every action is written to an audit log with the actor</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-37</span>Feed UI <span class="pill must">Must</span></h4>
+              <p>Cursor-paginated list with filters by category, source type and date, plus a research-only toggle.
+                Server-rendered first page for SEO.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-38</span>Item page <span class="pill must">Must</span></h4>
+              <p>Headline, editor's summary, source and date, tags, other outlets covering the same thing, and a
+                prominent link out to the original.</p>
+              <ul class="accept">
+                <li>Stored excerpt never exceeds 240 characters</li>
+                <li>Canonical link is a plain outbound anchor, not a framed reader</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-39</span>Evidence badges <span class="pill should">Should</span></h4>
+              <p>For research items: study design, participant count, phase, registry identifier, and whether it is
+                peer-reviewed, a preprint, a conference abstract or a press release. This is the single most useful
+                thing the product can do for a frightened parent.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-40</span>Weekly digest <span class="pill should">Should</span></h4>
+              <p>One email, Thursday, top items by category plus one story. Double opt-in, one-click unsubscribe.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-41</span>Saved items <span class="pill should">Should</span></h4>
+              <p>Shares the reading list from F-19.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-42</span>Community submissions <span class="pill could">Could</span></h4>
+              <p>Readers submit a URL; it enters the same editorial queue marked as user-submitted.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-43</span>Source health dashboard <span class="pill must">Must</span></h4>
+              <p>Per source: last successful fetch, items in the last 30 days, error rate, average latency, and current
+                backoff state. Without this the pipeline rots invisibly.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- M4 -->
+        <article class="mod">
+          <header><span class="modid">M4</span>
+            <h3>Devices</h3><span class="pill">Week 5</span>
+          </header>
+          <div class="mod-body">
+            <div class="feat">
+              <h4><span class="fid">F-50</span>Device directory <span class="pill must">Must</span></h4>
+              <p>CGMs, insulin pumps, AID systems, smart pens and companion apps. Target 40–60 records at launch,
+                entered by hand — this is content work, not a scraping problem.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-51</span>Structured specs <span class="pill must">Must</span></h4>
+              <p>Typed per category: wear duration, calibration requirement, published accuracy claim, approved age
+                range, water rating, reservoir volume, tubing, control algorithm, target adjustability, phone OS
+                support, data-sharing options.</p>
+              <ul class="accept">
+                <li>Every spec field is nullable and carries its own source and date</li>
+                <li>Unknown renders as "not published", never as a blank or a zero</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-52</span>Compare up to three <span class="pill must">Must</span></h4>
+              <p>Side-by-side table with differences highlighted and a shareable URL encoding the selection.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-53</span>Compatibility matrix <span class="pill should">Should</span></h4>
+              <p>Which pump works with which sensor under which algorithm, on which phone, in which region. Modelled as
+                explicit compatibility edges with a status of supported, announced, unsupported or discontinued.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-54</span>Regional availability <span class="pill should">Should</span></h4>
+              <p>Per-country market status and regulatory route, kept deliberately coarse: available, approved but not
+                launched, in review, not available.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-55</span>Related news and stories <span class="pill should">Should</span></h4>
+              <p>Device pages pull in tagged Signal items and stories, which is what makes the directory worth
+                revisiting.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-56</span>Verification stamp <span class="pill must">Must</span></h4>
+              <p>Every record shows when it was last verified and by whom. Records past 180 days display a staleness
+                notice.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-57</span>Correction requests <span class="pill should">Should</span></h4>
+              <p>A form on every device page routing into the moderation queue with the field and the proposed source.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- M5 -->
+        <article class="mod">
+          <header><span class="modid">M5</span>
+            <h3>Numbers — interactive statistics</h3><span class="pill">Week 6</span>
+          </header>
+          <div class="mod-body">
+            <div class="feat">
+              <h4><span class="fid">F-60</span>Dataset registry <span class="pill must">Must</span></h4>
+              <p>Each dataset row records publisher, version or edition, retrieval date, licence, permitted use and the
+                transform script that produced the fact table. No chart may reference a dataset without one.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-61</span>ETL into fact tables <span class="pill must">Must</span></h4>
+              <p>Idempotent, re-runnable jobs that land raw files, normalise country codes to ISO 3166-1 alpha-3,
+                harmonise age bands, and write a single long-format observation table.</p>
+              <ul class="accept">
+                <li>Re-running a job produces an identical table</li>
+                <li>Every observation row keeps its dataset and source row reference</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-62</span>Incidence and prevalence explorer <span class="pill must">Must</span>
+              </h4>
+              <p>Filter by country, year range and age band; switch between counts and rates per 100,000; toggle
+                children-only.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-63</span>World map <span class="pill must">Must</span></h4>
+              <p>Choropleth with a year scrubber and a country drill-down. Colour scale is colour-blind safe and has a
+                table equivalent.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-64</span>Access and outcome gap <span class="pill should">Should</span></h4>
+              <p>The hardest and most important chart: estimated years of healthy life lost and undiagnosed or missing
+                people by country. Handle with visible methodology and no dramatisation.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-65</span>Technology uptake <span class="pill should">Should</span></h4>
+              <p>Share of registry populations using CGM, pumps and AID over time, by age band, where registries publish
+                it.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-66</span>Outcome distributions <span class="pill should">Should</span></h4>
+              <p>HbA1c and time-in-range distributions by registry and age band, as distributions rather than single
+                means.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-67</span>Compare countries <span class="pill should">Should</span></h4>
+              <p>Pin up to five countries onto one time series with a shareable URL.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-68</span>Export and cite <span class="pill must">Must</span></h4>
+              <p>Every chart offers PNG, the underlying CSV, and a formatted citation for the original dataset —
+                pointing at the publisher, not at InRange.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-69</span>Methodology panel <span class="pill must">Must</span></h4>
+              <p>Per chart: what is being counted, who collected it, known gaps, why countries differ, and what the
+                numbers cannot tell you. Written once per chart, non-negotiable.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- M6 -->
+        <article class="mod">
+          <header><span class="modid">M6</span>
+            <h3>Search &amp; discovery</h3><span class="pill">Week 7</span>
+          </header>
+          <div class="mod-body">
+            <div class="feat">
+              <h4><span class="fid">F-70</span>Global search <span class="pill must">Must</span></h4>
+              <p>One box across stories, news items and devices using Postgres full-text search with trigram fallback
+                for typos. Results grouped by type with per-type filters.</p>
+              <ul class="accept">
+                <li>Search returns in under 200 ms at 100k items</li>
+                <li>Ranking is deterministic and explainable, not a black box</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-71</span>Topic hubs <span class="pill should">Should</span></h4>
+              <p>A landing page per major tag combining stories, news and devices — the main SEO surface and the natural
+                entry point for a searching parent.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-72</span>Related content <span class="pill could">Could</span></h4>
+              <p>Tag-overlap recommendations at the foot of every page. No personalisation.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- M7 -->
+        <article class="mod">
+          <header><span class="modid">M7</span>
+            <h3>Moderation &amp; trust</h3><span class="pill">Weeks 1 and 7</span>
+          </header>
+          <div class="mod-body">
+            <div class="feat">
+              <h4><span class="fid">F-73</span>Moderation console <span class="pill must">Must</span></h4>
+              <p>Unified queue for reports, first-time author posts, comments from new accounts and correction requests.
+                Actions: approve, hide, unpublish, warn, suspend. Every action logged with actor, reason and timestamp.
+              </p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-74</span>Abuse controls <span class="pill must">Must</span></h4>
+              <p>Per-IP and per-account rate limits, new-account posting throttles, link caps, a domain blocklist, and
+                honeypot fields on public forms.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-75</span>Safety interstitial <span class="pill must">Must</span></h4>
+              <p>Any content touching dosing, unproven cures, or crisis topics carries a standing notice that InRange is
+                not medical advice, with links to the person's own care team and recognised support organisations.</p>
+              <ul class="accept">
+                <li>Notice appears on the page, not only in the footer</li>
+                <li>Editorial policy page states what will be removed and why</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-76</span>In-app notifications <span class="pill could">Could</span></h4>
+              <p>Replies, approvals, moderation outcomes. In-app only; email notifications are post-MVP.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- M8 -->
+        <article class="mod">
+          <header><span class="modid">M8</span>
+            <h3>Platform &amp; compliance</h3><span class="pill">Weeks 1 and 8</span>
+          </header>
+          <div class="mod-body">
+            <div class="feat">
+              <h4><span class="fid">F-80</span>SEO and structured data <span class="pill must">Must</span></h4>
+              <p>Server-rendered public pages, sitemaps per content type, Open Graph images generated at the edge, and
+                JSON-LD for Article, Dataset and FAQ.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-81</span>Accessibility to WCAG 2.2 AA <span class="pill must">Must</span></h4>
+              <p>Keyboard paths for the editor and the moderation console, contrast checked against the palette, chart
+                data available as a table, motion reduced on request.</p>
+              <ul class="accept">
+                <li>Every chart has a "view as table" control</li>
+                <li>Editor is fully operable without a mouse</li>
+              </ul>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-82</span>Privacy and GDPR posture <span class="pill must">Must</span></h4>
+              <p>EU hosting, cookieless analytics, no third-party trackers, a records-of-processing entry, a
+                data-protection notice written in plain language, and no special-category data collected beyond what a
+                user volunteers in their own prose.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-83</span>Observability <span class="pill must">Must</span></h4>
+              <p>Structured JSON logs with request IDs, traces on GraphQL resolvers and ingestion runs, error reporting,
+                uptime checks and a status page.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-84</span>Static page editor <span class="pill should">Should</span></h4>
+              <p>Admin-editable Markdown for About, Editorial policy, Safety, Privacy and Contact so copy changes don't
+                need a deploy.</p>
+            </div>
+            <div class="feat">
+              <h4><span class="fid">F-85</span>Backups and restore drill <span class="pill must">Must</span></h4>
+              <p>Nightly Postgres backups with point-in-time recovery, plus one rehearsed restore into a scratch
+                environment before launch. An untested backup is not a backup.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =============== REGISTRY =============== -->
+    <section class="panel" id="p-registry" role="tabpanel" aria-labelledby="t-registry" hidden>
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Complete registry</span>
+          <h2>All features</h2>
+        </div>
+        <p class="sec-sub">Every feature in one table, filterable. <span class="mono">S</span> ≈ under half a day, <span
+            class="mono">M</span> ≈ one to two days, <span class="mono">L</span> ≈ three days or more. Effort assumes
+          one developer already fluent in the stack.</p>
+
+        <div class="filters" id="regfilters">
+          <button data-f="all" aria-pressed="true">All</button>
+          <button data-f="must" aria-pressed="false">Must</button>
+          <button data-f="should" aria-pressed="false">Should</button>
+          <button data-f="could" aria-pressed="false">Could</button>
+          <button data-f="out" aria-pressed="false">Post-MVP</button>
+          <span class="count" id="regcount"></span>
+        </div>
+
+        <div class="tablewrap">
+          <table id="regtable">
+            <caption>Feature registry — IDs are stable and referenced by the backend specification.</caption>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Feature</th>
+                <th>Module</th>
+                <th>Priority</th>
+                <th>Sprint</th>
+                <th>Surface</th>
+                <th>Effort</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-p="must">
+                <td class="id">F-01</td>
+                <td>Email and password sign-up</td>
+                <td>M1 Accounts</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W1</td>
+                <td>API + Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-02</td>
+                <td>Email verification and password reset</td>
+                <td>M1 Accounts</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W1</td>
+                <td>API + Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-03</td>
+                <td>Sessions and device list</td>
+                <td>M1 Accounts</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W1</td>
+                <td>API + Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-04</td>
+                <td>Public profile</td>
+                <td>M1 Accounts</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W1</td>
+                <td>API + Web</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-05</td>
+                <td>Pseudonymity controls</td>
+                <td>M1 Accounts</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W1</td>
+                <td>API + Web</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-06</td>
+                <td>Export and delete account</td>
+                <td>M1 Accounts</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W8</td>
+                <td>API + Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-07</td>
+                <td>Roles and guards</td>
+                <td>M1 Accounts</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W1</td>
+                <td>API</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="out">
+                <td class="id">F-08</td>
+                <td>Social sign-in (Google, Apple)</td>
+                <td>M1 Accounts</td>
+                <td><span class="pill out">Post-MVP</span></td>
+                <td>—</td>
+                <td>API + Web</td>
+                <td>M</td>
+              </tr>
+
+              <tr data-p="must">
+                <td class="id">F-10</td>
+                <td>Markdown editor with autosave</td>
+                <td>M2 Stories</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W2</td>
+                <td>Web</td>
+                <td>L</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-11</td>
+                <td>Image upload, resize, EXIF strip</td>
+                <td>M2 Stories</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W2</td>
+                <td>API + Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-12</td>
+                <td>Publish, unpublish, stable slug</td>
+                <td>M2 Stories</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W2</td>
+                <td>API + Web</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-13</td>
+                <td>Curated taxonomy</td>
+                <td>M2 Stories</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W2</td>
+                <td>API + Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-14</td>
+                <td>Content warnings and interstitial</td>
+                <td>M2 Stories</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W2</td>
+                <td>API + Web</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-15</td>
+                <td>Series (multi-part stories)</td>
+                <td>M2 Stories</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W7</td>
+                <td>API + Web</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-16</td>
+                <td>"This helped me" reaction</td>
+                <td>M2 Stories</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W7</td>
+                <td>API + Web</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-17</td>
+                <td>Comments, one level of threading</td>
+                <td>M2 Stories</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W7</td>
+                <td>API + Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-18</td>
+                <td>Report content</td>
+                <td>M2 Stories</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W7</td>
+                <td>API + Web</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-19</td>
+                <td>Reading list</td>
+                <td>M2 Stories</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W7</td>
+                <td>API + Web</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="could">
+                <td class="id">F-20</td>
+                <td>Author dashboard</td>
+                <td>M2 Stories</td>
+                <td><span class="pill could">Could</span></td>
+                <td>W7</td>
+                <td>API + Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-21</td>
+                <td>Outbound RSS feeds</td>
+                <td>M2 Stories</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W8</td>
+                <td>API</td>
+                <td>S</td>
+              </tr>
+
+              <tr data-p="must">
+                <td class="id">F-30</td>
+                <td>Source registry</td>
+                <td>M3 Signal</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W3</td>
+                <td>API + Admin</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-31</td>
+                <td>Polite conditional fetcher</td>
+                <td>M3 Signal</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W3</td>
+                <td>Worker</td>
+                <td>L</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-32</td>
+                <td>Feed and API adapters</td>
+                <td>M3 Signal</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W3</td>
+                <td>Worker</td>
+                <td>L</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-33</td>
+                <td>Canonicalisation and dedup</td>
+                <td>M3 Signal</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W3</td>
+                <td>Worker</td>
+                <td>L</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-34</td>
+                <td>Category classification</td>
+                <td>M3 Signal</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W3</td>
+                <td>Worker</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-35</td>
+                <td>Entity tagging</td>
+                <td>M3 Signal</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W3</td>
+                <td>Worker</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-36</td>
+                <td>Editorial queue</td>
+                <td>M3 Signal</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W4</td>
+                <td>Admin</td>
+                <td>L</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-37</td>
+                <td>Signal feed UI with filters</td>
+                <td>M3 Signal</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W4</td>
+                <td>Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-38</td>
+                <td>Item page with outbound link</td>
+                <td>M3 Signal</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W4</td>
+                <td>Web</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-39</td>
+                <td>Evidence badges</td>
+                <td>M3 Signal</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W4</td>
+                <td>API + Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-40</td>
+                <td>Weekly digest email</td>
+                <td>M3 Signal</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W8</td>
+                <td>Worker</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-41</td>
+                <td>Save news items</td>
+                <td>M3 Signal</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W4</td>
+                <td>API + Web</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="could">
+                <td class="id">F-42</td>
+                <td>Community link submissions</td>
+                <td>M3 Signal</td>
+                <td><span class="pill could">Could</span></td>
+                <td>W7</td>
+                <td>API + Web</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-43</td>
+                <td>Source health dashboard</td>
+                <td>M3 Signal</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W3</td>
+                <td>Admin</td>
+                <td>M</td>
+              </tr>
+
+              <tr data-p="must">
+                <td class="id">F-50</td>
+                <td>Device directory</td>
+                <td>M4 Devices</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W5</td>
+                <td>API + Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-51</td>
+                <td>Typed spec model per category</td>
+                <td>M4 Devices</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W5</td>
+                <td>API</td>
+                <td>L</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-52</td>
+                <td>Compare up to three devices</td>
+                <td>M4 Devices</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W5</td>
+                <td>Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-53</td>
+                <td>Compatibility matrix</td>
+                <td>M4 Devices</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W5</td>
+                <td>API + Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-54</td>
+                <td>Regional availability</td>
+                <td>M4 Devices</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W5</td>
+                <td>API + Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-55</td>
+                <td>Related news and stories</td>
+                <td>M4 Devices</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W5</td>
+                <td>API + Web</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-56</td>
+                <td>Per-field source and verification stamp</td>
+                <td>M4 Devices</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W5</td>
+                <td>API + Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-57</td>
+                <td>Correction request form</td>
+                <td>M4 Devices</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W5</td>
+                <td>API + Web</td>
+                <td>S</td>
+              </tr>
+
+              <tr data-p="must">
+                <td class="id">F-60</td>
+                <td>Dataset registry with licences</td>
+                <td>M5 Numbers</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W6</td>
+                <td>API</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-61</td>
+                <td>ETL into observation fact table</td>
+                <td>M5 Numbers</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W6</td>
+                <td>Worker</td>
+                <td>L</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-62</td>
+                <td>Incidence and prevalence explorer</td>
+                <td>M5 Numbers</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W6</td>
+                <td>Web</td>
+                <td>L</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-63</td>
+                <td>World choropleth with year scrubber</td>
+                <td>M5 Numbers</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W6</td>
+                <td>Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-64</td>
+                <td>Access and outcome gap view</td>
+                <td>M5 Numbers</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W6</td>
+                <td>Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-65</td>
+                <td>Technology uptake trends</td>
+                <td>M5 Numbers</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W6</td>
+                <td>Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-66</td>
+                <td>Outcome distributions by registry</td>
+                <td>M5 Numbers</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W6</td>
+                <td>Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-67</td>
+                <td>Compare countries mode</td>
+                <td>M5 Numbers</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W6</td>
+                <td>Web</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-68</td>
+                <td>Chart export: PNG, CSV, citation</td>
+                <td>M5 Numbers</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W6</td>
+                <td>Web</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-69</td>
+                <td>Methodology and caveats panel</td>
+                <td>M5 Numbers</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W6</td>
+                <td>Web</td>
+                <td>S</td>
+              </tr>
+
+              <tr data-p="must">
+                <td class="id">F-70</td>
+                <td>Global search across all types</td>
+                <td>M6 Search</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W7</td>
+                <td>API + Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-71</td>
+                <td>Topic hub pages</td>
+                <td>M6 Search</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W7</td>
+                <td>Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="could">
+                <td class="id">F-72</td>
+                <td>Related content by tag overlap</td>
+                <td>M6 Search</td>
+                <td><span class="pill could">Could</span></td>
+                <td>W7</td>
+                <td>API</td>
+                <td>S</td>
+              </tr>
+
+              <tr data-p="must">
+                <td class="id">F-73</td>
+                <td>Moderation console and audit log</td>
+                <td>M7 Trust</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W7</td>
+                <td>Admin</td>
+                <td>L</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-74</td>
+                <td>Abuse and rate-limit controls</td>
+                <td>M7 Trust</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W7</td>
+                <td>API</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-75</td>
+                <td>Safety notice and editorial policy</td>
+                <td>M7 Trust</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W1</td>
+                <td>Web</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="could">
+                <td class="id">F-76</td>
+                <td>In-app notifications</td>
+                <td>M7 Trust</td>
+                <td><span class="pill could">Could</span></td>
+                <td>W7</td>
+                <td>API + Web</td>
+                <td>M</td>
+              </tr>
+
+              <tr data-p="must">
+                <td class="id">F-80</td>
+                <td>SEO, sitemaps, OG images, JSON-LD</td>
+                <td>M8 Platform</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W8</td>
+                <td>Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-81</td>
+                <td>WCAG 2.2 AA pass</td>
+                <td>M8 Platform</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W8</td>
+                <td>Web</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-82</td>
+                <td>Privacy and GDPR posture</td>
+                <td>M8 Platform</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W8</td>
+                <td>Ops</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-83</td>
+                <td>Logs, traces, errors, uptime</td>
+                <td>M8 Platform</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W1</td>
+                <td>Ops</td>
+                <td>M</td>
+              </tr>
+              <tr data-p="should">
+                <td class="id">F-84</td>
+                <td>Admin-editable static pages</td>
+                <td>M8 Platform</td>
+                <td><span class="pill should">Should</span></td>
+                <td>W8</td>
+                <td>Admin</td>
+                <td>S</td>
+              </tr>
+              <tr data-p="must">
+                <td class="id">F-85</td>
+                <td>Backups and a rehearsed restore</td>
+                <td>M8 Platform</td>
+                <td><span class="pill must">Must</span></td>
+                <td>W8</td>
+                <td>Ops</td>
+                <td>S</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== ROADMAP =============== -->
+    <section class="panel" id="p-roadmap" role="tabpanel" aria-labelledby="t-roadmap" hidden>
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Eight one-week sprints</span>
+          <h2>Roadmap</h2>
+        </div>
+        <p class="sec-sub">Each week ends with something demonstrable in a browser. If a week's exit criteria are not
+          met by Friday, the following week's <em>Should</em> items are cut rather than the week being extended — the
+          schedule is fixed, the scope moves.</p>
+
+        <div class="note warn"><b>Standing rule</b>Deploy to production from week one. A week that ends only on
+          localhost has not ended.</div>
+
+        <article class="sprint" id="week-1">
+          <header><span class="wknum">01</span>
+            <div>
+              <h3>Foundations and identity</h3>
+              <p>Nothing user-facing except sign-up, but every later week depends on this being right. Resist the urge
+                to start on stories.</p>
+            </div>
+          </header>
+          <div class="sprint-body">
+            <div class="col">
+              <h5>Backend</h5>
+              <ul>
+                <li>Cargo workspace, axum + async-graphql skeleton</li>
+                <li>Postgres, sqlx migrations, connection pool</li>
+                <li>Config, typed errors, request IDs</li>
+                <li>Argon2id auth, sessions, roles (F-01 → F-05, F-07)</li>
+                <li>Tracing, health endpoints (F-83)</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h5>Frontend</h5>
+              <ul>
+                <li>Next.js App Router, TypeScript strict</li>
+                <li>Tailwind theme from the design tokens</li>
+                <li>GraphQL codegen wired to the Rust schema</li>
+                <li>Auth pages, layout shell, nav</li>
+                <li>Safety notice and editorial policy pages (F-75)</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h5>Ops</h5>
+              <ul>
+                <li>GitHub Actions: fmt, clippy, test, build</li>
+                <li>Docker images for API and web</li>
+                <li>EU-region host, managed Postgres, object storage</li>
+                <li>Staging and production environments</li>
+              </ul>
+            </div>
+          </div>
+          <div class="exit"><strong>Exit criteria</strong>A new account can be created on the production URL, verify its
+            email, sign in, edit a profile and sign out everywhere. CI blocks a merge on a clippy warning.</div>
+        </article>
+
+        <article class="sprint" id="week-2">
+          <header><span class="wknum">02</span>
+            <div>
+              <h3>Stories</h3>
+              <p>The first surface anyone can actually use. Writing must feel calm and safe, because the people using it
+                are describing the worst weeks of their lives.</p>
+            </div>
+          </header>
+          <div class="sprint-body">
+            <div class="col">
+              <h5>Backend</h5>
+              <ul>
+                <li>Story, revision, tag and media tables</li>
+                <li>Draft autosave mutation, publish state machine (F-10, F-12)</li>
+                <li>Server-side Markdown sanitising</li>
+                <li>Upload endpoint, resize, WebP, EXIF strip (F-11)</li>
+                <li>Taxonomy seeding and validation (F-13)</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h5>Frontend</h5>
+              <ul>
+                <li>Editor with live preview and autosave state</li>
+                <li>Tag pickers, cover image, content warnings (F-14)</li>
+                <li>Story page, author page, story index</li>
+                <li>Interstitial for flagged content</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h5>Content</h5>
+              <ul>
+                <li>Write three seed stories yourself</li>
+                <li>Recruit two beta writers for week 4</li>
+                <li>Draft the contributor guidelines</li>
+              </ul>
+            </div>
+          </div>
+          <div class="exit"><strong>Exit criteria</strong>A non-technical writer drafts, saves, tags, adds an image and
+            publishes a story without help, and the published page scores well on Lighthouse SEO and accessibility.
+          </div>
+        </article>
+
+        <article class="sprint risk" id="week-3">
+          <header><span class="wknum">03</span>
+            <div>
+              <h3>Ingestion engine <span class="pill"
+                  style="border-color:#EFD5A6;background:var(--high-soft);color:#8A5B12">above range</span></h3>
+              <p>The hardest week. Every source misbehaves differently. Budget the whole week for the pipeline and none
+                of it for UI, and have the cut list ready before Monday.</p>
+            </div>
+          </header>
+          <div class="sprint-body">
+            <div class="col">
+              <h5>Worker</h5>
+              <ul>
+                <li>Scheduler, job table, per-host limiter (F-31)</li>
+                <li>Conditional GET with ETag and Last-Modified</li>
+                <li>Generic RSS/Atom/JSON Feed adapter (F-32)</li>
+                <li>API adapters: PubMed, Europe PMC, ClinicalTrials.gov, openFDA, Crossref, GitHub releases</li>
+                <li>Canonical URL, DOI/PMID/NCT identity, SimHash dedup (F-33)</li>
+                <li>Rule-based classifier plus embedding fallback (F-34)</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h5>Backend</h5>
+              <ul>
+                <li>Source registry and admin mutations (F-30)</li>
+                <li>Item, mention and entity tables (F-35)</li>
+                <li>Fetch-run metrics and health view (F-43)</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h5>Cut list, prepared in advance</h5>
+              <ul>
+                <li>Drop embedding classification, ship rules only</li>
+                <li>Drop Crossref and GitHub adapters to week 4</li>
+                <li>Drop entity tagging (F-35) entirely</li>
+              </ul>
+            </div>
+          </div>
+          <div class="exit"><strong>Exit criteria</strong>Thirty sources poll on schedule, a syndicated story collapses
+            into one item with several mentions, an intentionally broken source auto-pauses and appears in the health
+            view, and a second run of the same feed writes nothing new.</div>
+        </article>
+
+        <article class="sprint" id="week-4">
+          <header><span class="wknum">04</span>
+            <div>
+              <h3>Signal UI and editorial workflow</h3>
+              <p>Turn the pipeline into something a reader wants and an editor can run in ten minutes a day.</p>
+            </div>
+          </header>
+          <div class="sprint-body">
+            <div class="col">
+              <h5>Backend</h5>
+              <ul>
+                <li>Relay-style cursor pagination on items</li>
+                <li>Filter and sort arguments, dataloaders</li>
+                <li>Approve, edit-summary, pin, hide mutations (F-36)</li>
+                <li>Evidence metadata fields (F-39)</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h5>Frontend</h5>
+              <ul>
+                <li>Feed with category and type filters (F-37)</li>
+                <li>Item page with mentions and outbound link (F-38)</li>
+                <li>Editorial queue with keyboard shortcuts and bulk actions</li>
+                <li>Save to reading list (F-41)</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h5>Content</h5>
+              <ul>
+                <li>Backfill 30 days and triage it as a real dress rehearsal</li>
+                <li>Write the summary style guide</li>
+                <li>Open the beta to the two recruited writers</li>
+              </ul>
+            </div>
+          </div>
+          <div class="exit"><strong>Exit criteria</strong>A day's queue is triaged in under ten minutes, the public feed
+            shows only approved items, and every published card carries a source, a date and a working outbound link.
+          </div>
+        </article>
+
+        <article class="sprint" id="week-5">
+          <header><span class="wknum">05</span>
+            <div>
+              <h3>Device directory</h3>
+              <p>The most link-worthy part of the product and the most data-entry-heavy. The schema is the engineering
+                work; the records are evening work.</p>
+            </div>
+          </header>
+          <div class="sprint-body">
+            <div class="col">
+              <h5>Backend</h5>
+              <ul>
+                <li>Device, spec-field, source-citation and compatibility tables (F-51, F-53)</li>
+                <li>Per-field provenance and verification dates (F-56)</li>
+                <li>Regional availability model (F-54)</li>
+                <li>Correction request mutation (F-57)</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h5>Frontend</h5>
+              <ul>
+                <li>Directory with category and region filters (F-50)</li>
+                <li>Device page with sourced spec table</li>
+                <li>Compare view for up to three, shareable URL (F-52)</li>
+                <li>Related news and stories rail (F-55)</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h5>Content</h5>
+              <ul>
+                <li>Enter 40+ devices with citations</li>
+                <li>Photograph or source licensed device imagery</li>
+                <li>Write the verification policy</li>
+              </ul>
+            </div>
+          </div>
+          <div class="exit"><strong>Exit criteria</strong>Three devices compare side by side with differences
+            highlighted, every visible spec value resolves to a citation, and no record is missing a verification date.
+          </div>
+        </article>
+
+        <article class="sprint risk" id="week-6">
+          <header><span class="wknum">06</span>
+            <div>
+              <h3>Numbers <span class="pill"
+                  style="border-color:#EFD5A6;background:var(--high-soft);color:#8A5B12">above range</span></h3>
+              <p>The second overrun week. Data wrangling always takes longer than charting, and the methodology writing
+                is real work that cannot be skipped.</p>
+            </div>
+          </header>
+          <div class="sprint-body">
+            <div class="col">
+              <h5>Data</h5>
+              <ul>
+                <li>Dataset registry with licences (F-60)</li>
+                <li>ETL for two datasets minimum, idempotent (F-61)</li>
+                <li>Country and age-band harmonisation</li>
+                <li>Materialised views for chart queries</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h5>Frontend</h5>
+              <ul>
+                <li>Incidence and prevalence explorer (F-62)</li>
+                <li>Choropleth with year scrubber (F-63)</li>
+                <li>Compare countries (F-67)</li>
+                <li>Export PNG, CSV, citation (F-68)</li>
+                <li>Methodology panel and data-as-table view (F-69, F-81)</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h5>Cut list, prepared in advance</h5>
+              <ul>
+                <li>Ship two datasets, not five</li>
+                <li>Drop outcome distributions (F-66)</li>
+                <li>Drop the access and outcome gap view (F-64) — it needs the most careful framing</li>
+              </ul>
+            </div>
+          </div>
+          <div class="exit"><strong>Exit criteria</strong>Two charts are live, each with a methodology panel, a CSV
+            download, a citation pointing at the original publisher, and a table equivalent that a screen reader can
+            navigate.</div>
+        </article>
+
+        <article class="sprint" id="week-7">
+          <header><span class="wknum">07</span>
+            <div>
+              <h3>Community layer, search and moderation</h3>
+              <p>Only now, with four surfaces of content in place, does it make sense to let people talk — and to
+                guarantee you can find anything.</p>
+            </div>
+          </header>
+          <div class="sprint-body">
+            <div class="col">
+              <h5>Backend</h5>
+              <ul>
+                <li>Comments, reactions, reports (F-16 → F-18)</li>
+                <li>Postgres FTS with trigram fallback (F-70)</li>
+                <li>Rate limits, throttles, blocklist (F-74)</li>
+                <li>Moderation actions with audit log (F-73)</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h5>Frontend</h5>
+              <ul>
+                <li>Comment threads and report flow</li>
+                <li>Search results grouped by type</li>
+                <li>Reading list page (F-19)</li>
+                <li>Moderation console</li>
+                <li>Topic hub pages (F-71)</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h5>Ops</h5>
+              <ul>
+                <li>Load-test search and the feed</li>
+                <li>Add indexes found by <span class="mono">EXPLAIN ANALYZE</span></li>
+                <li>Set alert thresholds</li>
+              </ul>
+            </div>
+          </div>
+          <div class="exit"><strong>Exit criteria</strong>A reported comment reaches the queue, is hidden by an editor,
+            and the action appears in the audit log. Search returns relevant results across all three content types in
+            under 200 ms.</div>
+        </article>
+
+        <article class="sprint" id="week-8">
+          <header><span class="wknum">08</span>
+            <div>
+              <h3>Hardening, compliance and launch</h3>
+              <p>No new features. This week is entirely about being safe to hand to strangers.</p>
+            </div>
+          </header>
+          <div class="sprint-body">
+            <div class="col">
+              <h5>Hardening</h5>
+              <ul>
+                <li>Accessibility audit and fixes (F-81)</li>
+                <li>Performance pass, Core Web Vitals</li>
+                <li>SEO, sitemaps, OG images, JSON-LD (F-80)</li>
+                <li>Security review: headers, CSP, dependency audit</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h5>Compliance</h5>
+              <ul>
+                <li>Privacy notice, cookie posture, processing record (F-82)</li>
+                <li>Export and delete account (F-06)</li>
+                <li>Editorial and correction policies published</li>
+                <li>Licence review of every aggregated source</li>
+              </ul>
+            </div>
+            <div class="col">
+              <h5>Launch</h5>
+              <ul>
+                <li>Backups plus a rehearsed restore (F-85)</li>
+                <li>Status page and alert routing</li>
+                <li>Weekly digest (F-40) and outbound RSS (F-21)</li>
+                <li>Seed content check, then open the doors</li>
+              </ul>
+            </div>
+          </div>
+          <div class="exit"><strong>Exit criteria</strong>A database restore has been performed successfully into a
+            scratch environment, an axe scan is clean on the ten main templates, and an external tester completes
+            sign-up, reading, saving and commenting on a phone without assistance.</div>
+        </article>
+
+        <div class="note stop"><b>If you are behind at the end of week 6</b>Cut in this order: author dashboard (F-20),
+          community submissions (F-42), notifications (F-76), topic hubs (F-71), series (F-15), compatibility matrix
+          (F-53). Never cut week 8.</div>
+      </div>
+    </section>
+
+    <!-- =============== SOURCES =============== -->
+    <section class="panel" id="p-sources" role="tabpanel" aria-labelledby="t-sources" hidden>
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Where Signal gets its material</span>
+          <h2>News sources</h2>
+        </div>
+        <p class="sec-sub">Sources are grouped by tier, because trust tier drives both the editorial badge a reader sees
+          and how aggressively the classifier trusts the item. Start with roughly 30 sources: enough for a full feed,
+          few enough to fix by hand when they break.</p>
+
+        <div class="note warn"><b>Before you add any source</b>Confirm the current feed or API endpoint at build time
+          and record its terms of use in the registry row. Publishers move feeds and change terms; treat any URL written
+          in a document as a hint, not a fact. The discovery routine in the backend spec resolves feeds from a site's
+          <span class="mono">&lt;link rel="alternate"&gt;</span> tags automatically.</div>
+
+        <!-- tier 1 -->
+        <div class="srcgroup">
+          <h3>Tier 1 — Primary research and registries</h3>
+          <p>Machine-readable, stable, generously licensed, and the backbone of the feed's credibility. Build these
+            adapters first.</p>
+          <div class="tablewrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Source</th>
+                  <th>Access</th>
+                  <th>What it gives you</th>
+                  <th>Cadence</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>PubMed / MEDLINE</td>
+                  <td class="mono">E-utilities REST at eutils.ncbi.nlm.nih.gov</td>
+                  <td>Indexed papers matching a saved T1D and diabetes-technology query</td>
+                  <td>Every 6 h</td>
+                </tr>
+                <tr>
+                  <td>Europe PMC</td>
+                  <td class="mono">REST search API</td>
+                  <td>Papers plus preprints, richer full-text availability flags, open licence</td>
+                  <td>Every 6 h</td>
+                </tr>
+                <tr>
+                  <td>medRxiv / bioRxiv</td>
+                  <td class="mono">Public details API</td>
+                  <td>Preprints, days to months ahead of journals — badge them clearly</td>
+                  <td>Daily</td>
+                </tr>
+                <tr>
+                  <td>ClinicalTrials.gov</td>
+                  <td class="mono">API v2 (JSON)</td>
+                  <td>New, updated and completed trials by condition; status changes are news</td>
+                  <td>Daily</td>
+                </tr>
+                <tr>
+                  <td>WHO ICTRP</td>
+                  <td>Bulk export</td>
+                  <td>Non-US trial registrations that never appear on ClinicalTrials.gov</td>
+                  <td>Weekly</td>
+                </tr>
+                <tr>
+                  <td>Crossref</td>
+                  <td class="mono">REST API</td>
+                  <td>DOI metadata for canonical identity and journal resolution</td>
+                  <td>On demand</td>
+                </tr>
+                <tr>
+                  <td>OpenAlex</td>
+                  <td class="mono">REST API</td>
+                  <td>Author, institution and concept enrichment; useful for "who is behind this"</td>
+                  <td>On demand</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- tier 2 -->
+        <div class="srcgroup">
+          <h3>Tier 2 — Regulatory and safety</h3>
+          <p>Slow-moving but high-signal. A clearance, a recall or a safety communication is often the real story behind
+            a week of press coverage.</p>
+          <div class="tablewrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Source</th>
+                  <th>Access</th>
+                  <th>What it gives you</th>
+                  <th>Cadence</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>US FDA — openFDA device endpoints</td>
+                  <td class="mono">api.fda.gov device APIs</td>
+                  <td>510(k) clearances, PMA approvals, recalls and enforcement, adverse-event reports</td>
+                  <td>Daily</td>
+                </tr>
+                <tr>
+                  <td>US FDA — press and safety communications</td>
+                  <td>Feed</td>
+                  <td>Approvals and safety notices in plain language</td>
+                  <td>Daily</td>
+                </tr>
+                <tr>
+                  <td>European Medicines Agency</td>
+                  <td>Feed</td>
+                  <td>Insulin and drug decisions, referrals, shortages</td>
+                  <td>Daily</td>
+                </tr>
+                <tr>
+                  <td>EUDAMED</td>
+                  <td>Portal, scraped or manual</td>
+                  <td>EU device registrations under MDR — awkward but uniquely useful in Europe</td>
+                  <td>Weekly</td>
+                </tr>
+                <tr>
+                  <td>MHRA (UK)</td>
+                  <td>Feed</td>
+                  <td>UK approvals, field safety notices</td>
+                  <td>Weekly</td>
+                </tr>
+                <tr>
+                  <td>Health Canada MDALL, TGA (Australia)</td>
+                  <td>Search portals</td>
+                  <td>Regional availability evidence for the device directory</td>
+                  <td>Monthly</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- tier 3 -->
+        <div class="srcgroup">
+          <h3>Tier 3 — Manufacturers and developers</h3>
+          <p>Treat as announcements, never as evidence. Badge them <span class="pill">company statement</span> and
+            require a second source before anything is pinned.</p>
+          <div class="tablewrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Organisations to track</th>
+                  <th>Typical access</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>CGM</td>
+                  <td>Dexcom, Abbott Diabetes Care, Medtronic Diabetes, Senseonics, Sibionics, Roche Diabetes Care</td>
+                  <td>Newsroom feed, investor-relations feed</td>
+                </tr>
+                <tr>
+                  <td>Pumps and AID</td>
+                  <td>Insulet, Tandem, Medtronic Diabetes, Ypsomed, Beta Bionics, Sequel Med Tech, Diabeloop, CamDiab,
+                    EOFlow</td>
+                  <td>Newsroom feed, press-release wire</td>
+                </tr>
+                <tr>
+                  <td>Pens, insulins and drugs</td>
+                  <td>Novo Nordisk, Eli Lilly, Sanofi, Zealand Pharma, Provention/Sanofi (teplizumab)</td>
+                  <td>Investor and press feeds</td>
+                </tr>
+                <tr>
+                  <td>Cell and immune therapy</td>
+                  <td>Vertex Pharmaceuticals, Sana Biotechnology, CRISPR Therapeutics, ViaCyte legacy programmes</td>
+                  <td>Press feeds plus their trial registrations</td>
+                </tr>
+                <tr>
+                  <td>Screening</td>
+                  <td>Programmes such as Fr1da, ASK, ELSA, INNODIA and Autoimmunity Screening for Kids</td>
+                  <td>Programme sites, often manual</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- tier 4 -->
+        <div class="srcgroup">
+          <h3>Tier 4 — Nonprofits, professional bodies and journals</h3>
+          <p>Guidelines and consensus statements change practice more than any single trial. Journal tables of contents
+            are the cheapest high-quality feed you will add.</p>
+          <div class="tablewrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Group</th>
+                  <th>Organisations</th>
+                  <th>Why it matters</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Advocacy and funding</td>
+                  <td>Breakthrough T1D (formerly JDRF), Beyond Type 1, Diabetes UK, JDRF affiliates, T1D Exchange, Life
+                    for a Child, International Diabetes Federation</td>
+                  <td>Funding announcements, position statements, community-facing explainers</td>
+                </tr>
+                <tr>
+                  <td>Professional societies</td>
+                  <td>American Diabetes Association, EASD, ISPAD, Diabetes Technology Society, ATTD</td>
+                  <td>Standards of care, consensus reports, conference output</td>
+                </tr>
+                <tr>
+                  <td>Journals (TOC feeds)</td>
+                  <td>Diabetes Care, Diabetes Technology &amp; Therapeutics, Journal of Diabetes Science and Technology,
+                    Diabetologia, The Lancet Diabetes &amp; Endocrinology, Pediatric Diabetes, Diabetes</td>
+                  <td>Peer-reviewed output filtered to the topics you actually cover</td>
+                </tr>
+                <tr>
+                  <td>Conferences</td>
+                  <td>ATTD, ADA Scientific Sessions, EASD Annual Meeting, ISPAD, Diabetes Technology Meeting</td>
+                  <td>Predictable annual spikes — schedule extra editorial capacity around them</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- tier 5 -->
+        <div class="srcgroup">
+          <h3>Tier 5 — Community media and open source</h3>
+          <p>Where the community actually reads, and where the DIY ecosystem publishes. GitHub release feeds are
+            exceptionally clean sources of real, dated, verifiable events.</p>
+          <div class="tablewrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Group</th>
+                  <th>Sources</th>
+                  <th>Access</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Community publications</td>
+                  <td>diaTribe, Beyond Type 1, Diabetes Daily, DiabetesMine on Healthline, Diabetes.co.uk</td>
+                  <td>Site feeds</td>
+                </tr>
+                <tr>
+                  <td>Trade and biotech press</td>
+                  <td>MassDevice, Medgadget, Fierce Biotech, Fierce Medtech, Endpoints News, STAT, MedTech Dive</td>
+                  <td>Site feeds; check terms, several restrict republication</td>
+                </tr>
+                <tr>
+                  <td>Open source and DIY</td>
+                  <td>Nightscout Foundation, Loop and LoopDocs, AndroidAPS, Trio, OpenAPS, xDrip+</td>
+                  <td class="mono">GitHub releases API and repository Atom feeds</td>
+                </tr>
+                <tr>
+                  <td>Regulator-adjacent open data</td>
+                  <td>National registry annual reports (Sweden NDR, DPV in Germany and Austria, SCI-Diabetes in
+                    Scotland, T1D Exchange QI)</td>
+                  <td>Manual, feeds the Numbers surface as much as Signal</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="note stop"><b>Licensing posture, applied to every tier</b>Store the headline, up to 240 characters
+          of excerpt, the publication date, the source name and the canonical URL — nothing more. The summary shown to
+          readers is written by an editor in their own words. Never mirror article bodies, never proxy images from
+          publisher servers, and honour any source that asks to be removed within one working day. This is both the
+          legal position and the reason publishers will tolerate you.</div>
+      </div>
+    </section>
+
+    <!-- =============== COLLECTION =============== -->
+    <section class="panel" id="p-collect" role="tabpanel" aria-labelledby="t-collect" hidden>
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Method</span>
+          <h2>How news, studies and data are collected</h2>
+        </div>
+        <p class="sec-sub">Nine stages, in order. Each stage is a separate, testable unit in the worker, and each writes
+          a record so a failure can be traced to a specific item and a specific run.</p>
+
+        <div class="pipe">
+          <div class="step">
+            <div class="n">STAGE 01</div>
+            <h4>Discover</h4>
+            <p>Given a homepage, resolve feeds from <span class="mono">link rel="alternate"</span>, then try
+              conventional paths, then check for a documented API. Discovery is run once when a source is added and
+              re-run monthly to catch moved feeds.</p>
+          </div>
+          <div class="step">
+            <div class="n">STAGE 02</div>
+            <h4>Fetch</h4>
+            <p>Conditional GET with stored ETag and Last-Modified, a five-second connect timeout, per-host concurrency
+              of one, jittered scheduling, exponential backoff, and a User-Agent naming the project with a contact URL.
+              Scraped sources check robots.txt first.</p>
+          </div>
+          <div class="step">
+            <div class="n">STAGE 03</div>
+            <h4>Parse</h4>
+            <p>One parser for RSS, Atom and JSON Feed; typed adapters for each API. Adapters emit the same normalised
+              struct, so everything downstream is source-agnostic.</p>
+          </div>
+          <div class="step">
+            <div class="n">STAGE 04</div>
+            <h4>Normalise</h4>
+            <p>Canonicalise the URL (strip UTM and click identifiers, resolve redirects, lower-case the host, drop
+              trailing slashes), coerce dates to UTC, decode entities, collapse whitespace, and truncate the excerpt to
+              the licensing limit at this stage rather than at render time.</p>
+          </div>
+          <div class="step">
+            <div class="n">STAGE 05</div>
+            <h4>Identify and deduplicate</h4>
+            <p>Strong identity first: DOI, PMID, NCT number, or 510(k) number. Failing that, a SimHash over the title
+              and first sentence within a 72-hour window. Matches become mentions on an existing item rather than new
+              items.</p>
+          </div>
+          <div class="step">
+            <div class="n">STAGE 06</div>
+            <h4>Classify</h4>
+            <p>Keyword and pattern rules assign a category and confidence. Anything below the confidence floor is
+              embedded and compared to category centroids. Anything still ambiguous goes to the editor marked
+              unclassified. Rules are data, editable in admin.</p>
+          </div>
+          <div class="step">
+            <div class="n">STAGE 07</div>
+            <h4>Enrich</h4>
+            <p>Attach evidence metadata for research items (design, phase, participant count, registry ID, peer-review
+              status), link manufacturers and devices by alias table, and resolve the journal from Crossref.</p>
+          </div>
+          <div class="step">
+            <div class="n">STAGE 08</div>
+            <h4>Score</h4>
+            <p>A transparent, tunable score: source trust tier, recency, evidence strength, entity match to tracked
+              devices, and corroboration count. Score orders the editorial queue — it never publishes anything.</p>
+          </div>
+          <div class="step">
+            <div class="n">STAGE 09</div>
+            <h4>Review and publish</h4>
+            <p>An editor approves, rewrites the summary in their own words, adjusts tags and publishes. Nothing is
+              auto-published in the MVP. Every action is written to the audit log.</p>
+          </div>
+        </div>
+
+        <div class="grid g2" style="margin-top:8px">
+          <div class="card">
+            <h3>Study and dataset collection</h3>
+            <p style="color:var(--muted);font-size:14.5px">Research is collected differently from news, because the unit
+              is a study rather than an article.</p>
+            <div class="feat">
+              <h4>Standing queries</h4>
+              <p>Each research source has a saved query stored in the registry — condition terms crossed with
+                technology, immunology, screening and outcome terms — versioned, so you can tell whether a spike is real
+                or a query change.</p>
+            </div>
+            <div class="feat">
+              <h4>Study-level identity</h4>
+              <p>A trial is followed across registration, results posting, preprint, publication and press release. All
+                five attach to one study record, which is what lets the item page show a trial's full arc.</p>
+            </div>
+            <div class="feat">
+              <h4>Evidence classification</h4>
+              <p>Design (RCT, observational, registry analysis, case series, in vitro, animal), phase, participant
+                count, and publication status. This drives the badges that stop a mouse study being read as a cure.</p>
+            </div>
+            <div class="feat">
+              <h4>Human summarisation</h4>
+              <p>Two sentences: what was done, and what it does and does not show. An LLM may draft it; an editor always
+                rewrites and approves it. The draft is stored separately from the published summary so the two can be
+                compared.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Statistics collection</h3>
+            <p style="color:var(--muted);font-size:14.5px">Slower, manual, versioned. These datasets update annually,
+              not hourly — resist automating what happens once a year.</p>
+            <div class="feat">
+              <h4>Manual acquisition, scripted transformation</h4>
+              <p>Download the published file by hand, commit it to a raw store with its retrieval date and checksum,
+                then transform it with a script that is committed alongside. Re-running the script must reproduce the
+                table exactly.</p>
+            </div>
+            <div class="feat">
+              <h4>Harmonisation</h4>
+              <p>ISO 3166-1 alpha-3 country codes, a fixed set of age bands with an explicit mapping table per source,
+                and both counts and rates stored where the source publishes them — never derived silently.</p>
+            </div>
+            <div class="feat">
+              <h4>Provenance to the cell</h4>
+              <p>Every observation row carries its dataset version and source row. A reader clicking a bar can be shown
+                exactly where that number came from.</p>
+            </div>
+            <div class="feat">
+              <h4>Licence gate</h4>
+              <p>A dataset without a recorded licence and permitted-use note cannot be attached to a chart. This is
+                enforced by a foreign key, not by discipline.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="note ok" style="margin-top:20px"><b>Operating cost</b>Realistically this pipeline needs about 20
+          minutes a day of editorial attention once tuned, plus an hour a month fixing sources that changed. Budget it
+          as ongoing work, not as a one-off build.</div>
+      </div>
+    </section>
+
+    <!-- =============== STATS =============== -->
+    <section class="panel" id="p-stats" role="tabpanel" aria-labelledby="t-stats" hidden>
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">The Numbers surface</span>
+          <h2>Interactive statistics</h2>
+        </div>
+        <p class="sec-sub">The goal is not a dashboard. It is to let someone answer a specific question — how many
+          children are diagnosed each year where I live, is that rising, how does access here compare — and understand
+          how much confidence the answer deserves.</p>
+
+        <div class="grid g2">
+          <div class="card">
+            <h3>Candidate datasets</h3>
+            <div class="feat">
+              <h4>International Diabetes Federation — Diabetes Atlas</h4>
+              <p>Global prevalence and incidence estimates by country, including under-20 type 1 figures. Broad
+                coverage, modelled for many countries — say so.</p>
+            </div>
+            <div class="feat">
+              <h4>T1D Index</h4>
+              <p>Country-level modelled estimates of prevalence, missing people, and healthy years lost. The most
+                communicative dataset in the field and the most in need of a methodology panel.</p>
+            </div>
+            <div class="feat">
+              <h4>CDC diabetes surveillance and SEARCH for Diabetes in Youth</h4>
+              <p>US incidence and prevalence in youth by age, sex and race or ethnicity, with real trend data.</p>
+            </div>
+            <div class="feat">
+              <h4>National registries</h4>
+              <p>Sweden's NDR, the DPV registry in Germany and Austria, Scotland's SCI-Diabetes, and T1D Exchange QI.
+                These are the only credible sources for technology uptake and outcome distributions.</p>
+            </div>
+            <div class="feat">
+              <h4>WHO Global Health Observatory</h4>
+              <p>Context indicators — mortality, health expenditure, insulin availability — for the access story.</p>
+            </div>
+            <p style="font-size:13.5px;color:var(--muted);margin-top:12px">Check each licence before use; several permit
+              reuse with attribution, some restrict redistribution of the underlying file. The registry field is there
+              to record the answer, and the chart cannot ship without it.</p>
+          </div>
+
+          <div class="card">
+            <h3>The charts</h3>
+            <div class="feat">
+              <h4>Incidence over time <span class="pill must">Must</span></h4>
+              <p>New diagnoses per 100,000 per year, filtered by country and age band, with a note wherever a definition
+                or method changed mid-series.</p>
+            </div>
+            <div class="feat">
+              <h4>Prevalence map <span class="pill must">Must</span></h4>
+              <p>Choropleth with a year scrubber, a colour-blind-safe sequential scale, and a country drill-down panel.
+              </p>
+            </div>
+            <div class="feat">
+              <h4>Compare countries <span class="pill should">Should</span></h4>
+              <p>Up to five countries on one series, shareable by URL, with modelled estimates rendered in a visibly
+                different line style from measured data.</p>
+            </div>
+            <div class="feat">
+              <h4>Technology uptake <span class="pill should">Should</span></h4>
+              <p>Share of a registry population on CGM, pump or AID over time, by age band. The clearest evidence that
+                the field is changing.</p>
+            </div>
+            <div class="feat">
+              <h4>Outcome distributions <span class="pill should">Should</span></h4>
+              <p>HbA1c and time-in-range shown as distributions with medians and interquartile ranges, never as a single
+                national average.</p>
+            </div>
+            <div class="feat">
+              <h4>Access gap <span class="pill should">Should</span></h4>
+              <p>Estimated missing people and healthy years lost by country. Requires the most careful copy of anything
+                on the platform.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="note warn" style="margin-top:20px"><b>Rules that apply to every chart</b>State the source, the
+          version and the retrieval date on the chart itself. Distinguish measured from modelled visually, not only in a
+          footnote. Never interpolate across a gap without marking it. Offer the underlying numbers as a table and as
+          CSV. Cite the original publisher, not InRange. And write, in plain language, what the chart cannot tell you.
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== FIGMA =============== -->
+    <section class="panel" id="p-figma" role="tabpanel" aria-labelledby="t-figma" hidden>
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Design handoff</span>
+          <h2>Figma prompt</h2>
+        </div>
+        <p class="sec-sub">A single self-contained brief. Paste it into Figma's AI tools, or hand it to a designer as
+          the written brief — it assumes no other context.</p>
+
+        <div class="copywrap">
+          <header><span>Copy this whole block</span><button class="copybtn" data-copy="#figma-prompt">Copy
+              prompt</button></header>
+          <pre id="figma-prompt">Design a responsive web app called InRange �� a publishing and reference platform for
+            the type 1 diabetes community. Desktop-first at 1440px with mobile at 390px. Light mode only for v1.
+
+            PRODUCT IN ONE LINE
+            Four surfaces in one calm, credible product: personal Stories from parents and people living with T1D;
+            Signal, a human-curated feed of device and research news; Devices, a sourced reference for CGMs, pumps and
+            automated insulin delivery systems; and Numbers, interactive charts of T1D epidemiology.
+
+            AUDIENCE
+            1. A parent four weeks after their child's diagnosis, reading on a phone at 2am, exhausted and scared.
+            2. An adult with T1D comparing hardware and following what is coming next.
+            3. A clinician, researcher or advocate who wants primary sources without wading through supplement
+            advertising.
+
+            TONE
+            Clinical calm, not corporate warmth. Confident and quiet. No stock photography of smiling people holding
+            fruit, no "journey" language, no inspirational overlays, no red alarm styling. The product's warmth comes
+            from the writing, so the interface should get out of its way. Every factual claim visibly carries its
+            source.
+
+            VISUAL LANGUAGE
+            Borrow from the ambulatory glucose profile report that every reader already knows: a horizontal target
+            corridor, a thin continuous trace, dashed threshold lines, small monospace axis labels. Use that corridor
+            motif as a section divider and as the progress and status device — never as decoration on unrelated content.
+
+            COLOR TOKENS
+            paper #EFF2F6 page background
+            card #FFFFFF surfaces
+            ink #0E141B primary text
+            muted #5B6674 secondary text
+            faint #8A94A2 labels, axis text
+            rule #D5DBE3 1px borders
+            trace #4A2FE7 primary action, links, data line
+            traceSoft #EDE9FE selected states, chips
+            band #CDEBD8 in-range fill, success
+            bandLine #2E9E63 in-range stroke, confirmed states
+            high #E8A33D caution, unverified, preprint badge
+            low #D9455F destructive, error, safety-critical
+            Do not introduce gradients. One accent only.
+
+            TYPOGRAPHY
+            Display: Bricolage Grotesque, 700/800, tight tracking (-2% to -4%). Used for page titles and section
+            headings only.
+            Body: IBM Plex Sans, 400/500/600. Body copy 16px/1.62, long-form story text 18px/1.7 at a 68-character
+            measure.
+            Utility: IBM Plex Mono, 400/500. Feature IDs, dates, source names, axis labels, badge text, all-caps
+            eyebrows at 11px with 0.12em letter-spacing.
+            Type scale: 48 / 34 / 24 / 20 / 17 / 15 / 13 / 11.
+
+            LAYOUT
+            1180px max content width, 12-column grid, 24px gutters. Long-form reading column 680px. 8px spacing base.
+            Border radius 10px on cards, 20px on pills, 5px on buttons. Borders instead of shadows; a single soft shadow
+            reserved for overlays only.
+
+            SCREENS TO DESIGN
+            1. Home — one lead story, a Signal strip of six items, a featured chart, entry points to Devices and
+            Numbers.
+            2. Story reader — title, byline with the author's relationship to T1D, content-warning interstitial state,
+            reading progress, "this helped me" reaction, related stories, comments.
+            3. Story editor — Markdown surface with live preview, autosave indicator, tag pickers for
+            audience/topic/devices, content-warning toggles, cover image, publish sheet.
+            4. Signal feed — filter rail for category, source type and date; cards showing headline, editor summary,
+            source, date, evidence badge, save control.
+            5. Signal item — headline, two-sentence summary, evidence badges, other outlets covering the same story,
+            prominent outbound link to the original.
+            6. Editorial queue (admin) — dense triage list with keyboard shortcuts, bulk select, inline summary editing,
+            source health strip.
+            7. Device directory — filterable grid with category, region and compatibility facets.
+            8. Device detail — sourced spec table where every value shows its citation and last-verified date,
+            compatibility section, related news.
+            9. Compare devices — up to three columns with differences highlighted.
+            10. Numbers explorer — choropleth plus time series, filter controls, methodology panel, export menu, and a
+            "view as table" state.
+            11. Search results — grouped by stories, news and devices.
+            12. Profile and reading list.
+            13. Sign-up and sign-in.
+            14. Moderation console.
+
+            COMPONENTS TO BUILD AS A LIBRARY
+            Buttons (primary, secondary, ghost, destructive), pill and badge set (priority, evidence type, verification
+            state, category), input, textarea, select, combobox, tag picker, card (story, news, device, chart), table
+            with sticky header, filter chip row, cursor-paginated list with loading skeletons, empty state, error state,
+            toast, modal, interstitial overlay, tab bar, breadcrumb, pagination, avatar, byline, citation footnote,
+            source-health indicator, chart frame with title, source line and export menu.
+
+            STATES REQUIRED FOR EVERY COMPONENT
+            Default, hover, focus-visible (2px trace-colour ring, 3px offset), active, disabled, loading, empty, error.
+
+            WRITING RULES FOR ALL UI COPY
+            Sentence case everywhere. Active voice. A button names its outcome and keeps that name through the flow:
+            "Publish" produces "Published". Errors state what happened and what to do next, and never apologise. Empty
+            states invite an action rather than describing absence. Unknown data reads "not published", never a blank or
+            a zero.
+
+            NON-NEGOTIABLES
+            - WCAG 2.2 AA: 4.5:1 on body text, 3:1 on large text and UI boundaries, visible focus on every interactive
+            element, and a 44px minimum touch target.
+            - Every chart needs an equivalent data table.
+            - A persistent, unobtrusive line stating this is not medical advice, present on the page and not only in the
+            footer.
+            - No third-party trackers or consent banners in the design.
+            - Design the loading and empty state for every list before the populated state.
+
+            DELIVERABLES
+            A token set as Figma variables, a component library, the fourteen screens at both breakpoints, and a
+            one-page specimen sheet showing the type scale and the corridor motif in each of its uses.</pre>
+        </div>
+
+        <div class="note ok" style="margin-top:22px"><b>Using this well</b>Generate the token set and component library
+          first, then the screens. Design the Signal feed card and the device spec row before anything else — they are
+          the two components that appear most often and are hardest to retrofit.</div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="wrap">
+    <p>InRange MVP plan · Feature IDs in this document are referenced by the backend specification. Health-content
+      claims, dataset licences and source terms must be verified before launch.</p>
+  </footer>
+
+  <script>
+    (function () {
+      var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+      function show(id) {
+        tabs.forEach(function (t) {
+          var sel = t.id === 't-' + id;
+          t.setAttribute('aria-selected', sel ? 'true' : 'false');
+          var p = document.getElementById(t.getAttribute('aria-controls'));
+          if (p) p.hidden = !sel;
+        });
+      }
+      tabs.forEach(function (t) {
+        t.addEventListener('click', function () {
+          var id = t.id.slice(2);
+          show(id);
+          history.replaceState(null, '', '#' + id);
+          window.scrollTo({top: 0, behavior: 'auto'});
+        });
+      });
+      tabs.forEach(function (t, i) {
+        t.addEventListener('keydown', function (e) {
+          var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+          if (!d) return;
+          e.preventDefault();
+          var n = tabs[(i + d + tabs.length) % tabs.length];
+          n.focus(); n.click();
+        });
+      });
+      var h = location.hash.slice(1);
+      if (h && document.getElementById('t-' + h)) show(h);
+
+      // hero chart -> roadmap
+      document.querySelectorAll('.wk').forEach(function (g) {
+        g.addEventListener('click', function () {
+          show('roadmap');
+          var el = document.getElementById('week-' + g.dataset.week);
+          if (el) setTimeout(function () {el.scrollIntoView({behavior: 'smooth', block: 'start'});}, 30);
+        });
+      });
+
+      // registry filter
+      var rows = Array.prototype.slice.call(document.querySelectorAll('#regtable tbody tr'));
+      var cnt = document.getElementById('regcount');
+      function filter(f) {
+        var n = 0;
+        rows.forEach(function (r) {
+          var on = (f === 'all' || r.dataset.p === f);
+          r.style.display = on ? '' : 'none';
+          if (on) n++;
+        });
+        cnt.textContent = n + ' of ' + rows.length + ' features';
+      }
+      document.querySelectorAll('#regfilters button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          document.querySelectorAll('#regfilters button').forEach(function (x) {x.setAttribute('aria-pressed', 'false');});
+          b.setAttribute('aria-pressed', 'true');
+          filter(b.dataset.f);
+        });
+      });
+      filter('all');
+
+      // copy
+      document.querySelectorAll('.copybtn').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var el = document.querySelector(b.dataset.copy);
+          if (!el) return;
+          navigator.clipboard.writeText(el.textContent).then(function () {
+            var o = b.textContent; b.textContent = 'Copied'; setTimeout(function () {b.textContent = o;}, 1600);
+          }).catch(function () {b.textContent = 'Select and copy';});
+        });
+      });
+    })();
+  </script>
+</body>
+
+</html>

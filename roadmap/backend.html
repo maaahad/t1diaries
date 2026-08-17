@@ -1,0 +1,3628 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>InRange — backend specification (Rust · axum · async-graphql · Postgres)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --paper: #EFF2F6;
+      --card: #FFFFFF;
+      --ink: #0E141B;
+      --muted: #5B6674;
+      --faint: #8A94A2;
+      --rule: #D5DBE3;
+      --trace: #4A2FE7;
+      --trace-soft: #EDE9FE;
+      --band: #CDEBD8;
+      --band-line: #2E9E63;
+      --high: #E8A33D;
+      --high-soft: #FDF1DE;
+      --low: #D9455F;
+      --low-soft: #FCE9EC;
+      --code-bg: #0F1520;
+      --code-fg: #D9E1EC;
+      --code-dim: #7C8CA3;
+      --r: 10px;
+      --maxw: 1180px;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.62
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: "Bricolage Grotesque", "IBM Plex Sans", sans-serif;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      line-height: 1.12;
+      margin: 0
+    }
+
+    code,
+    kbd,
+    .mono {
+      font-family: "IBM Plex Mono", ui-monospace, monospace
+    }
+
+    a {
+      color: var(--trace);
+      text-underline-offset: 3px
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--trace);
+      outline-offset: 3px;
+      border-radius: 4px
+    }
+
+    p code,
+    li code,
+    td code {
+      background: #E4E8EF;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: .88em
+    }
+
+    .masthead {
+      background: var(--ink);
+      color: #fff;
+      padding: 26px 0 0
+    }
+
+    .wrap {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 0 22px
+    }
+
+    .brandrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      align-items: baseline;
+      justify-content: space-between
+    }
+
+    .brand {
+      font-family: "Bricolage Grotesque", sans-serif;
+      font-weight: 800;
+      font-size: 26px;
+      letter-spacing: -.04em
+    }
+
+    .brand em {
+      font-style: normal;
+      color: var(--band)
+    }
+
+    .metaline {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11.5px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #8E9AAB
+    }
+
+    .lede {
+      max-width: 64ch;
+      margin: 16px 0 24px;
+      color: #C8D0DC;
+      font-size: 17px
+    }
+
+    .tabbar {
+      background: var(--ink);
+      border-top: 1px solid #232C39;
+      position: sticky;
+      top: 0;
+      z-index: 40
+    }
+
+    .tabscroll {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 0 12px;
+      display: flex;
+      gap: 2px;
+      overflow-x: auto
+    }
+
+    .tab {
+      flex: 0 0 auto;
+      background: none;
+      border: 0;
+      cursor: pointer;
+      color: #93A0B1;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 14px 13px;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap
+    }
+
+    .tab:hover {
+      color: #fff
+    }
+
+    .tab[aria-selected="true"] {
+      color: #fff;
+      border-bottom-color: var(--band-line)
+    }
+
+    main {
+      padding: 38px 0 90px
+    }
+
+    .panel[hidden] {
+      display: none
+    }
+
+    .sec {
+      margin: 0 0 44px
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 4px
+    }
+
+    .sec-head h2 {
+      font-size: clamp(22px, 3.4vw, 32px)
+    }
+
+    .eyebrow {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--faint)
+    }
+
+    .sec-sub {
+      color: var(--muted);
+      max-width: 74ch;
+      margin: 8px 0 20px
+    }
+
+    .corridor {
+      height: 8px;
+      border-radius: 4px;
+      background: var(--band);
+      border-top: 1px solid var(--band-line);
+      border-bottom: 1px solid var(--band-line);
+      opacity: .75;
+      margin: 0 0 26px
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-radius: var(--r);
+      padding: 18px 22px;
+      margin-bottom: 16px
+    }
+
+    .card>h3 {
+      font-size: 19px;
+      margin-bottom: 6px
+    }
+
+    .card>h4 {
+      font-size: 15.5px;
+      margin: 16px 0 4px
+    }
+
+    .card p {
+      margin: 6px 0
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px
+    }
+
+    .g2 {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr))
+    }
+
+    .g3 {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr))
+    }
+
+    /* deliverable blocks */
+    .del {
+      background: var(--card);
+      border: 1px solid var(--rule);
+      border-radius: var(--r);
+      margin-bottom: 20px;
+      overflow: hidden
+    }
+
+    .del>header {
+      display: flex;
+      gap: 14px;
+      align-items: baseline;
+      flex-wrap: wrap;
+      padding: 15px 22px;
+      border-bottom: 1px solid var(--rule);
+      background: linear-gradient(180deg, #FBFCFD, #F4F6F9)
+    }
+
+    .del>header h3 {
+      font-size: 19px
+    }
+
+    .delid {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11.5px;
+      color: #fff;
+      background: var(--trace);
+      padding: 3px 8px;
+      border-radius: 5px;
+      letter-spacing: .06em
+    }
+
+    .del-body {
+      padding: 18px 22px 8px
+    }
+
+    .pill {
+      display: inline-block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10.5px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 20px;
+      border: 1px solid var(--rule);
+      color: var(--muted);
+      background: #fff;
+      white-space: nowrap
+    }
+
+    .pill.wk {
+      background: var(--trace-soft);
+      border-color: #C9BEFB;
+      color: #3B22C4
+    }
+
+    .pill.ok {
+      background: var(--band);
+      border-color: #A9D8BC;
+      color: #1E6E44
+    }
+
+    .pill.warn {
+      background: var(--high-soft);
+      border-color: #EFD5A6;
+      color: #8A5B12
+    }
+
+    .done {
+      margin: 10px 0 16px;
+      padding: 0;
+      list-style: none;
+      font-size: 14.5px
+    }
+
+    .done li {
+      padding-left: 20px;
+      position: relative;
+      margin: 5px 0
+    }
+
+    .done li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 9px;
+      width: 11px;
+      height: 2px;
+      background: var(--band-line)
+    }
+
+    .subhead {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin: 18px 0 6px
+    }
+
+    /* code */
+    .codeblock {
+      background: var(--code-bg);
+      border-radius: var(--r);
+      overflow: hidden;
+      margin: 12px 0 18px
+    }
+
+    .codeblock>header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 14px;
+      border-bottom: 1px solid #1E2735
+    }
+
+    .codeblock>header span {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: .1em;
+      color: var(--code-dim)
+    }
+
+    .copybtn {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10.5px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      background: #1E2735;
+      color: #A9BBD1;
+      border: 0;
+      border-radius: 5px;
+      padding: 5px 11px;
+      cursor: pointer
+    }
+
+    .copybtn:hover {
+      background: var(--band);
+      color: #12351F
+    }
+
+    .codeblock pre {
+      margin: 0;
+      padding: 16px 18px;
+      overflow-x: auto;
+      color: var(--code-fg);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12.6px;
+      line-height: 1.62;
+      tab-size: 4
+    }
+
+    .tablewrap {
+      overflow-x: auto;
+      border: 1px solid var(--rule);
+      border-radius: var(--r);
+      background: var(--card);
+      margin: 12px 0 20px
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 640px;
+      font-size: 14px
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top
+    }
+
+    thead th {
+      background: #F4F6F9;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10.5px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted)
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0
+    }
+
+    td.mono,
+    th.mono {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12.5px
+    }
+
+    .note {
+      border-radius: var(--r);
+      padding: 14px 18px;
+      font-size: 14.5px;
+      margin: 0 0 20px;
+      border: 1px solid
+    }
+
+    .note.warn {
+      background: var(--high-soft);
+      border-color: #EFD5A6
+    }
+
+    .note.stop {
+      background: var(--low-soft);
+      border-color: #F0C0C8
+    }
+
+    .note.ok {
+      background: var(--band);
+      border-color: #A9D8BC
+    }
+
+    .note b {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 4px
+    }
+
+    .tree {
+      background: var(--code-bg);
+      color: var(--code-fg);
+      border-radius: var(--r);
+      padding: 18px;
+      overflow-x: auto;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12.6px;
+      line-height: 1.72;
+      margin: 12px 0 18px;
+      white-space: pre
+    }
+
+    .tree .c {
+      color: var(--code-dim)
+    }
+
+    footer {
+      border-top: 1px solid var(--rule);
+      padding: 24px 0 60px;
+      color: var(--faint);
+      font-size: 13px
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="masthead">
+    <div class="wrap">
+      <div class="brandrow">
+        <div class="brand">In<em>Range</em> · backend</div>
+        <div class="metaline">Rust · axum · async-graphql · sqlx · Postgres</div>
+      </div>
+      <p class="lede">Every backend deliverable for the eight-week MVP, written as something you can build against: what
+        exists at the end of the week, what the schema looks like, what the code looks like, and what has to be true
+        before it counts as done. Feature IDs match the MVP plan.</p>
+    </div>
+  </header>
+
+  <nav class="tabbar" aria-label="Sections">
+    <div class="tabscroll" role="tablist">
+      <button class="tab" role="tab" id="t-arch" aria-controls="p-arch" aria-selected="true">Architecture</button>
+      <button class="tab" role="tab" id="t-rust" aria-controls="p-rust" aria-selected="false">Rust structure</button>
+      <button class="tab" role="tab" id="t-data" aria-controls="p-data" aria-selected="false">Data model</button>
+      <button class="tab" role="tab" id="t-api" aria-controls="p-api" aria-selected="false">GraphQL API</button>
+      <button class="tab" role="tab" id="t-auth" aria-controls="p-auth" aria-selected="false">Auth &amp;
+        security</button>
+      <button class="tab" role="tab" id="t-ingest" aria-controls="p-ingest" aria-selected="false">Ingestion</button>
+      <button class="tab" role="tab" id="t-numbers" aria-controls="p-numbers" aria-selected="false">Numbers
+        pipeline</button>
+      <button class="tab" role="tab" id="t-media" aria-controls="p-media" aria-selected="false">Media &amp;
+        search</button>
+      <button class="tab" role="tab" id="t-obs" aria-controls="p-obs" aria-selected="false">Observability &amp;
+        tests</button>
+      <button class="tab" role="tab" id="t-deploy" aria-controls="p-deploy" aria-selected="false">Deploy &amp;
+        ops</button>
+    </div>
+  </nav>
+
+  <main class="wrap">
+
+    <!-- ================= ARCHITECTURE ================= -->
+    <section class="panel" id="p-arch" role="tabpanel" aria-labelledby="t-arch">
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Shape</span>
+          <h2>One binary, two modes, one database</h2>
+        </div>
+        <p class="sec-sub">The whole backend compiles to a single Rust binary that starts either as the HTTP/GraphQL
+          server or as the ingestion worker, chosen by a subcommand. Shared domain code lives in a library crate that
+          both modes link. This is the right shape for one developer: one build, one deploy pipeline, one set of types,
+          and no network boundary to debug at 11pm.</p>
+
+        <div class="codeblock">
+          <header><span>runtime topology</span></header>
+          <pre> ┌──────────────────────────┐
+            browser ────────▶ │ Next.js (SSR + RSC) │
+            └────────────┬─────────────┘
+            │ GraphQL over HTTP, cookie auth
+            ┌────────────▼─────────────┐
+            │ inrange serve │ axum + async-graphql
+            │ · schema, resolvers │
+            │ · dataloaders │ ── S3-compatible object store
+            │ · session middleware │
+            └────────────┬─────────────┘
+            │ sqlx pool
+            ┌────────────▼─────────────┐
+            │ PostgreSQL 16 │ FTS + pg_trgm + materialized views
+            └────────────▲─────────────┘
+            │ same pool, same types
+            ┌────────────┴─────────────┐
+            │ inrange worker │ tokio scheduler
+            │ · fetch, parse, dedup │ ── outbound HTTP to sources
+            │ · classify, score │
+            │ · ETL, digest, cleanup │
+            └──────────────────────────┘</pre>
+        </div>
+
+        <h3 style="font-size:18px;margin:26px 0 8px">Decisions taken up front</h3>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Decision</th>
+                <th>Choice</th>
+                <th>Why, and what it costs</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Process model</td>
+                <td>One binary, subcommands</td>
+                <td>Halves the deploy surface. Cost: the worker and API scale together, which is irrelevant at MVP
+                  volume.</td>
+              </tr>
+              <tr>
+                <td>Database access</td>
+                <td>sqlx with compile-time checked queries</td>
+                <td>Query errors surface at <code>cargo check</code>. Cost: needs a live database or a committed
+                  <code>.sqlx</code> offline cache in CI.</td>
+              </tr>
+              <tr>
+                <td>Search</td>
+                <td>Postgres FTS + <code>pg_trgm</code></td>
+                <td>No second datastore to run, back up or keep in sync. Cost: no typo tolerance beyond trigrams, no
+                  semantic ranking. Revisit past ~500k documents.</td>
+              </tr>
+              <tr>
+                <td>Cache and queue</td>
+                <td>Postgres tables with <code>SKIP LOCKED</code></td>
+                <td>No Redis in the MVP. Postgres is a perfectly good queue at this scale and one less thing to operate.
+                </td>
+              </tr>
+              <tr>
+                <td>Sessions</td>
+                <td>Server-side, opaque token in a cookie</td>
+                <td>Instant revocation, no JWT expiry gymnastics, trivial "sign out everywhere". Cost: a database lookup
+                  per request, mitigated by an in-process cache.</td>
+              </tr>
+              <tr>
+                <td>API style</td>
+                <td>GraphQL only, no REST except webhooks and feeds</td>
+                <td>One schema, generated TypeScript types, no drift. Cost: you must handle depth and complexity limits
+                  yourself — see the API tab.</td>
+              </tr>
+              <tr>
+                <td>IDs</td>
+                <td>UUIDv7 in the database, opaque global IDs in GraphQL</td>
+                <td>Time-ordered so index locality stays good, while the API never leaks a raw primary key.</td>
+              </tr>
+              <tr>
+                <td>Timestamps</td>
+                <td><code>timestamptz</code> everywhere, UTC in code</td>
+                <td>No exceptions. Local time exists only in the browser.</td>
+              </tr>
+              <tr>
+                <td>Migrations</td>
+                <td>sqlx migrate, forward-only, applied on boot</td>
+                <td>Every migration must be safe to run against a live database with the previous version still serving.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 style="font-size:18px;margin:26px 0 8px">Dependencies</h3>
+        <div class="note warn"><b>Pin at build time</b>Confirm current versions with <code>cargo add</code> rather than
+          copying numbers from a document. The list below states intent and role; the lockfile states truth.</div>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Crate</th>
+                <th>Role</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono">tokio</td>
+                <td>Async runtime</td>
+                <td>Full features; multi-thread scheduler.</td>
+              </tr>
+              <tr>
+                <td class="mono">axum</td>
+                <td>HTTP server</td>
+                <td>Routing, extractors, middleware over tower.</td>
+              </tr>
+              <tr>
+                <td class="mono">tower-http</td>
+                <td>Middleware</td>
+                <td>Compression, CORS, request ID, timeout, security headers, tracing layer.</td>
+              </tr>
+              <tr>
+                <td class="mono">async-graphql + async-graphql-axum</td>
+                <td>GraphQL</td>
+                <td>Schema, dataloaders, guards, complexity limits, SDL export.</td>
+              </tr>
+              <tr>
+                <td class="mono">sqlx</td>
+                <td>Postgres</td>
+                <td>Runtime tokio, TLS, macros, uuid, chrono, json features.</td>
+              </tr>
+              <tr>
+                <td class="mono">serde / serde_json</td>
+                <td>Serialisation</td>
+                <td>Everywhere.</td>
+              </tr>
+              <tr>
+                <td class="mono">thiserror</td>
+                <td>Error types</td>
+                <td>Domain errors; no <code>anyhow</code> in library code.</td>
+              </tr>
+              <tr>
+                <td class="mono">tracing + tracing-subscriber</td>
+                <td>Logs and spans</td>
+                <td>JSON in production, pretty locally.</td>
+              </tr>
+              <tr>
+                <td class="mono">reqwest</td>
+                <td>Outbound HTTP</td>
+                <td>rustls, gzip, redirect policy, timeouts.</td>
+              </tr>
+              <tr>
+                <td class="mono">feed-rs</td>
+                <td>Feed parsing</td>
+                <td>Handles RSS, Atom and JSON Feed behind one type.</td>
+              </tr>
+              <tr>
+                <td class="mono">scraper</td>
+                <td>HTML parsing</td>
+                <td>Feed discovery and the small number of scraped sources.</td>
+              </tr>
+              <tr>
+                <td class="mono">argon2</td>
+                <td>Password hashing</td>
+                <td>Argon2id with tuned parameters.</td>
+              </tr>
+              <tr>
+                <td class="mono">uuid</td>
+                <td>Identifiers</td>
+                <td>v7 for keys, v4 for tokens.</td>
+              </tr>
+              <tr>
+                <td class="mono">chrono</td>
+                <td>Time</td>
+                <td><code>DateTime&lt;Utc&gt;</code> only.</td>
+              </tr>
+              <tr>
+                <td class="mono">image</td>
+                <td>Media</td>
+                <td>Resize and WebP encode for uploads.</td>
+              </tr>
+              <tr>
+                <td class="mono">aws-sdk-s3</td>
+                <td>Object storage</td>
+                <td>Works against any S3-compatible endpoint.</td>
+              </tr>
+              <tr>
+                <td class="mono">tower_governor</td>
+                <td>Rate limiting</td>
+                <td>Per-IP and per-route quotas at the middleware layer.</td>
+              </tr>
+              <tr>
+                <td class="mono">ammonia + pulldown-cmark</td>
+                <td>Markdown</td>
+                <td>Render then sanitise, server-side, on every read path.</td>
+              </tr>
+              <tr>
+                <td class="mono">validator</td>
+                <td>Input validation</td>
+                <td>Declarative rules on GraphQL input structs.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= RUST STRUCTURE ================= -->
+    <section class="panel" id="p-rust" role="tabpanel" aria-labelledby="t-rust" hidden>
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Layout</span>
+          <h2>Rust structure</h2>
+        </div>
+        <p class="sec-sub">Three crates. The rule that keeps this maintainable for eight weeks and beyond:
+          <strong>domain logic never imports GraphQL, and GraphQL never writes SQL.</strong> If a resolver contains a
+          <code>sqlx::query!</code>, it is in the wrong file.</p>
+
+        <div class="tree">inrange/
+          ├── Cargo.toml <span class="c"># workspace manifest</span>
+          ├── .sqlx/ <span class="c"># committed offline query cache for CI</span>
+          ├── migrations/ <span class="c"># sqlx migrations, forward-only</span>
+          │ ├── 0001_extensions.sql
+          │ ├── 0002_identity.sql
+          │ ├── 0003_stories.sql
+          │ ├── 0004_signal.sql
+          │ ├── 0005_devices.sql
+          │ ├── 0006_numbers.sql
+          │ └── 0007_search_and_views.sql
+          │
+          ├── crates/
+          │ ├── core/ <span class="c"># domain + persistence. No axum, no async-graphql.</span>
+          │ │ └── src/
+          │ │ ├── lib.rs
+          │ │ ├── config.rs <span class="c"># typed config from env, fails fast at boot</span>
+          │ │ ├── error.rs <span class="c"># CoreError, the single domain error type</span>
+          │ │ ├── db.rs <span class="c"># pool construction, migration runner, health probe</span>
+          │ │ ├── ids.rs <span class="c"># UUIDv7 generation, typed id newtypes</span>
+          │ │ ├── pagination.rs <span class="c"># keyset cursors, encode/decode</span>
+          │ │ ├── identity/
+          │ │ │ ├── mod.rs
+          │ │ │ ├── model.rs <span class="c"># User, Session, Role</span>
+          │ │ │ ├── repo.rs <span class="c"># all SQL for identity</span>
+          │ │ │ ├── password.rs <span class="c"># argon2id hash + verify</span>
+          │ │ │ └── service.rs <span class="c"># register, verify, sign in, revoke</span>
+          │ │ ├── stories/
+          │ │ │ ├── model.rs <span class="c"># Story, Revision, Tag, ContentWarning</span>
+          │ │ │ ├── repo.rs
+          │ │ │ ├── markdown.rs <span class="c"># render + sanitise</span>
+          │ │ │ └── service.rs <span class="c"># draft, autosave, publish state machine</span>
+          │ │ ├── signal/
+          │ │ │ ├── model.rs <span class="c"># Source, Item, Mention, Entity, FetchRun</span>
+          │ │ │ ├── repo.rs
+          │ │ │ ├── canonical.rs<span class="c"># URL canonicalisation</span>
+          │ │ │ ├── dedup.rs <span class="c"># simhash + strong identity resolution</span>
+          │ │ │ ├── classify.rs <span class="c"># rules, confidence, category assignment</span>
+          │ │ │ ├── score.rs <span class="c"># editorial queue ordering</span>
+          │ │ │ └── service.rs <span class="c"># ingest_item: the one entry point</span>
+          │ │ ├── devices/
+          │ │ │ ├── model.rs <span class="c"># Device, SpecField, Citation, Compatibility</span>
+          │ │ │ ├── repo.rs
+          │ │ │ └── service.rs
+          │ │ ├── numbers/
+          │ │ │ ├── model.rs <span class="c"># Dataset, Observation, Series</span>
+          │ │ │ ├── repo.rs
+          │ │ │ └── etl.rs <span class="c"># idempotent load jobs</span>
+          │ │ ├── moderation/
+          │ │ │ ├── model.rs <span class="c"># Report, Action, AuditEntry</span>
+          │ │ │ ├── repo.rs
+          │ │ │ └── service.rs
+          │ │ ├── search/
+          │ │ │ └── repo.rs <span class="c"># tsquery + trigram, one function per type</span>
+          │ │ └── media/
+          │ │ ├── process.rs <span class="c"># decode, EXIF strip, resize, WebP</span>
+          │ │ └── store.rs <span class="c"># S3 put, signed URLs</span>
+          │ │
+          │ ├── api/ <span class="c"># axum + async-graphql. No SQL.</span>
+          │ │ └── src/
+          │ │ ├── lib.rs
+          │ │ ├── state.rs <span class="c"># AppState: pool, config, s3, http client, caches</span>
+          │ │ ├── router.rs <span class="c"># routes + middleware stack</span>
+          │ │ ├── error.rs <span class="c"># CoreError -> GraphQL error, with codes</span>
+          │ │ ├── auth/
+          │ │ │ ├── extractor.rs<span class="c"># CurrentUser from the session cookie</span>
+          │ │ │ ├── cookie.rs
+          │ │ │ └── guard.rs <span class="c"># RoleGuard for async-graphql</span>
+          │ │ ├── graphql/
+          │ │ │ ├── mod.rs <span class="c"># schema builder, limits, extensions</span>
+          │ │ │ ├── scalars.rs <span class="c"># GlobalId, DateTimeUtc, Url, Markdown</span>
+          │ │ │ ├── connection.rs
+          │ │ │ ├── loaders.rs <span class="c"># DataLoader implementations</span>
+          │ │ │ ├── identity.rs <span class="c"># types + query + mutation</span>
+          │ │ │ ├── stories.rs
+          │ │ │ ├── signal.rs
+          │ │ │ ├── devices.rs
+          │ │ │ ├── numbers.rs
+          │ │ │ ├── moderation.rs
+          │ │ │ └── search.rs
+          │ │ └── rest/
+          │ │ ├── health.rs <span class="c"># /healthz, /readyz</span>
+          │ │ ├── feeds.rs <span class="c"># outbound RSS (F-21)</span>
+          │ │ ├── upload.rs <span class="c"># multipart, outside GraphQL by design</span>
+          │ │ └── sitemap.rs
+          │ │
+          │ └── worker/ <span class="c"># scheduled jobs. Imports core only.</span>
+          │ └── src/
+          │ ├── lib.rs
+          │ ├── scheduler.rs <span class="c"># tick loop, claim with SKIP LOCKED</span>
+          │ ├── http.rs <span class="c"># polite client: conditional GET, backoff, limiter</span>
+          │ ├── adapters/
+          │ │ ├── mod.rs <span class="c"># trait SourceAdapter</span>
+          │ │ ├── feed.rs <span class="c"># RSS / Atom / JSON Feed</span>
+          │ │ ├── pubmed.rs
+          │ │ ├── europepmc.rs
+          │ │ ├── clinicaltrials.rs
+          │ │ ├── openfda.rs
+          │ │ ├── crossref.rs
+          │ │ └── github_releases.rs
+          │ └── jobs/
+          │ ├── ingest.rs
+          │ ├── etl.rs
+          │ ├── digest.rs
+          │ └── housekeeping.rs <span class="c"># session sweep, orphan media, stale flags</span>
+          │
+          ├── src/
+          │ └── main.rs <span class="c"># thin binary: parse subcommand, run serve or worker</span>
+          └── xtask/ <span class="c"># cargo xtask: seed, export-sdl, backfill</span></div>
+
+        <h3 style="font-size:18px;margin:22px 0 6px">Conventions</h3>
+        <div class="grid g2">
+          <div class="card">
+            <h4>Module rules</h4>
+            <ul class="done">
+              <li><code>model.rs</code> holds plain structs mapping to rows. No behaviour beyond simple constructors.
+              </li>
+              <li><code>repo.rs</code> is the only place <code>sqlx</code> appears. Every function takes an executor so
+                it composes into transactions.</li>
+              <li><code>service.rs</code> holds business rules and orchestrates repos. It returns <code>Result&lt;T,
+                  CoreError&gt;</code>.</li>
+              <li>GraphQL types in <code>api/graphql/</code> wrap core models and never re-declare fields the database
+                owns.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Naming and style</h4>
+            <ul class="done">
+              <li>Repo functions read as SQL intent: <code>insert_story</code>, <code>find_story_by_slug</code>,
+                <code>list_items_after</code>.</li>
+              <li>Service functions read as user intent: <code>publish_story</code>, <code>approve_item</code>,
+                <code>revoke_all_sessions</code>.</li>
+              <li>Typed ID newtypes (<code>StoryId</code>, <code>UserId</code>) so a story ID cannot be passed where a
+                user ID is expected.</li>
+              <li><code>#![forbid(unsafe_code)]</code> in every crate. Clippy pedantic on, with documented allows.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="codeblock">
+          <header><span>Cargo.toml — workspace root</span><button class="copybtn">Copy</button></header>
+          <pre>[workspace]
+            members = ["crates/core", "crates/api", "crates/worker", "xtask"]
+            resolver = "2"
+
+            [workspace.package]
+            edition = "2021"
+            rust-version = "1.79"
+            license = "AGPL-3.0-or-later"
+
+            [workspace.dependencies]
+            tokio = { version = "1", features = ["full"] }
+            sqlx = { version = "0.8", default-features = false, features = [
+            "runtime-tokio", "tls-rustls", "postgres", "macros",
+            "uuid", "chrono", "json", "migrate" ] }
+            serde = { version = "1", features = ["derive"] }
+            serde_json = "1"
+            thiserror = "2"
+            tracing = "0.1"
+            uuid = { version = "1", features = ["v4", "v7", "serde"] }
+            chrono = { version = "0.4", features = ["serde"] }
+
+            [package]
+            name = "inrange"
+            version = "0.1.0"
+            edition.workspace = true
+
+            [dependencies]
+            inrange-core = { path = "crates/core" }
+            inrange-api = { path = "crates/api" }
+            inrange-worker = { path = "crates/worker" }
+            tokio.workspace = true
+            tracing.workspace = true
+            clap = { version = "4", features = ["derive"] }
+
+            [profile.release]
+            lto = "thin"
+            codegen-units = 1
+            strip = "debuginfo"</pre>
+        </div>
+
+        <div class="codeblock">
+          <header><span>src/main.rs — the whole binary</span><button class="copybtn">Copy</button></header>
+          <pre>use clap::{Parser, Subcommand};
+            use inrange_core::{config::Config, db, telemetry};
+
+            #[derive(Parser)]
+            #[command(name = "inrange")]
+            struct Cli {
+            #[command(subcommand)]
+            command: Command,
+            }
+
+            #[derive(Subcommand)]
+            enum Command {
+            /// Run the HTTP + GraphQL server.
+            Serve,
+            /// Run the ingestion and maintenance worker.
+            Worker,
+            /// Apply pending migrations and exit.
+            Migrate,
+            /// Print the GraphQL SDL to stdout (used by frontend codegen).
+            ExportSdl,
+            }
+
+            #[tokio::main]
+            async fn main() -> Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+            let config = Config::from_env()?; // fails fast, before anything binds
+            telemetry::init(&amp;config)?; // tracing subscriber + OTEL exporter
+
+            let pool = db::connect(&amp;config.database).await?;
+            db::migrate(&amp;pool).await?; // safe to run on every boot
+
+            match Cli::parse().command {
+            Command::Serve =&gt; inrange_api::serve(config, pool).await?,
+            Command::Worker =&gt; inrange_worker::run(config, pool).await?,
+            Command::Migrate =&gt; tracing::info!("migrations applied"),
+            Command::ExportSdl =&gt; println!("{}", inrange_api::graphql::sdl()),
+            }
+            Ok(())
+            }</pre>
+        </div>
+
+        <div class="codeblock">
+          <header><span>crates/core/src/error.rs — one error type, mapped once</span><button
+              class="copybtn">Copy</button></header>
+          <pre>use thiserror::Error;
+
+            #[derive(Debug, Error)]
+            pub enum CoreError {
+            #[error("not found")]
+            NotFound,
+
+            #[error("not permitted")]
+            Forbidden,
+
+            #[error("authentication required")]
+            Unauthenticated,
+
+            /// User-correctable. `field` is the input path the client should highlight.
+            #[error("{message}")]
+            Validation { field: &amp;'static str, message: String },
+
+            #[error("conflict: {0}")]
+            Conflict(String),
+
+            #[error("rate limited, retry after {retry_after_secs}s")]
+            RateLimited { retry_after_secs: u64 },
+
+            /// Anything the caller cannot act on. Logged in full, never shown in full.
+            #[error("internal error")]
+            Internal(#[from] anyhow::Error),
+
+            #[error("internal error")]
+            Database(#[from] sqlx::Error),
+            }
+
+            impl CoreError {
+            /// Stable machine-readable code. The frontend switches on this, never on
+            /// the message text.
+            pub fn code(&amp;self) -&gt; &amp;'static str {
+            match self {
+            CoreError::NotFound =&gt; "NOT_FOUND",
+            CoreError::Forbidden =&gt; "FORBIDDEN",
+            CoreError::Unauthenticated =&gt; "UNAUTHENTICATED",
+            CoreError::Validation { .. } =&gt; "VALIDATION",
+            CoreError::Conflict(_) =&gt; "CONFLICT",
+            CoreError::RateLimited { .. } =&gt; "RATE_LIMITED",
+            CoreError::Internal(_) | CoreError::Database(_) =&gt; "INTERNAL",
+            }
+            }
+
+            pub fn is_internal(&amp;self) -&gt; bool {
+            matches!(self, CoreError::Internal(_) | CoreError::Database(_))
+            }
+            }</pre>
+        </div>
+
+        <div class="codeblock">
+          <header><span>crates/core/src/config.rs — typed config, no lazy statics</span><button
+              class="copybtn">Copy</button></header>
+          <pre>use serde::Deserialize;
+
+            #[derive(Debug, Clone, Deserialize)]
+            pub struct Config {
+            pub environment: Environment,
+            pub public_url: url::Url,
+            pub bind_addr: std::net::SocketAddr,
+            pub database: DatabaseConfig,
+            pub storage: StorageConfig,
+            pub mail: MailConfig,
+            #[serde(default)]
+            pub telemetry: TelemetryConfig,
+            }
+
+            #[derive(Debug, Clone, Copy, Deserialize, PartialEq, Eq)]
+            #[serde(rename_all = "lowercase")]
+            pub enum Environment { Local, Staging, Production }
+
+            #[derive(Debug, Clone, Deserialize)]
+            pub struct DatabaseConfig {
+            pub url: secrecy::SecretString,
+            #[serde(default = "default_pool")]
+            pub max_connections: u32,
+            }
+            fn default_pool() -&gt; u32 { 10 }
+
+            impl Config {
+            /// Reads INRANGE__DATABASE__URL style variables. Every field is required
+            /// unless it has a default, so a misconfigured deploy fails at boot rather
+            /// than on the first request that happens to touch it.
+            pub fn from_env() -&gt; Result&lt;Self, config::ConfigError&gt; {
+            config::Config::builder()
+            .add_source(
+            config::Environment::with_prefix("INRANGE")
+            .separator("__")
+            .try_parsing(true),
+            )
+            .build()?
+            .try_deserialize()
+            }
+
+            pub fn is_production(&amp;self) -&gt; bool {
+            self.environment == Environment::Production
+            }
+            }</pre>
+        </div>
+
+        <div class="codeblock">
+          <header><span>crates/core/src/db.rs — pool, migrations, health</span><button class="copybtn">Copy</button>
+          </header>
+          <pre>use sqlx::postgres::{PgPool, PgPoolOptions};
+            use std::time::Duration;
+            use secrecy::ExposeSecret;
+
+            pub async fn connect(cfg: &amp;crate::config::DatabaseConfig) -&gt; Result&lt;PgPool, sqlx::Error&gt; {
+            PgPoolOptions::new()
+            .max_connections(cfg.max_connections)
+            .min_connections(2)
+            .acquire_timeout(Duration::from_secs(5))
+            .idle_timeout(Duration::from_secs(300))
+            .max_lifetime(Duration::from_secs(1800))
+            .test_before_acquire(true)
+            .connect(cfg.url.expose_secret())
+            .await
+            }
+
+            /// Embedded at compile time from ./migrations, so the deployed artefact
+            /// carries its own schema and there is no separate migration step to forget.
+            pub async fn migrate(pool: &amp;PgPool) -&gt; Result&lt;(), sqlx::migrate::MigrateError&gt; {
+            sqlx::migrate!("./migrations").run(pool).await
+            }
+
+            pub async fn is_healthy(pool: &amp;PgPool) -&gt; bool {
+            sqlx::query_scalar::&lt;_, i32&gt;("SELECT 1")
+            .fetch_one(pool)
+            .await
+            .is_ok()
+            }</pre>
+        </div>
+
+        <div class="note ok"><b>Why this layout survives contact</b>When week 6 gets tight, the temptation is to write
+          SQL directly in a resolver "just this once". The crate boundary makes that impossible rather than merely
+          discouraged: <code>api</code> does not depend on <code>sqlx</code> at all, so the shortcut does not compile.
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= DATA MODEL ================= -->
+    <section class="panel" id="p-data" role="tabpanel" aria-labelledby="t-data" hidden>
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Deliverable</span>
+          <h2>Data model and migrations</h2>
+        </div>
+        <p class="sec-sub">Postgres 16. Constraints are enforced in the database rather than in application code,
+          because the worker and the API both write and only one of them is under test at any given moment.</p>
+
+        <article class="del">
+          <header><span class="delid">B-01</span>
+            <h3>Extensions and conventions</h3><span class="pill wk">Week 1</span>
+          </header>
+          <div class="del-body">
+            <ul class="done">
+              <li>UUIDv7 primary keys generated in Rust, not in the database, so an insert's ID is known before the
+                round trip.</li>
+              <li>Every table carries <code>created_at</code> and <code>updated_at</code> as <code>timestamptz</code>,
+                maintained by a trigger.</li>
+              <li>Soft deletion only where content moderation needs it; everything else is a hard delete.</li>
+              <li>Enumerations as Postgres enum types where the set is closed and stable, as lookup tables where editors
+                may extend it.</li>
+            </ul>
+            <div class="codeblock">
+              <header><span>migrations/0001_extensions.sql</span><button class="copybtn">Copy</button></header>
+              <pre>CREATE EXTENSION IF NOT EXISTS pg_trgm;
+                CREATE EXTENSION IF NOT EXISTS unaccent;
+                CREATE EXTENSION IF NOT EXISTS btree_gin;
+
+                -- Keeps updated_at honest without relying on every code path remembering.
+                CREATE OR REPLACE FUNCTION set_updated_at() RETURNS trigger AS $$
+                BEGIN
+                NEW.updated_at = now();
+                RETURN NEW;
+                END;
+                $$ LANGUAGE plpgsql;
+
+                -- Search configuration that ignores accents, used by every FTS column.
+                CREATE TEXT SEARCH CONFIGURATION english_unaccent ( COPY = english );
+                ALTER TEXT SEARCH CONFIGURATION english_unaccent
+                ALTER MAPPING FOR hword, hword_part, word
+                WITH unaccent, english_stem;</pre>
+            </div>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-02</span>
+            <h3>Identity schema</h3><span class="pill wk">Week 1</span><span class="pill">F-01 → F-07</span>
+          </header>
+          <div class="del-body">
+            <div class="codeblock">
+              <header><span>migrations/0002_identity.sql</span><button class="copybtn">Copy</button></header>
+              <pre>CREATE TYPE user_role AS ENUM ('reader', 'author', 'editor', 'admin');
+                CREATE TYPE t1d_relation AS ENUM
+                ('living_with', 'parent', 'partner', 'caregiver', 'clinician', 'researcher', 'other');
+
+                CREATE TABLE users (
+                id uuid PRIMARY KEY,
+                email citext NOT NULL,
+                email_verified_at timestamptz,
+                password_hash text NOT NULL,
+                role user_role NOT NULL DEFAULT 'reader',
+                handle citext NOT NULL,
+                display_name text NOT NULL,
+                bio text,
+                avatar_media_id uuid,
+                relation t1d_relation,
+                diagnosis_year smallint,
+                country_code char(2),
+                -- Per-field visibility. Absent key means hidden; nothing is public by default.
+                visibility jsonb NOT NULL DEFAULT '{}'::jsonb,
+                suspended_at timestamptz,
+                created_at timestamptz NOT NULL DEFAULT now(),
+                updated_at timestamptz NOT NULL DEFAULT now(),
+
+                CONSTRAINT users_email_key UNIQUE (email),
+                CONSTRAINT users_handle_key UNIQUE (handle),
+                CONSTRAINT users_handle_fmt CHECK (handle ~ '^[a-z0-9](?:[a-z0-9_-]{1,28}[a-z0-9])$'),
+                CONSTRAINT users_diag_year CHECK (diagnosis_year IS NULL
+                OR diagnosis_year BETWEEN 1920 AND 2100)
+                );
+
+                CREATE TABLE sessions (
+                id uuid PRIMARY KEY,
+                user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                -- Only the hash is stored. A database leak does not yield usable sessions.
+                token_hash bytea NOT NULL,
+                user_agent text,
+                ip_prefix inet, -- truncated /24 or /48, never the full address
+                expires_at timestamptz NOT NULL,
+                revoked_at timestamptz,
+                last_seen_at timestamptz NOT NULL DEFAULT now(),
+                created_at timestamptz NOT NULL DEFAULT now(),
+                CONSTRAINT sessions_token_key UNIQUE (token_hash)
+                );
+                CREATE INDEX sessions_user_active_idx ON sessions (user_id)
+                WHERE revoked_at IS NULL;
+
+                CREATE TYPE token_purpose AS ENUM ('email_verify', 'password_reset');
+
+                CREATE TABLE auth_tokens (
+                id uuid PRIMARY KEY,
+                user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                purpose token_purpose NOT NULL,
+                token_hash bytea NOT NULL UNIQUE,
+                expires_at timestamptz NOT NULL,
+                used_at timestamptz,
+                created_at timestamptz NOT NULL DEFAULT now()
+                );
+
+                CREATE TRIGGER users_updated BEFORE UPDATE ON users
+                FOR EACH ROW EXECUTE FUNCTION set_updated_at();</pre>
+            </div>
+            <p class="subhead">Done when</p>
+            <ul class="done">
+              <li>An expired or revoked session cannot authenticate, verified by a test that manipulates
+                <code>expires_at</code> directly.</li>
+              <li>Deleting a user cascades to sessions and tokens and anonymises authored content in the same
+                transaction.</li>
+              <li>No plaintext token exists anywhere in the database.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-03</span>
+            <h3>Stories schema</h3><span class="pill wk">Week 2</span><span class="pill">F-10 → F-21</span>
+          </header>
+          <div class="del-body">
+            <div class="codeblock">
+              <header><span>migrations/0003_stories.sql</span><button class="copybtn">Copy</button></header>
+              <pre>CREATE TYPE story_status AS ENUM ('draft', 'in_review', 'published', 'unpublished', 'removed');
+
+                CREATE TABLE stories (
+                id uuid PRIMARY KEY,
+                author_id uuid NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+                slug citext, -- assigned on first publish
+                title text NOT NULL,
+                dek text, -- one-line standfirst
+                body_md text NOT NULL DEFAULT '',
+                body_html text, -- rendered + sanitised at publish
+                cover_media_id uuid,
+                status story_status NOT NULL DEFAULT 'draft',
+                content_warnings text[] NOT NULL DEFAULT '{}',
+                reading_minutes smallint,
+                published_at timestamptz,
+                comments_open boolean NOT NULL DEFAULT true,
+                series_id uuid,
+                series_index smallint,
+                search_tsv tsvector,
+                created_at timestamptz NOT NULL DEFAULT now(),
+                updated_at timestamptz NOT NULL DEFAULT now(),
+
+                CONSTRAINT stories_slug_key UNIQUE (slug),
+                -- A published story must have everything a reader needs. Enforced here so no
+                -- code path can publish a half-finished record.
+                CONSTRAINT stories_published_complete CHECK (
+                status &lt;&gt; 'published'
+                OR (slug IS NOT NULL AND published_at IS NOT NULL
+                AND body_html IS NOT NULL AND length(title) &gt; 0)
+                )
+                );
+
+                CREATE INDEX stories_feed_idx ON stories (published_at DESC, id DESC)
+                WHERE status = 'published';
+                CREATE INDEX stories_author_idx ON stories (author_id, created_at DESC);
+                CREATE INDEX stories_search_idx ON stories USING gin (search_tsv);
+
+                -- Autosave writes here, not to stories.body_md, so a crash mid-edit can never
+                -- corrupt a published version.
+                CREATE TABLE story_revisions (
+                id uuid PRIMARY KEY,
+                story_id uuid NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+                body_md text NOT NULL,
+                title text NOT NULL,
+                author_id uuid REFERENCES users(id) ON DELETE SET NULL,
+                created_at timestamptz NOT NULL DEFAULT now()
+                );
+                CREATE INDEX story_revisions_idx ON story_revisions (story_id, created_at DESC);
+
+                CREATE TYPE tag_axis AS ENUM ('audience', 'topic', 'device');
+
+                CREATE TABLE tags (
+                id uuid PRIMARY KEY,
+                axis tag_axis NOT NULL,
+                slug citext NOT NULL,
+                label text NOT NULL,
+                device_id uuid, -- set only when axis = 'device'
+                CONSTRAINT tags_axis_slug_key UNIQUE (axis, slug)
+                );
+
+                CREATE TABLE story_tags (
+                story_id uuid NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+                tag_id uuid NOT NULL REFERENCES tags(id) ON DELETE RESTRICT,
+                PRIMARY KEY (story_id, tag_id)
+                );
+                CREATE INDEX story_tags_tag_idx ON story_tags (tag_id, story_id);
+
+                CREATE TABLE comments (
+                id uuid PRIMARY KEY,
+                story_id uuid NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+                author_id uuid REFERENCES users(id) ON DELETE SET NULL,
+                parent_id uuid REFERENCES comments(id) ON DELETE CASCADE,
+                body_md text NOT NULL,
+                body_html text NOT NULL,
+                hidden_at timestamptz,
+                created_at timestamptz NOT NULL DEFAULT now(),
+                updated_at timestamptz NOT NULL DEFAULT now()
+                );
+                CREATE INDEX comments_story_idx ON comments (story_id, created_at)
+                WHERE hidden_at IS NULL;
+
+                CREATE TABLE reactions (
+                story_id uuid NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+                user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                created_at timestamptz NOT NULL DEFAULT now(),
+                PRIMARY KEY (story_id, user_id) -- one reaction per person, structurally
+                );
+
+                CREATE TABLE saved_items (
+                user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                entity_type text NOT NULL CHECK (entity_type IN ('story','news_item','device')),
+                entity_id uuid NOT NULL,
+                created_at timestamptz NOT NULL DEFAULT now(),
+                PRIMARY KEY (user_id, entity_type, entity_id)
+                );</pre>
+            </div>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-04</span>
+            <h3>Signal schema</h3><span class="pill wk">Week 3</span><span class="pill">F-30 → F-43</span>
+          </header>
+          <div class="del-body">
+            <p>The important shape here is that a real-world event is one <code>news_items</code> row with many
+              <code>item_mentions</code> — one per outlet that covered it. That is what makes the feed readable instead
+              of a wall of duplicates.</p>
+            <div class="codeblock">
+              <header><span>migrations/0004_signal.sql</span><button class="copybtn">Copy</button></header>
+              <pre>CREATE TYPE source_kind AS ENUM
+                ('rss', 'atom', 'json_feed', 'pubmed', 'europepmc', 'clinicaltrials',
+                'openfda', 'crossref', 'github_releases', 'scrape');
+
+                CREATE TYPE trust_tier AS ENUM
+                ('primary_research', 'regulatory', 'manufacturer', 'nonprofit', 'media', 'community');
+
+                CREATE TYPE item_status AS ENUM ('pending', 'approved', 'rejected', 'hidden');
+
+                CREATE TABLE sources (
+                id uuid PRIMARY KEY,
+                name text NOT NULL,
+                kind source_kind NOT NULL,
+                endpoint text NOT NULL,
+                homepage text,
+                trust trust_tier NOT NULL,
+                default_category text,
+                query_params jsonb NOT NULL DEFAULT '{}'::jsonb, -- saved search per source
+                poll_interval interval NOT NULL DEFAULT '6 hours',
+                -- Conditional GET state, so an unchanged feed costs one 304 and no parsing.
+                etag text,
+                last_modified text,
+                license_note text NOT NULL, -- required: no source without terms
+                active boolean NOT NULL DEFAULT true,
+                paused_reason text,
+                consecutive_failures smallint NOT NULL DEFAULT 0,
+                next_run_at timestamptz NOT NULL DEFAULT now(),
+                last_success_at timestamptz,
+                created_at timestamptz NOT NULL DEFAULT now(),
+                updated_at timestamptz NOT NULL DEFAULT now(),
+                CONSTRAINT sources_endpoint_key UNIQUE (kind, endpoint)
+                );
+                CREATE INDEX sources_due_idx ON sources (next_run_at) WHERE active;
+
+                CREATE TABLE news_items (
+                id uuid PRIMARY KEY,
+                title text NOT NULL,
+                excerpt text, -- licensing cap
+                editor_summary text, -- written by a human
+                canonical_url text NOT NULL,
+                published_at timestamptz NOT NULL,
+                category text,
+                status item_status NOT NULL DEFAULT 'pending',
+                approved_by uuid REFERENCES users(id),
+                approved_at timestamptz,
+                pinned_until timestamptz,
+                -- Strong identity: first non-null wins during deduplication.
+                doi text,
+                pmid text,
+                nct_id text,
+                regulatory_id text,
+                simhash bigint NOT NULL,
+                evidence jsonb, -- {design, phase, participants, peer_reviewed, ...}
+                score real NOT NULL DEFAULT 0,
+                search_tsv tsvector,
+                created_at timestamptz NOT NULL DEFAULT now(),
+                updated_at timestamptz NOT NULL DEFAULT now(),
+                CONSTRAINT news_items_excerpt_len CHECK (excerpt IS NULL OR length(excerpt) &lt;= 240),
+                CONSTRAINT news_items_canonical_key UNIQUE (canonical_url)
+                );
+
+                CREATE UNIQUE INDEX news_items_doi_idx ON news_items (doi) WHERE doi IS NOT NULL;
+                CREATE UNIQUE INDEX news_items_pmid_idx ON news_items (pmid) WHERE pmid IS NOT NULL;
+                CREATE INDEX news_items_nct_idx ON news_items (nct_id) WHERE nct_id IS NOT NULL;
+                CREATE INDEX news_items_feed_idx ON news_items (published_at DESC, id DESC)
+                WHERE status = 'approved';
+                CREATE INDEX news_items_queue_idx ON news_items (score DESC, published_at DESC)
+                WHERE status = 'pending';
+                CREATE INDEX news_items_simhash_idx ON news_items (simhash);
+                CREATE INDEX news_items_search_idx ON news_items USING gin (search_tsv);
+
+                -- Every outlet that covered the same event.
+                CREATE TABLE item_mentions (
+                id uuid PRIMARY KEY,
+                item_id uuid NOT NULL REFERENCES news_items(id) ON DELETE CASCADE,
+                source_id uuid NOT NULL REFERENCES sources(id) ON DELETE CASCADE,
+                url text NOT NULL,
+                title text NOT NULL,
+                published_at timestamptz NOT NULL,
+                raw jsonb, -- original payload, for reprocessing
+                created_at timestamptz NOT NULL DEFAULT now(),
+                CONSTRAINT item_mentions_url_key UNIQUE (url)
+                );
+                CREATE INDEX item_mentions_item_idx ON item_mentions (item_id);
+
+                CREATE TABLE entities (
+                id uuid PRIMARY KEY,
+                kind text NOT NULL CHECK (kind IN ('manufacturer','device','journal','trial','programme')),
+                name text NOT NULL,
+                aliases text[] NOT NULL DEFAULT '{}',
+                device_id uuid,
+                CONSTRAINT entities_kind_name_key UNIQUE (kind, name)
+                );
+                CREATE INDEX entities_alias_idx ON entities USING gin (aliases);
+
+                CREATE TABLE item_entities (
+                item_id uuid NOT NULL REFERENCES news_items(id) ON DELETE CASCADE,
+                entity_id uuid NOT NULL REFERENCES entities(id) ON DELETE CASCADE,
+                PRIMARY KEY (item_id, entity_id)
+                );
+
+                -- One row per fetch attempt. This is the source-health dashboard (F-43).
+                CREATE TABLE fetch_runs (
+                id uuid PRIMARY KEY,
+                source_id uuid NOT NULL REFERENCES sources(id) ON DELETE CASCADE,
+                started_at timestamptz NOT NULL DEFAULT now(),
+                finished_at timestamptz,
+                http_status smallint,
+                items_seen integer NOT NULL DEFAULT 0,
+                items_new integer NOT NULL DEFAULT 0,
+                items_merged integer NOT NULL DEFAULT 0,
+                error text,
+                duration_ms integer
+                );
+                CREATE INDEX fetch_runs_source_idx ON fetch_runs (source_id, started_at DESC);</pre>
+            </div>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-05</span>
+            <h3>Devices schema</h3><span class="pill wk">Week 5</span><span class="pill">F-50 → F-57</span>
+          </header>
+          <div class="del-body">
+            <p>Specs are stored as rows rather than columns. Device categories differ too much for a wide table, and
+              every value has to carry its own citation and verification date — which a column-per-spec design cannot
+              express.</p>
+            <div class="codeblock">
+              <header><span>migrations/0005_devices.sql</span><button class="copybtn">Copy</button></header>
+              <pre>CREATE TYPE device_category AS ENUM ('cgm', 'pump', 'aid_system', 'smart_pen', 'app', 'meter');
+                CREATE TYPE market_status AS ENUM ('available', 'approved_not_launched', 'in_review',
+                'not_available', 'discontinued');
+
+                CREATE TABLE devices (
+                id uuid PRIMARY KEY,
+                slug citext NOT NULL UNIQUE,
+                name text NOT NULL,
+                manufacturer text NOT NULL,
+                category device_category NOT NULL,
+                summary text,
+                hero_media_id uuid,
+                first_release_year smallint,
+                discontinued_year smallint,
+                verified_at timestamptz,
+                verified_by uuid REFERENCES users(id),
+                search_tsv tsvector,
+                created_at timestamptz NOT NULL DEFAULT now(),
+                updated_at timestamptz NOT NULL DEFAULT now()
+                );
+                CREATE INDEX devices_category_idx ON devices (category, name);
+                CREATE INDEX devices_search_idx ON devices USING gin (search_tsv);
+
+                -- The vocabulary of specs, so labels and units are defined once.
+                CREATE TABLE spec_definitions (
+                key text PRIMARY KEY, -- 'wear_days', 'mard_percent', ...
+                label text NOT NULL,
+                unit text,
+                value_type text NOT NULL CHECK (value_type IN ('number','text','boolean','range','enum')),
+                categories device_category[] NOT NULL,
+                sort_order smallint NOT NULL DEFAULT 100
+                );
+
+                CREATE TABLE device_specs (
+                id uuid PRIMARY KEY,
+                device_id uuid NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+                spec_key text NOT NULL REFERENCES spec_definitions(key),
+                value_num numeric,
+                value_text text,
+                value_bool boolean,
+                -- Provenance is mandatory: no value may be displayed without a source.
+                source_url text NOT NULL,
+                source_label text NOT NULL,
+                verified_at timestamptz NOT NULL,
+                note text,
+                CONSTRAINT device_specs_key UNIQUE (device_id, spec_key),
+                CONSTRAINT device_specs_one_value CHECK (
+                (value_num IS NOT NULL)::int
+                + (value_text IS NOT NULL)::int
+                + (value_bool IS NOT NULL)::int = 1
+                )
+                );
+
+                CREATE TABLE device_availability (
+                device_id uuid NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+                country_code char(2) NOT NULL,
+                status market_status NOT NULL,
+                approval_ref text,
+                verified_at timestamptz NOT NULL,
+                source_url text NOT NULL,
+                PRIMARY KEY (device_id, country_code)
+                );
+
+                CREATE TABLE device_compatibility (
+                id uuid PRIMARY KEY,
+                device_id uuid NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+                works_with uuid NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+                status text NOT NULL CHECK (status IN ('supported','announced','unsupported','discontinued')),
+                note text,
+                source_url text NOT NULL,
+                verified_at timestamptz NOT NULL,
+                CONSTRAINT device_compat_key UNIQUE (device_id, works_with),
+                CONSTRAINT device_compat_self CHECK (device_id &lt;&gt; works_with)
+                );</pre>
+            </div>
+            <p class="subhead">Done when</p>
+            <ul class="done">
+              <li>Inserting a spec value without a source URL fails at the database level.</li>
+              <li>The device page renders "not published" for any missing spec, never a blank cell.</li>
+              <li>A device whose <code>verified_at</code> is older than 180 days is flagged by a scheduled job.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-06</span>
+            <h3>Numbers schema</h3><span class="pill wk">Week 6</span><span class="pill">F-60, F-61</span>
+          </header>
+          <div class="del-body">
+            <div class="codeblock">
+              <header><span>migrations/0006_numbers.sql</span><button class="copybtn">Copy</button></header>
+              <pre>CREATE TABLE datasets (
+                id uuid PRIMARY KEY,
+                slug citext NOT NULL UNIQUE,
+                title text NOT NULL,
+                publisher text NOT NULL,
+                edition text NOT NULL, -- '2025 edition', 'v3.2', ...
+                retrieved_at date NOT NULL,
+                source_url text NOT NULL,
+                license text NOT NULL, -- required, no exceptions
+                permitted_use text NOT NULL,
+                methodology_md text NOT NULL, -- rendered into the caveats panel
+                checksum text NOT NULL, -- of the raw file as downloaded
+                created_at timestamptz NOT NULL DEFAULT now()
+                );
+
+                CREATE TABLE indicators (
+                key text PRIMARY KEY, -- 't1d_incidence_rate', ...
+                label text NOT NULL,
+                unit text NOT NULL,
+                description text NOT NULL
+                );
+
+                -- Long format. One row per country/year/age-band/sex observation. Every chart
+                -- in the product is a query against this single table.
+                CREATE TABLE observations (
+                id bigserial PRIMARY KEY,
+                dataset_id uuid NOT NULL REFERENCES datasets(id) ON DELETE CASCADE,
+                indicator_key text NOT NULL REFERENCES indicators(key),
+                country_iso3 char(3) NOT NULL,
+                year smallint NOT NULL,
+                age_band text NOT NULL DEFAULT 'all',
+                sex text NOT NULL DEFAULT 'all' CHECK (sex IN ('all','female','male')),
+                value double precision NOT NULL,
+                lower_bound double precision,
+                upper_bound double precision,
+                -- Readers must be able to tell measured data from a model. Rendered as a
+                -- different line style, not just a footnote.
+                estimate_type text NOT NULL CHECK (estimate_type IN ('measured','modelled','projected')),
+                source_row jsonb, -- the original row, for auditing
+                CONSTRAINT observations_key
+                UNIQUE (dataset_id, indicator_key, country_iso3, year, age_band, sex)
+                );
+                CREATE INDEX observations_query_idx
+                ON observations (indicator_key, country_iso3, year);
+                CREATE INDEX observations_year_idx
+                ON observations (indicator_key, year) INCLUDE (country_iso3, value);</pre>
+            </div>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-07</span>
+            <h3>Moderation, audit and jobs</h3><span class="pill wk">Weeks 3 and 7</span><span class="pill">F-73,
+              F-74</span>
+          </header>
+          <div class="del-body">
+            <div class="codeblock">
+              <header><span>migrations/0007_search_and_views.sql (excerpt)</span><button class="copybtn">Copy</button>
+              </header>
+              <pre>CREATE TABLE reports (
+                id uuid PRIMARY KEY,
+                reporter_id uuid REFERENCES users(id) ON DELETE SET NULL,
+                entity_type text NOT NULL CHECK (entity_type IN ('story','comment','device','news_item')),
+                entity_id uuid NOT NULL,
+                reason text NOT NULL,
+                detail text,
+                snapshot jsonb NOT NULL, -- content as reported; survives later edits
+                resolved_at timestamptz,
+                resolved_by uuid REFERENCES users(id),
+                resolution text,
+                created_at timestamptz NOT NULL DEFAULT now()
+                );
+                CREATE INDEX reports_open_idx ON reports (created_at) WHERE resolved_at IS NULL;
+
+                -- Append-only. No UPDATE or DELETE grant on this table for the app role.
+                CREATE TABLE audit_log (
+                id bigserial PRIMARY KEY,
+                actor_id uuid REFERENCES users(id),
+                action text NOT NULL,
+                entity_type text NOT NULL,
+                entity_id uuid,
+                detail jsonb NOT NULL DEFAULT '{}'::jsonb,
+                request_id text,
+                created_at timestamptz NOT NULL DEFAULT now()
+                );
+                CREATE INDEX audit_log_entity_idx ON audit_log (entity_type, entity_id, created_at DESC);
+
+                -- Job queue. Postgres with SKIP LOCKED is sufficient at this scale, and it
+                -- removes Redis from the operational surface entirely.
+                CREATE TABLE jobs (
+                id uuid PRIMARY KEY,
+                kind text NOT NULL,
+                payload jsonb NOT NULL DEFAULT '{}'::jsonb,
+                run_at timestamptz NOT NULL DEFAULT now(),
+                attempts smallint NOT NULL DEFAULT 0,
+                max_attempts smallint NOT NULL DEFAULT 5,
+                locked_at timestamptz,
+                locked_by text,
+                last_error text,
+                created_at timestamptz NOT NULL DEFAULT now()
+                );
+                CREATE INDEX jobs_ready_idx ON jobs (run_at) WHERE locked_at IS NULL;</pre>
+            </div>
+            <div class="note stop"><b>Grant discipline</b>The application connects as a role with no <code>UPDATE</code>
+              or <code>DELETE</code> on <code>audit_log</code>. Migrations run as a separate owner role. An audit log
+              the application can rewrite is not an audit log.</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ================= GRAPHQL API ================= -->
+    <section class="panel" id="p-api" role="tabpanel" aria-labelledby="t-api" hidden>
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Deliverable</span>
+          <h2>GraphQL API</h2>
+        </div>
+        <p class="sec-sub">One schema, exported to SDL by <code>inrange export-sdl</code> and consumed by the frontend's
+          codegen. Schema changes that break the frontend break CI, which is the point.</p>
+
+        <article class="del">
+          <header><span class="delid">B-10</span>
+            <h3>Server bootstrap and middleware</h3><span class="pill wk">Week 1</span>
+          </header>
+          <div class="del-body">
+            <div class="codeblock">
+              <header><span>crates/api/src/router.rs</span><button class="copybtn">Copy</button></header>
+              <pre>use axum::{routing::{get, post}, Router};
+                use tower_http::{
+                compression::CompressionLayer, cors::CorsLayer, request_id::MakeRequestUuid,
+                timeout::TimeoutLayer, trace::TraceLayer, set_header::SetResponseHeaderLayer,
+                };
+                use std::time::Duration;
+
+                pub fn build(state: AppState) -&gt; Router {
+                let graphql = Router::new()
+                .route("/graphql", post(handlers::graphql))
+                // Playground only outside production.
+                .route("/graphql", get(handlers::playground))
+                .layer(axum::middleware::from_fn_with_state(
+                state.clone(),
+                crate::auth::extractor::load_session,
+                ));
+
+                Router::new()
+                .merge(graphql)
+                .route("/healthz", get(rest::health::live))
+                .route("/readyz", get(rest::health::ready))
+                .route("/upload", post(rest::upload::create))
+                .route("/feeds/stories.xml", get(rest::feeds::stories))
+                .route("/sitemap.xml", get(rest::sitemap::index))
+                .layer(SetResponseHeaderLayer::overriding(
+                axum::http::header::STRICT_TRANSPORT_SECURITY,
+                axum::http::HeaderValue::from_static("max-age=63072000; includeSubDomains"),
+                ))
+                .layer(CompressionLayer::new())
+                .layer(TimeoutLayer::new(Duration::from_secs(20)))
+                .layer(CorsLayer::new()
+                .allow_origin(state.config.public_url.as_str().parse::&lt;HeaderValue&gt;().unwrap())
+                .allow_credentials(true))
+                .layer(TraceLayer::new_for_http())
+                .layer(tower_http::request_id::SetRequestIdLayer::x_request_id(MakeRequestUuid))
+                .with_state(state)
+                }</pre>
+            </div>
+            <div class="codeblock">
+              <header><span>crates/api/src/graphql/mod.rs — schema with limits</span><button
+                  class="copybtn">Copy</button></header>
+              <pre>use async_graphql::{extensions, EmptySubscription, Schema};
+
+                pub type AppSchema = Schema&lt;Query, Mutation, EmptySubscription&gt;;
+
+                pub fn build_schema(state: AppState) -&gt; AppSchema {
+                let mut builder = Schema::build(Query::default(), Mutation::default(), EmptySubscription)
+                .data(state.clone())
+                .data(loaders::build(state.pool.clone()))
+                // A public GraphQL endpoint without these two lines is a denial-of-service
+                // vector: one nested query can walk the whole graph.
+                .limit_depth(12)
+                .limit_complexity(600)
+                .extension(extensions::Tracing);
+
+                if state.config.is_production() {
+                // Introspection stays on for tooling but the playground does not ship.
+                builder = builder.extension(extensions::ApolloTracing);
+                }
+                builder.finish()
+                }
+
+                pub fn sdl() -&gt; String {
+                Schema::build(Query::default(), Mutation::default(), EmptySubscription)
+                .finish()
+                .sdl()
+                }</pre>
+            </div>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-11</span>
+            <h3>Errors as data, not as strings</h3><span class="pill wk">Week 1</span>
+          </header>
+          <div class="del-body">
+            <p>Internal errors are logged in full and returned as a generic message with a request ID. Everything a user
+              can act on carries a stable code and, where relevant, the input field at fault.</p>
+            <div class="codeblock">
+              <header><span>crates/api/src/error.rs</span><button class="copybtn">Copy</button></header>
+              <pre>use async_graphql::{ErrorExtensions, FieldError};
+                use inrange_core::error::CoreError;
+
+                pub trait IntoFieldError { fn into_field_error(self) -&gt; FieldError; }
+
+                impl IntoFieldError for CoreError {
+                fn into_field_error(self) -&gt; FieldError {
+                let code = self.code();
+
+                if self.is_internal() {
+                // Full detail to the log, correlation id to the client, nothing else.
+                let request_id = tracing::Span::current()
+                .field("request_id")
+                .map(|f| f.to_string())
+                .unwrap_or_default();
+                tracing::error!(error = ?self, code, "unhandled internal error");
+                return FieldError::new("Something went wrong on our side.")
+                .extend_with(|_, e| {
+                e.set("code", code);
+                e.set("requestId", request_id);
+                });
+                }
+
+                let message = self.to_string();
+                let field = match &amp;self {
+                CoreError::Validation { field, .. } =&gt; Some(*field),
+                _ =&gt; None,
+                };
+                FieldError::new(message).extend_with(|_, e| {
+                e.set("code", code);
+                if let Some(f) = field { e.set("field", f); }
+                if let CoreError::RateLimited { retry_after_secs } = &amp;self {
+                e.set("retryAfter", *retry_after_secs);
+                }
+                })
+                }
+                }
+
+                /// Used in resolvers: `story_service::publish(..).map_err(to_gql)?`
+                pub fn to_gql(err: CoreError) -&gt; FieldError { err.into_field_error() }</pre>
+            </div>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-12</span>
+            <h3>Keyset pagination</h3><span class="pill wk">Week 4</span><span class="pill">F-37</span>
+          </header>
+          <div class="del-body">
+            <p>Offset pagination breaks on a feed that is constantly gaining rows at the head: readers see duplicates
+              and miss items. Keyset cursors on <code>(published_at, id)</code> are stable and index-friendly, and the
+              composite index defined in B-04 serves them without a sort.</p>
+            <div class="codeblock">
+              <header><span>crates/core/src/pagination.rs</span><button class="copybtn">Copy</button></header>
+              <pre>use base64::{engine::general_purpose::URL_SAFE_NO_PAD as B64, Engine};
+                use chrono::{DateTime, Utc};
+                use uuid::Uuid;
+
+                #[derive(Debug, Clone, Copy)]
+                pub struct Cursor { pub at: DateTime&lt;Utc&gt;, pub id: Uuid }
+
+                impl Cursor {
+                pub fn encode(&amp;self) -&gt; String {
+                B64.encode(format!("{}|{}", self.at.timestamp_micros(), self.id))
+                }
+
+                pub fn decode(raw: &amp;str) -&gt; Result&lt;Self, crate::error::CoreError&gt; {
+                let invalid = || crate::error::CoreError::Validation {
+                field: "after",
+                message: "That cursor is not valid. Reload the list to start again.".into(),
+                };
+                let bytes = B64.decode(raw).map_err(|_| invalid())?;
+                let text = String::from_utf8(bytes).map_err(|_| invalid())?;
+                let (ts, id) = text.split_once('|').ok_or_else(invalid)?;
+                Ok(Cursor {
+                at: DateTime::from_timestamp_micros(ts.parse().map_err(|_| invalid())?)
+                .ok_or_else(invalid)?,
+                id: id.parse().map_err(|_| invalid())?,
+                })
+                }
+                }
+
+                /// Always fetch limit + 1 and use the extra row to answer has_next_page
+                /// without a second COUNT query.
+                pub const MAX_PAGE: i64 = 50;
+                pub fn clamp(first: Option&lt;i32&gt;) -&gt; i64 {
+                first.unwrap_or(20).clamp(1, MAX_PAGE as i32) as i64
+                }</pre>
+            </div>
+            <div class="codeblock">
+              <header><span>crates/core/src/signal/repo.rs — the feed query</span><button class="copybtn">Copy</button>
+              </header>
+              <pre>use sqlx::PgExecutor;
+
+                pub struct ItemFilter {
+                pub categories: Vec&lt;String&gt;,
+                pub trust_tiers: Vec&lt;TrustTier&gt;,
+                pub research_only: bool,
+                }
+
+                /// Returns limit + 1 rows; the caller trims and derives has_next_page.
+                pub async fn list_approved_after(
+                exec: impl PgExecutor&lt;'_&gt;,
+                filter: &amp;ItemFilter,
+                after: Option&lt;Cursor&gt;,
+                limit: i64,
+                ) -&gt; Result&lt;Vec&lt;NewsItem&gt;, sqlx::Error&gt; {
+                sqlx::query_as!(
+                NewsItem,
+                r#"
+                SELECT i.id, i.title, i.excerpt, i.editor_summary, i.canonical_url,
+                i.published_at, i.category, i.doi, i.pmid, i.nct_id,
+                i.evidence, i.score
+                FROM news_items i
+                WHERE i.status = 'approved'
+                AND ($1::text[] = '{}' OR i.category = ANY($1))
+                AND (NOT $2::bool OR i.evidence IS NOT NULL)
+                -- Keyset predicate. Row-value comparison lets Postgres use the
+                -- (published_at DESC, id DESC) index directly.
+                AND ($3::timestamptz IS NULL
+                OR (i.published_at, i.id) &lt; ($3, $4::uuid))
+                ORDER BY i.published_at DESC, i.id DESC
+                LIMIT $5
+                "#,
+                &amp;filter.categories,
+                filter.research_only,
+                after.map(|c| c.at),
+                after.map(|c| c.id),
+                limit + 1,
+                )
+                .fetch_all(exec)
+                .await
+                }</pre>
+            </div>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-13</span>
+            <h3>Resolvers, dataloaders and guards</h3><span class="pill wk">Weeks 2 and 4</span>
+          </header>
+          <div class="del-body">
+            <p>Every list resolver that exposes a nested association gets a dataloader on day one. Retrofitting them
+              after the N+1 shows up in production is far more work than writing them now.</p>
+            <div class="codeblock">
+              <header><span>crates/api/src/graphql/loaders.rs</span><button class="copybtn">Copy</button></header>
+              <pre>use async_graphql::dataloader::{DataLoader, Loader};
+                use std::{collections::HashMap, sync::Arc};
+
+                pub struct MentionsBySource(pub sqlx::PgPool);
+
+                impl Loader&lt;Uuid&gt; for MentionsBySource {
+                type Value = Vec&lt;Mention&gt;;
+                type Error = Arc&lt;sqlx::Error&gt;;
+
+                async fn load(&amp;self, keys: &amp;[Uuid]) -&gt; Result&lt;HashMap&lt;Uuid, Self::Value&gt;,
+                Self::Error&gt; {
+                // One query for the whole page of items, not one per item.
+                let rows = sqlx::query_as!(
+                MentionRow,
+                r#"SELECT m.item_id, m.url, m.title, m.published_at,
+                s.name AS source_name, s.trust AS "trust: TrustTier"
+                FROM item_mentions m
+                JOIN sources s ON s.id = m.source_id
+                WHERE m.item_id = ANY($1)
+                ORDER BY m.published_at ASC"#,
+                keys
+                )
+                .fetch_all(&amp;self.0)
+                .await
+                .map_err(Arc::new)?;
+
+                let mut out: HashMap&lt;Uuid, Vec&lt;Mention&gt;&gt; = HashMap::with_capacity(keys.len());
+                for row in rows {
+                out.entry(row.item_id).or_default().push(row.into());
+                }
+                Ok(out)
+                }
+                }
+
+                pub fn build(pool: sqlx::PgPool) -&gt; Loaders {
+                Loaders {
+                mentions: DataLoader::new(MentionsBySource(pool.clone()), tokio::spawn),
+                tags: DataLoader::new(TagsByStory(pool.clone()), tokio::spawn),
+                authors: DataLoader::new(UsersById(pool), tokio::spawn),
+                }
+                }</pre>
+            </div>
+            <div class="codeblock">
+              <header><span>crates/api/src/graphql/signal.rs — resolver and guard</span><button
+                  class="copybtn">Copy</button></header>
+              <pre>use async_graphql::{Context, Object, Result, connection::{Connection, Edge, EmptyFields}};
+
+                #[derive(Default)]
+                pub struct SignalQuery;
+
+                #[Object]
+                impl SignalQuery {
+                /// The public feed. Only approved items, newest first.
+                async fn news_feed(
+                &amp;self,
+                ctx: &amp;Context&lt;'_&gt;,
+                #[graphql(desc = "Filter to these category slugs")] categories: Option&lt;Vec&lt;String&gt;&gt;,
+                research_only: Option&lt;bool&gt;,
+                first: Option&lt;i32&gt;,
+                after: Option&lt;String&gt;,
+                ) -&gt; Result&lt;Connection&lt;String, NewsItemType, EmptyFields, EmptyFields&gt;&gt; {
+                let state = ctx.data_unchecked::&lt;AppState&gt;();
+                let limit = pagination::clamp(first);
+                let cursor = after.as_deref().map(Cursor::decode).transpose().map_err(to_gql)?;
+
+                let filter = ItemFilter {
+                categories: categories.unwrap_or_default(),
+                trust_tiers: vec![],
+                research_only: research_only.unwrap_or(false),
+                };
+
+                let mut rows = signal::repo::list_approved_after(&amp;state.pool, &amp;filter, cursor, limit)
+                .await
+                .map_err(|e| to_gql(e.into()))?;
+
+                let has_next = rows.len() as i64 &gt; limit;
+                rows.truncate(limit as usize);
+
+                let mut conn = Connection::new(cursor.is_some(), has_next);
+                conn.edges.extend(rows.into_iter().map(|item| {
+                let c = Cursor { at: item.published_at, id: item.id };
+                Edge::new(c.encode(), NewsItemType::from(item))
+                }));
+                Ok(conn)
+                }
+                }
+
+                #[derive(Default)]
+                pub struct SignalMutation;
+
+                #[Object]
+                impl SignalMutation {
+                /// Editors only. Publishes an item with a human-written summary.
+                #[graphql(guard = "RoleGuard::at_least(Role::Editor)")]
+                async fn approve_news_item(
+                &amp;self,
+                ctx: &amp;Context&lt;'_&gt;,
+                id: GlobalId,
+                editor_summary: String,
+                category: String,
+                ) -&gt; Result&lt;NewsItemType&gt; {
+                let state = ctx.data_unchecked::&lt;AppState&gt;();
+                let actor = ctx.current_user()?; // guaranteed by the guard
+
+                let item = signal::service::approve(
+                &amp;state.pool, id.parse("NewsItem")?, actor.id, &amp;editor_summary, &amp;category,
+                )
+                .await
+                .map_err(to_gql)?;
+
+                Ok(item.into())
+                }
+                }</pre>
+            </div>
+            <div class="codeblock">
+              <header><span>crates/api/src/auth/guard.rs</span><button class="copybtn">Copy</button></header>
+              <pre>use async_graphql::{Context, Guard, Result};
+
+                pub struct RoleGuard { minimum: Role }
+
+                impl RoleGuard {
+                pub fn at_least(minimum: Role) -&gt; Self { Self { minimum } }
+                }
+
+                impl Guard for RoleGuard {
+                async fn check(&amp;self, ctx: &amp;Context&lt;'_&gt;) -&gt; Result&lt;()&gt; {
+                // Authorisation lives here, on the field, not in the frontend. A field
+                // without a guard is public by definition — which makes review easy.
+                match ctx.data_opt::&lt;CurrentUser&gt;() {
+                None =&gt; Err(to_gql(CoreError::Unauthenticated)),
+                Some(u) if u.suspended =&gt; Err(to_gql(CoreError::Forbidden)),
+                Some(u) if u.role &gt;= self.minimum =&gt; Ok(()),
+                Some(_) =&gt; Err(to_gql(CoreError::Forbidden)),
+                }
+                }
+                }</pre>
+            </div>
+            <p class="subhead">Done when</p>
+            <ul class="done">
+              <li>A page of 20 items with mentions, tags and authors resolves in a bounded number of queries, asserted
+                by a test that counts queries.</li>
+              <li>Every mutation that changes state is either guarded or explicitly documented as public.</li>
+              <li>A query at depth 13 is rejected before it touches the database.</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ================= AUTH ================= -->
+    <section class="panel" id="p-auth" role="tabpanel" aria-labelledby="t-auth" hidden>
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Deliverable</span>
+          <h2>Auth and security</h2>
+        </div>
+        <p class="sec-sub">People write about their children's medical crises here. The security posture has to be
+          better than a hobby project's, and most of what that requires is decided once in week one.</p>
+
+        <article class="del">
+          <header><span class="delid">B-20</span>
+            <h3>Password hashing and sessions</h3><span class="pill wk">Week 1</span><span class="pill">F-01 →
+              F-03</span>
+          </header>
+          <div class="del-body">
+            <div class="codeblock">
+              <header><span>crates/core/src/identity/password.rs</span><button class="copybtn">Copy</button></header>
+              <pre>use argon2::{Argon2, Algorithm, Params, Version,
+                password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString}};
+                use rand::rngs::OsRng;
+
+                /// 19 MiB, 2 passes, 1 lane — the OWASP-recommended Argon2id baseline.
+                /// Tune upward on the production instance until hashing takes ~100 ms.
+                fn argon() -&gt; Argon2&lt;'static&gt; {
+                Argon2::new(
+                Algorithm::Argon2id,
+                Version::V0x13,
+                Params::new(19 * 1024, 2, 1, None).expect("valid argon2 params"),
+                )
+                }
+
+                pub fn hash(password: &amp;str) -&gt; Result&lt;String, CoreError&gt; {
+                let salt = SaltString::generate(&amp;mut OsRng);
+                argon()
+                .hash_password(password.as_bytes(), &amp;salt)
+                .map(|h| h.to_string())
+                .map_err(|e| CoreError::Internal(anyhow::anyhow!("hash failed: {e}")))
+                }
+
+                pub fn verify(password: &amp;str, encoded: &amp;str) -&gt; bool {
+                // Hashing is CPU-bound; callers run this on a blocking thread so one login
+                // attempt cannot stall the async runtime.
+                PasswordHash::new(encoded)
+                .map(|parsed| argon().verify_password(password.as_bytes(), &amp;parsed).is_ok())
+                .unwrap_or(false)
+                }
+
+                /// Constant-ish work whether or not the account exists, so response timing
+                /// does not disclose which email addresses are registered.
+                pub const DUMMY_HASH: &amp;str = "$argon2id$v=19$m=19456,t=2,p=1$c2FsdHNhbHRzYWx0$\
+                3Y4l1Fh0Xw4h1z8gQZ0m9r3l3Kp7Q3wq2m0nY4pQeS4";</pre>
+            </div>
+            <div class="codeblock">
+              <header><span>crates/core/src/identity/service.rs — sign in</span><button class="copybtn">Copy</button>
+              </header>
+              <pre>pub async fn sign_in(
+                pool: &amp;PgPool,
+                email: &amp;str,
+                password: &amp;str,
+                agent: Option&lt;&amp;str&gt;,
+                ip: Option&lt;IpNetwork&gt;,
+                ) -&gt; Result&lt;(Session, String), CoreError&gt; {
+                let user = repo::find_by_email(pool, email).await?;
+
+                // Always verify something, so the timing is the same for unknown accounts.
+                let stored = user.as_ref().map(|u| u.password_hash.clone())
+                .unwrap_or_else(|| password::DUMMY_HASH.to_string());
+                let pw = password.to_owned();
+                let ok = tokio::task::spawn_blocking(move || password::verify(&amp;pw, &amp;stored))
+                .await
+                .map_err(|e| CoreError::Internal(e.into()))?;
+
+                let user = match (ok, user) {
+                (true, Some(u)) =&gt; u,
+                // One message for both cases. Never "no such account".
+                _ =&gt; return Err(CoreError::Validation {
+                field: "password",
+                message: "That email and password combination does not match an account.".into(),
+                }),
+                };
+                if user.suspended_at.is_some() { return Err(CoreError::Forbidden); }
+
+                // 32 bytes of entropy; the database stores only the SHA-256 of it.
+                let token: [u8; 32] = rand::random();
+                let raw = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(token);
+                let hash = Sha256::digest(raw.as_bytes());
+
+                let session = repo::insert_session(pool, SessionInsert {
+                id: Uuid::now_v7(),
+                user_id: user.id,
+                token_hash: hash.to_vec(),
+                user_agent: agent.map(truncate_agent),
+                ip_prefix: ip.map(anonymise_ip), // /24 or /48 only
+                expires_at: Utc::now() + Duration::days(30),
+                }).await?;
+
+                Ok((session, raw))
+                }</pre>
+            </div>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-21</span>
+            <h3>Session middleware and cookie policy</h3><span class="pill wk">Week 1</span>
+          </header>
+          <div class="del-body">
+            <div class="codeblock">
+              <header><span>crates/api/src/auth/extractor.rs</span><button class="copybtn">Copy</button></header>
+              <pre>pub const COOKIE_NAME: &amp;str = "inrange_session";
+
+                /// Runs before GraphQL. Resolves the cookie to a CurrentUser and puts it into
+                /// request extensions; resolvers read it from the GraphQL context.
+                pub async fn load_session(
+                State(state): State&lt;AppState&gt;,
+                jar: CookieJar,
+                mut req: Request,
+                next: Next,
+                ) -&gt; Response {
+                if let Some(raw) = jar.get(COOKIE_NAME).map(|c| c.value().to_owned()) {
+                let hash = Sha256::digest(raw.as_bytes());
+                // Small TTL cache keyed on the hash keeps this off the database on hot
+                // paths without weakening revocation beyond a few seconds.
+                if let Ok(Some(user)) = state.session_cache
+                .get_or_load(&amp;hash, || identity::repo::resolve_session(&amp;state.pool, &amp;hash))
+                .await
+                {
+                req.extensions_mut().insert(CurrentUser::from(user));
+                }
+                }
+                next.run(req).await
+                }
+
+                pub fn session_cookie(raw: &amp;str, config: &amp;Config) -&gt; Cookie&lt;'static&gt; {
+                Cookie::build((COOKIE_NAME, raw.to_owned()))
+                .http_only(true) // unreadable from JavaScript
+                .secure(config.is_production())
+                .same_site(SameSite::Lax) // survives normal navigation, blocks CSRF
+                .path("/")
+                .max_age(time::Duration::days(30))
+                .build()
+                }</pre>
+            </div>
+            <div class="tablewrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Control</th>
+                    <th>Implementation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>CSRF</td>
+                    <td><code>SameSite=Lax</code> plus an <code>Origin</code> check on every mutation. GraphQL is
+                      POST-only with <code>application/json</code>, which blocks simple form cross-posts.</td>
+                  </tr>
+                  <tr>
+                    <td>Rate limiting</td>
+                    <td><code>tower_governor</code> per IP globally, plus per-account counters in Postgres for sign-in,
+                      sign-up, password reset, comment and report.</td>
+                  </tr>
+                  <tr>
+                    <td>Enumeration</td>
+                    <td>Identical responses and timing for known and unknown addresses on sign-in, sign-up and reset.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Headers</td>
+                    <td>HSTS, <code>X-Content-Type-Options</code>, <code>Referrer-Policy:
+                        strict-origin-when-cross-origin</code>, a CSP set by Next.js with a per-request nonce.</td>
+                  </tr>
+                  <tr>
+                    <td>XSS</td>
+                    <td>Markdown rendered server-side then run through <code>ammonia</code> with an allowlist. No raw
+                      HTML from users, ever. Rendered on write <em>and</em> validated on read.</td>
+                  </tr>
+                  <tr>
+                    <td>SSRF</td>
+                    <td>The ingestion client refuses private and link-local address ranges after DNS resolution, and
+                      caps redirects at three.</td>
+                  </tr>
+                  <tr>
+                    <td>Secrets</td>
+                    <td><code>secrecy::SecretString</code> so a secret cannot be printed by a stray <code>Debug</code>.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Dependencies</td>
+                    <td><code>cargo audit</code> and <code>cargo deny</code> in CI; a failing advisory blocks the merge.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Uploads</td>
+                    <td>MIME sniffed from magic bytes, re-encoded through the <code>image</code> crate (which drops any
+                      payload hidden in metadata), size-capped, served from a separate origin.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="note stop"><b>Deliberately deferred</b>Two-factor authentication, WebAuthn and social sign-in
+              are out of the MVP. Say so on the security page rather than letting people assume otherwise.</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ================= INGESTION ================= -->
+    <section class="panel" id="p-ingest" role="tabpanel" aria-labelledby="t-ingest" hidden>
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Deliverable · the hard week</span>
+          <h2>Ingestion worker</h2>
+        </div>
+        <p class="sec-sub">The riskiest week in the plan. Build it in the order below — scheduler, then the polite
+          client, then one adapter end to end, then dedup, then the rest — so that if the week runs out you still have a
+          working pipeline with fewer sources rather than a half-built one with none.</p>
+
+        <article class="del">
+          <header><span class="delid">B-30</span>
+            <h3>Scheduler with SKIP LOCKED</h3><span class="pill wk">Week 3</span><span class="pill">F-31</span>
+          </header>
+          <div class="del-body">
+            <div class="codeblock">
+              <header><span>crates/worker/src/scheduler.rs</span><button class="copybtn">Copy</button></header>
+              <pre>/// Claims sources that are due, one batch at a time. SKIP LOCKED means a second
+                /// worker process can be started at any point without duplicating work.
+                pub async fn claim_due_sources(pool: &amp;PgPool, batch: i64) -&gt; Result&lt;Vec&lt;Source&gt;,
+                sqlx::Error&gt; {
+                sqlx::query_as!(
+                Source,
+                r#"
+                WITH due AS (
+                SELECT id FROM sources
+                WHERE active AND next_run_at &lt;= now()
+                ORDER BY next_run_at
+                LIMIT $1
+                FOR UPDATE SKIP LOCKED
+                )
+                UPDATE sources s
+                SET next_run_at = now() + s.poll_interval
+                FROM due
+                WHERE s.id = due.id
+                RETURNING s.id, s.name, s.kind AS "kind: SourceKind", s.endpoint,
+                s.trust AS "trust: TrustTier", s.query_params,
+                s.etag, s.last_modified, s.default_category
+                "#,
+                batch
+                )
+                .fetch_all(pool)
+                .await
+                }
+
+                pub async fn run(config: Config, pool: PgPool) -&gt; anyhow::Result&lt;()&gt; {
+                let client = http::PoliteClient::new(&amp;config)?;
+                let mut tick = tokio::time::interval(Duration::from_secs(60));
+                let shutdown = shutdown_signal();
+                tokio::pin!(shutdown);
+
+                loop {
+                tokio::select! {
+                _ = tick.tick() =&gt; {
+                let sources = claim_due_sources(&amp;pool, 20).await?;
+                // Bounded concurrency across sources; the client separately
+                // enforces one request at a time per host.
+                futures::stream::iter(sources)
+                .for_each_concurrent(4, |source| {
+                let (pool, client) = (pool.clone(), client.clone());
+                async move {
+                if let Err(err) = jobs::ingest::run_source(&amp;pool, &amp;client, &amp;source).await {
+                tracing::warn!(source = %source.name, %err, "source fetch failed");
+                let _ = signal::repo::record_failure(&amp;pool, source.id, &amp;err.to_string()).await;
+                }
+                }
+                })
+                .await;
+                }
+                _ = &amp;mut shutdown =&gt; {
+                tracing::info!("worker shutting down");
+                return Ok(());
+                }
+                }
+                }
+                }</pre>
+            </div>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-31</span>
+            <h3>The polite HTTP client</h3><span class="pill wk">Week 3</span><span class="pill">F-31</span>
+          </header>
+          <div class="del-body">
+            <p>Being a good citizen is not only courtesy — it is what keeps you unblocked. Conditional requests, one
+              connection per host, a truthful User-Agent with a contact address, and backoff that actually backs off.
+            </p>
+            <div class="codeblock">
+              <header><span>crates/worker/src/http.rs</span><button class="copybtn">Copy</button></header>
+              <pre>#[derive(Clone)]
+                pub struct PoliteClient {
+                inner: reqwest::Client,
+                per_host: Arc&lt;DashMap&lt;String, Arc&lt;Semaphore&gt;&gt;&gt;,
+                }
+
+                pub enum FetchOutcome {
+                NotModified,
+                Fetched { body: Bytes, etag: Option&lt;String&gt;, last_modified: Option&lt;String&gt;, status: u16 },
+                }
+
+                impl PoliteClient {
+                pub fn new(config: &amp;Config) -&gt; anyhow::Result&lt;Self&gt; {
+                let ua = format!(
+                "InRangeBot/1.0 (+{}/about/bot; aggregator for the type 1 diabetes community)",
+                config.public_url
+                );
+                Ok(Self {
+                inner: reqwest::Client::builder()
+                .user_agent(ua)
+                .timeout(Duration::from_secs(20))
+                .connect_timeout(Duration::from_secs(5))
+                .redirect(reqwest::redirect::Policy::limited(3))
+                .gzip(true)
+                .build()?,
+                per_host: Arc::new(DashMap::new()),
+                })
+                }
+
+                pub async fn conditional_get(
+                &amp;self,
+                url: &amp;Url,
+                etag: Option&lt;&amp;str&gt;,
+                last_modified: Option&lt;&amp;str&gt;,
+                ) -&gt; anyhow::Result&lt;FetchOutcome&gt; {
+                guard_public_address(url).await?; // SSRF: no private or link-local targets
+
+                let host = url.host_str().unwrap_or_default().to_owned();
+                let sem = self.per_host
+                .entry(host)
+                .or_insert_with(|| Arc::new(Semaphore::new(1)))
+                .clone();
+                let _permit = sem.acquire().await?; // one request per host at a time
+
+                let mut req = self.inner.get(url.clone());
+                if let Some(t) = etag { req = req.header(header::IF_NONE_MATCH, t); }
+                if let Some(m) = last_modified { req = req.header(header::IF_MODIFIED_SINCE, m); }
+
+                let res = req.send().await?;
+                if res.status() == StatusCode::NOT_MODIFIED {
+                return Ok(FetchOutcome::NotModified); // the cheap, common case
+                }
+                if res.status() == StatusCode::TOO_MANY_REQUESTS {
+                let wait = res.headers().get(header::RETRY_AFTER)
+                .and_then(|v| v.to_str().ok()).and_then(|v| v.parse().ok())
+                .unwrap_or(3600);
+                anyhow::bail!("rate limited by host, retry after {wait}s");
+                }
+
+                let status = res.status().as_u16();
+                let etag = header_string(&amp;res, header::ETAG);
+                let last_modified = header_string(&amp;res, header::LAST_MODIFIED);
+                // Cap the body: a misbehaving source must not exhaust worker memory.
+                let body = read_capped(res, 8 * 1024 * 1024).await?;
+                Ok(FetchOutcome::Fetched { body, etag, last_modified, status })
+                }
+                }
+
+                /// Exponential backoff with a ceiling; five consecutive failures pause the
+                /// source and raise it in the health dashboard rather than retrying forever.
+                pub fn backoff_interval(base: Duration, failures: i16) -&gt; Duration {
+                let factor = 2u32.saturating_pow(failures.clamp(0, 6) as u32);
+                std::cmp::min(base * factor, Duration::from_secs(24 * 3600))
+                }</pre>
+            </div>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-32</span>
+            <h3>Adapter trait and one implementation</h3><span class="pill wk">Week 3</span><span
+              class="pill">F-32</span>
+          </header>
+          <div class="del-body">
+            <p>Every source shape collapses into one normalised struct before anything downstream sees it. Adding a
+              source type later means writing one <code>impl</code> and touching nothing else.</p>
+            <div class="codeblock">
+              <header><span>crates/worker/src/adapters/mod.rs</span><button class="copybtn">Copy</button></header>
+              <pre>/// What every adapter must produce, whatever the wire format was.
+                #[derive(Debug, Clone)]
+                pub struct RawItem {
+                pub title: String,
+                pub url: Url,
+                pub published_at: DateTime&lt;Utc&gt;,
+                pub excerpt: Option&lt;String&gt;,
+                pub doi: Option&lt;String&gt;,
+                pub pmid: Option&lt;String&gt;,
+                pub nct_id: Option&lt;String&gt;,
+                pub regulatory_id: Option&lt;String&gt;,
+                pub evidence: Option&lt;Evidence&gt;,
+                pub raw: serde_json::Value,
+                }
+
+                pub trait SourceAdapter: Send + Sync {
+                fn kind(&amp;self) -&gt; SourceKind;
+                /// Build the request URL, including any saved query stored on the source.
+                fn request_url(&amp;self, source: &amp;Source) -&gt; anyhow::Result&lt;Url&gt;;
+                /// Parse a successful response body into normalised items.
+                fn parse(&amp;self, source: &amp;Source, body: &amp;[u8]) -&gt;
+                anyhow::Result&lt;Vec&lt;RawItem&gt;&gt;;
+                }
+
+                pub fn for_kind(kind: SourceKind) -&gt; Box&lt;dyn SourceAdapter&gt; {
+                match kind {
+                SourceKind::Rss | SourceKind::Atom | SourceKind::JsonFeed =&gt; Box::new(feed::FeedAdapter),
+                SourceKind::Pubmed =&gt; Box::new(pubmed::PubmedAdapter),
+                SourceKind::EuropePmc =&gt; Box::new(europepmc::EuropePmcAdapter),
+                SourceKind::ClinicalTrials =&gt; Box::new(clinicaltrials::CtGovAdapter),
+                SourceKind::OpenFda =&gt; Box::new(openfda::OpenFdaAdapter),
+                SourceKind::Crossref =&gt; Box::new(crossref::CrossrefAdapter),
+                SourceKind::GithubReleases =&gt; Box::new(github_releases::GithubReleasesAdapter),
+                SourceKind::Scrape =&gt; Box::new(scrape::SelectorAdapter),
+                }
+                }</pre>
+            </div>
+            <div class="codeblock">
+              <header><span>crates/worker/src/adapters/feed.rs</span><button class="copybtn">Copy</button></header>
+              <pre>pub struct FeedAdapter;
+
+                impl SourceAdapter for FeedAdapter {
+                fn kind(&amp;self) -&gt; SourceKind { SourceKind::Rss }
+
+                fn request_url(&amp;self, source: &amp;Source) -&gt; anyhow::Result&lt;Url&gt; {
+                Ok(Url::parse(&amp;source.endpoint)?)
+                }
+
+                fn parse(&amp;self, source: &amp;Source, body: &amp;[u8]) -&gt; anyhow::Result&lt;Vec&lt;RawItem&gt;&gt;
+                {
+                // feed-rs normalises RSS 1.0/2.0, Atom and JSON Feed into one model.
+                let feed = feed_rs::parser::parse(body)?;
+
+                Ok(feed.entries.into_iter().filter_map(|e| {
+                let url = e.links.first().and_then(|l| Url::parse(&amp;l.href).ok())?;
+                let title = e.title.map(|t| clean_text(&amp;t.content))?;
+
+                // Feeds lie about dates constantly. Fall back through every field,
+                // then to now(), and never let a future date sort to the top.
+                let published = e.published.or(e.updated).unwrap_or_else(Utc::now);
+                let published = std::cmp::min(published, Utc::now());
+
+                let excerpt = e.summary
+                .map(|s| clean_text(&amp;s.content))
+                .map(|s| truncate_on_word_boundary(&amp;s, 240));
+
+                Some(RawItem {
+                title,
+                url,
+                published_at: published,
+                excerpt,
+                doi: extract_doi(&amp;e.id),
+                pmid: None, nct_id: None, regulatory_id: None,
+                evidence: None,
+                raw: serde_json::json!({ "source": source.name, "entry_id": e.id }),
+                })
+                }).collect())
+                }
+                }</pre>
+            </div>
+            <div class="codeblock">
+              <header><span>crates/worker/src/adapters/clinicaltrials.rs — an API adapter</span><button
+                  class="copybtn">Copy</button></header>
+              <pre>pub struct CtGovAdapter;
+
+                #[derive(Deserialize)]
+                struct CtResponse { studies: Vec&lt;CtStudy&gt; }
+
+                impl SourceAdapter for CtGovAdapter {
+                fn kind(&amp;self) -&gt; SourceKind { SourceKind::ClinicalTrials }
+
+                fn request_url(&amp;self, source: &amp;Source) -&gt; anyhow::Result&lt;Url&gt; {
+                // The saved query lives in the source row, so it is tunable without a
+                // deploy and versioned alongside the source.
+                let mut url = Url::parse(&amp;source.endpoint)?;
+                if let Some(expr) = source.query_params.get("query").and_then(|v| v.as_str()) {
+                url.query_pairs_mut().append_pair("query.term", expr);
+                }
+                url.query_pairs_mut()
+                .append_pair("filter.overallStatus", "RECRUITING|ACTIVE_NOT_RECRUITING|COMPLETED")
+                .append_pair("sort", "LastUpdatePostDate:desc")
+                .append_pair("pageSize", "100");
+                Ok(url)
+                }
+
+                fn parse(&amp;self, _source: &amp;Source, body: &amp;[u8]) -&gt;
+                anyhow::Result&lt;Vec&lt;RawItem&gt;&gt; {
+                let parsed: CtResponse = serde_json::from_slice(body)?;
+                parsed.studies.into_iter().map(|s| {
+                let nct = s.protocol.identification.nct_id.clone();
+                Ok(RawItem {
+                title: s.protocol.identification.brief_title.clone(),
+                url: Url::parse(&amp;format!("https://clinicaltrials.gov/study/{nct}"))?,
+                published_at: s.protocol.status.last_update_post_date_struct.date_utc()?,
+                excerpt: s.protocol.description.as_ref()
+                .map(|d| truncate_on_word_boundary(&amp;d.brief_summary, 240)),
+                doi: None, pmid: None,
+                nct_id: Some(nct),
+                regulatory_id: None,
+                // This is what powers the evidence badges (F-39).
+                evidence: Some(Evidence {
+                design: s.protocol.design.study_type.clone(),
+                phase: s.protocol.design.phases.first().cloned(),
+                participants: s.protocol.design.enrollment_info.as_ref().map(|e| e.count),
+                peer_reviewed: false,
+                registry: Some("ClinicalTrials.gov".into()),
+                }),
+                raw: serde_json::to_value(&amp;s)?,
+                })
+                }).collect()
+                }
+                }</pre>
+            </div>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-33</span>
+            <h3>Canonicalisation and deduplication</h3><span class="pill wk">Week 3</span><span class="pill">F-33</span>
+          </header>
+          <div class="del-body">
+            <div class="codeblock">
+              <header><span>crates/core/src/signal/canonical.rs</span><button class="copybtn">Copy</button></header>
+              <pre>const TRACKING_PREFIXES: &amp;[&amp;str] = &amp;["utm_", "mc_", "pk_", "hsa_", "_hs"];
+                const TRACKING_EXACT: &amp;[&amp;str] = &amp;[
+                "fbclid", "gclid", "igshid", "mkt_tok", "ref", "referrer", "source", "cmpid",
+                ];
+
+                /// Same article, six syndicated URLs, one canonical string.
+                pub fn canonicalise(input: &amp;Url) -&gt; Url {
+                let mut url = input.clone();
+
+                url.set_fragment(None);
+                if let Some(host) = url.host_str() {
+                let host = host.to_ascii_lowercase();
+                let host = host.strip_prefix("www.").unwrap_or(&amp;host).to_owned();
+                let _ = url.set_host(Some(&amp;host));
+                }
+                if matches!(url.scheme(), "http") { let _ = url.set_scheme("https"); }
+
+                let kept: Vec&lt;(String, String)&gt; = url.query_pairs()
+                .filter(|(k, _)| {
+                let k = k.to_ascii_lowercase();
+                !TRACKING_EXACT.contains(&amp;k.as_str())
+                &amp;&amp; !TRACKING_PREFIXES.iter().any(|p| k.starts_with(p))
+                })
+                .map(|(k, v)| (k.into_owned(), v.into_owned()))
+                .collect();
+
+                url.set_query(None);
+                if !kept.is_empty() {
+                let mut q = url.query_pairs_mut();
+                // Sorted, so parameter order cannot create a phantom duplicate.
+                let mut sorted = kept; sorted.sort();
+                for (k, v) in sorted { q.append_pair(&amp;k, &amp;v); }
+                }
+
+                let path = url.path().trim_end_matches('/').to_owned();
+                url.set_path(if path.is_empty() { "/" } else { &amp;path });
+                url
+                }</pre>
+            </div>
+            <div class="codeblock">
+              <header><span>crates/core/src/signal/dedup.rs</span><button class="copybtn">Copy</button></header>
+              <pre>/// 64-bit SimHash over word shingles. Near-identical headlines land within a
+                /// small Hamming distance of each other even when outlets reword the lede.
+                pub fn simhash(text: &amp;str) -&gt; u64 {
+                let mut weights = [0i32; 64];
+                for token in normalise_tokens(text).windows(2).map(|w| w.join(" ")) {
+                let h = seahash::hash(token.as_bytes());
+                for bit in 0..64 {
+                if h &gt;&gt; bit &amp; 1 == 1 { weights[bit] += 1 } else { weights[bit] -= 1 }
+                }
+                }
+                weights.iter().enumerate()
+                .filter(|(_, w)| **w &gt; 0)
+                .fold(0u64, |acc, (i, _)| acc | 1 &lt;&lt; i)
+                }
+
+                pub fn hamming(a: u64, b: u64) -&gt; u32 { (a ^ b).count_ones() }
+
+                /// Resolution order matters: a strong identifier always beats a fuzzy match.
+                pub async fn resolve_identity(
+                exec: impl PgExecutor&lt;'_&gt;,
+                raw: &amp;RawItem,
+                canonical: &amp;Url,
+                ) -&gt; Result&lt;Identity, CoreError&gt; {
+                if let Some(doi) = &amp;raw.doi {
+                if let Some(id) = repo::find_by_doi(exec, doi).await? { return Ok(Identity::Existing(id)); }
+                }
+                if let Some(pmid) = &amp;raw.pmid {
+                if let Some(id) = repo::find_by_pmid(exec, pmid).await? { return Ok(Identity::Existing(id)); }
+                }
+                if let Some(id) = repo::find_by_canonical_url(exec, canonical.as_str()).await? {
+                return Ok(Identity::Existing(id));
+                }
+
+                // Fuzzy: same story, different outlet. Restrict to a 72-hour window so an
+                // annual "study finds" headline does not collapse into last year's.
+                let hash = simhash(&amp;format!("{} {}", raw.title, raw.excerpt.as_deref().unwrap_or("")));
+                let candidates = repo::find_recent_by_simhash_window(
+                exec, hash, raw.published_at - Duration::hours(72), raw.published_at + Duration::hours(72),
+                ).await?;
+
+                if let Some(best) = candidates.into_iter()
+                .map(|c| (hamming(hash, c.simhash as u64), c.id))
+                .filter(|(d, _)| *d &lt;= 3) // tuned against a labelled sample
+                .min_by_key(|(d, _)| *d)
+                {
+                return Ok(Identity::Existing(best.1));
+                }
+                Ok(Identity::New { simhash: hash })
+                }</pre>
+            </div>
+            <div class="note warn"><b>Tuning the threshold</b>Label 200 real items by hand in week 3 and measure both
+              directions. A false merge (two different stories collapsed into one) is much worse for a reader than a
+              false split, so bias the threshold tight and let editors merge manually from the queue.</div>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-34</span>
+            <h3>Classification, scoring and the single write path</h3><span class="pill wk">Week 3</span><span
+              class="pill">F-34, F-43</span>
+          </header>
+          <div class="del-body">
+            <div class="codeblock">
+              <header><span>crates/core/src/signal/service.rs — one entry point for everything</span><button
+                  class="copybtn">Copy</button></header>
+              <pre>/// Every adapter, backfill and manual submission funnels through here, so the
+                /// invariants below hold no matter how an item arrived.
+                pub async fn ingest_item(
+                pool: &amp;PgPool,
+                source: &amp;Source,
+                raw: RawItem,
+                ) -&gt; Result&lt;IngestOutcome, CoreError&gt; {
+                let canonical = canonical::canonicalise(&amp;raw.url);
+                let mut tx = pool.begin().await?;
+
+                let outcome = match dedup::resolve_identity(&amp;mut *tx, &amp;raw, &amp;canonical).await? {
+                // Known event: record which outlet also covered it and stop.
+                Identity::Existing(item_id) =&gt; {
+                repo::insert_mention(&amp;mut *tx, item_id, source.id, &amp;raw).await?;
+                IngestOutcome::Merged(item_id)
+                }
+                Identity::New { simhash } =&gt; {
+                let classification = classify::assign(&amp;raw, source);
+                let score = score::compute(&amp;raw, source, &amp;classification);
+
+                let item_id = repo::insert_item(&amp;mut *tx, NewItem {
+                id: Uuid::now_v7(),
+                title: clean_text(&amp;raw.title),
+                // The licensing cap is applied here, once, on the write path.
+                excerpt: raw.excerpt.as_deref().map(|e| truncate_on_word_boundary(e, 240)),
+                canonical_url: canonical.to_string(),
+                published_at: raw.published_at,
+                category: classification.category.or(source.default_category.clone()),
+                doi: raw.doi.clone(), pmid: raw.pmid.clone(), nct_id: raw.nct_id.clone(),
+                simhash: simhash as i64,
+                evidence: raw.evidence.clone(),
+                score,
+                status: ItemStatus::Pending, // nothing is auto-published
+                }).await?;
+
+                repo::insert_mention(&amp;mut *tx, item_id, source.id, &amp;raw).await?;
+                entities::link_from_text(&amp;mut *tx, item_id, &amp;raw.title).await?;
+                IngestOutcome::Created(item_id)
+                }
+                };
+
+                tx.commit().await?;
+                Ok(outcome)
+                }</pre>
+            </div>
+            <div class="codeblock">
+              <header><span>crates/core/src/signal/score.rs — transparent, tunable ordering</span><button
+                  class="copybtn">Copy</button></header>
+              <pre>/// Orders the editorial queue. It never publishes anything, so a bad weight
+                /// wastes an editor's attention rather than misleading a reader.
+                pub fn compute(raw: &amp;RawItem, source: &amp;Source, class: &amp;Classification) -&gt; f32 {
+                let trust = match source.trust {
+                TrustTier::PrimaryResearch =&gt; 1.00,
+                TrustTier::Regulatory =&gt; 0.95,
+                TrustTier::Nonprofit =&gt; 0.75,
+                TrustTier::Media =&gt; 0.60,
+                TrustTier::Manufacturer =&gt; 0.55, // announcements, not evidence
+                TrustTier::Community =&gt; 0.45,
+                };
+
+                let hours = (Utc::now() - raw.published_at).num_hours().max(0) as f32;
+                let recency = (-hours / 72.0).exp(); // half-life of about two days
+
+                let evidence = raw.evidence.as_ref().map_or(0.4, |e| match e.design.as_deref() {
+                Some("INTERVENTIONAL") | Some("randomized") =&gt; 1.0,
+                Some("OBSERVATIONAL") =&gt; 0.7,
+                _ =&gt; 0.5,
+                });
+
+                0.40 * trust + 0.30 * recency + 0.20 * evidence + 0.10 * class.confidence
+                }</pre>
+            </div>
+            <p class="subhead">Done when</p>
+            <ul class="done">
+              <li>Re-running the same feed twice produces zero new items and zero new mentions.</li>
+              <li>A deliberately broken source pauses after five failures and appears in the health view with its last
+                error.</li>
+              <li>An item ingested through any path is <code>pending</code> — verified by a test asserting no code path
+                writes <code>approved</code>.</li>
+              <li>The stored excerpt is never longer than 240 characters, enforced by both the check constraint and a
+                test.</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ================= NUMBERS ================= -->
+    <section class="panel" id="p-numbers" role="tabpanel" aria-labelledby="t-numbers" hidden>
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Deliverable · the other hard week</span>
+          <h2>Numbers pipeline</h2>
+        </div>
+        <p class="sec-sub">Acquisition is manual and deliberate; transformation is scripted and reproducible. The
+          engineering risk here is not the charts — it is that every dataset encodes its age bands, country names and
+          missing values differently.</p>
+
+        <article class="del">
+          <header><span class="delid">B-40</span>
+            <h3>Idempotent ETL</h3><span class="pill wk">Week 6</span><span class="pill">F-61</span>
+          </header>
+          <div class="del-body">
+            <div class="codeblock">
+              <header><span>crates/core/src/numbers/etl.rs</span><button class="copybtn">Copy</button></header>
+              <pre>/// Loads one dataset edition. Re-running is safe and produces an identical
+                /// table, which is what makes a data correction a one-command operation.
+                pub async fn load_dataset(
+                pool: &amp;PgPool,
+                manifest: &amp;DatasetManifest,
+                rows: impl Iterator&lt;Item = SourceRow&gt;,
+                ) -&gt; Result&lt;LoadReport, CoreError&gt; {
+                let mut tx = pool.begin().await?;
+
+                // Refuse to load anything whose terms of use have not been recorded.
+                if manifest.license.trim().is_empty() {
+                return Err(CoreError::Validation {
+                field: "license",
+                message: "Record the dataset licence before loading it.".into(),
+                });
+                }
+
+                let dataset_id = repo::upsert_dataset(&amp;mut *tx, manifest).await?;
+
+                let mut loaded = 0usize;
+                let mut skipped: Vec&lt;SkipReason&gt; = Vec::new();
+
+                for row in rows {
+                let Some(iso3) = country::to_iso3(&amp;row.country) else {
+                skipped.push(SkipReason::UnknownCountry(row.country));
+                continue;
+                };
+                let Some(band) = age_band::normalise(&amp;row.age_band, manifest.age_band_map()) else {
+                skipped.push(SkipReason::UnmappedAgeBand(row.age_band));
+                continue;
+                };
+
+                // ON CONFLICT on the natural key makes the whole load idempotent.
+                sqlx::query!(
+                r#"
+                INSERT INTO observations
+                (dataset_id, indicator_key, country_iso3, year, age_band, sex,
+                value, lower_bound, upper_bound, estimate_type, source_row)
+                VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+                ON CONFLICT (dataset_id, indicator_key, country_iso3, year, age_band, sex)
+                DO UPDATE SET value = EXCLUDED.value,
+                lower_bound = EXCLUDED.lower_bound,
+                upper_bound = EXCLUDED.upper_bound,
+                estimate_type = EXCLUDED.estimate_type,
+                source_row = EXCLUDED.source_row
+                "#,
+                dataset_id, row.indicator, iso3, row.year, band, row.sex,
+                row.value, row.lower, row.upper,
+                row.estimate_type as _, row.raw,
+                )
+                .execute(&amp;mut *tx)
+                .await?;
+                loaded += 1;
+                }
+
+                tx.commit().await?;
+                // Skips are reported, never silent. A silently dropped country is a lie
+                // told by a chart.
+                Ok(LoadReport { dataset_id, loaded, skipped })
+                }</pre>
+            </div>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-41</span>
+            <h3>Query surface and caching</h3><span class="pill wk">Week 6</span><span class="pill">F-62 → F-68</span>
+          </header>
+          <div class="del-body">
+            <p>These queries are read-only, identical for every visitor and change a few times a year. Cache them hard:
+              a materialised view refreshed after each load, plus a long HTTP cache header on the chart query.</p>
+            <div class="codeblock">
+              <header><span>migrations/0007 — materialised view for the map</span><button class="copybtn">Copy</button>
+              </header>
+              <pre>-- Precomputes the latest available year per country per indicator, which is
+                -- the query the choropleth makes on every page load.
+                CREATE MATERIALIZED VIEW mv_latest_by_country AS
+                SELECT DISTINCT ON (o.indicator_key, o.country_iso3)
+                o.indicator_key,
+                o.country_iso3,
+                o.year,
+                o.value,
+                o.lower_bound,
+                o.upper_bound,
+                o.estimate_type,
+                d.slug AS dataset_slug,
+                d.edition AS dataset_edition
+                FROM observations o
+                JOIN datasets d ON d.id = o.dataset_id
+                WHERE o.age_band = 'all' AND o.sex = 'all'
+                ORDER BY o.indicator_key, o.country_iso3, o.year DESC;
+
+                CREATE UNIQUE INDEX mv_latest_by_country_key
+                ON mv_latest_by_country (indicator_key, country_iso3);
+
+                -- CONCURRENTLY needs the unique index above and keeps the map served during
+                -- a refresh.
+                -- REFRESH MATERIALIZED VIEW CONCURRENTLY mv_latest_by_country;</pre>
+            </div>
+            <div class="codeblock">
+              <header><span>crates/api/src/graphql/numbers.rs</span><button class="copybtn">Copy</button></header>
+              <pre>#[Object]
+                impl NumbersQuery {
+                /// A time series for one indicator across up to five countries.
+                async fn series(
+                &amp;self,
+                ctx: &amp;Context&lt;'_&gt;,
+                indicator: String,
+                countries: Vec&lt;String&gt;,
+                #[graphql(default = "all")] age_band: String,
+                from_year: Option&lt;i32&gt;,
+                to_year: Option&lt;i32&gt;,
+                ) -&gt; Result&lt;Vec&lt;SeriesType&gt;&gt; {
+                if countries.len() &gt; 5 {
+                return Err(to_gql(CoreError::Validation {
+                field: "countries",
+                message: "Compare up to five countries at a time.".into(),
+                }));
+                }
+                let state = ctx.data_unchecked::&lt;AppState&gt;();
+                let rows = numbers::repo::series(
+                &amp;state.pool, &amp;indicator, &amp;countries, &amp;age_band, from_year, to_year,
+                ).await.map_err(to_gql)?;
+
+                // The dataset attribution travels with the data, so the frontend cannot
+                // render a chart without the citation and caveats attached to it.
+                Ok(SeriesType::group(rows))
+                }
+                }</pre>
+            </div>
+            <p class="subhead">Done when</p>
+            <ul class="done">
+              <li>Every series response carries the dataset slug, edition, licence and retrieval date.</li>
+              <li>Modelled and measured observations are distinguishable in the API payload, not only in the UI.</li>
+              <li>A load report listing skipped rows is written to the audit log for every ETL run.</li>
+              <li>Re-running an ETL twice leaves row counts unchanged.</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ================= MEDIA & SEARCH ================= -->
+    <section class="panel" id="p-media" role="tabpanel" aria-labelledby="t-media" hidden>
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Deliverable</span>
+          <h2>Media and search</h2>
+        </div>
+
+        <article class="del">
+          <header><span class="delid">B-50</span>
+            <h3>Upload pipeline</h3><span class="pill wk">Week 2</span><span class="pill">F-11</span>
+          </header>
+          <div class="del-body">
+            <p>Uploads sit outside GraphQL on a plain multipart endpoint — simpler, streamable, and it keeps large
+              bodies away from the query executor.</p>
+            <div class="codeblock">
+              <header><span>crates/core/src/media/process.rs</span><button class="copybtn">Copy</button></header>
+              <pre>pub const MAX_UPLOAD_BYTES: usize = 10 * 1024 * 1024;
+                const WIDTHS: [u32; 3] = [480, 960, 1920];
+
+                pub struct Processed { pub variants: Vec&lt;Variant&gt;, pub width: u32, pub height: u32, pub blurhash:
+                String }
+
+                pub fn process(bytes: &amp;[u8]) -&gt; Result&lt;Processed, CoreError&gt; {
+                if bytes.len() &gt; MAX_UPLOAD_BYTES {
+                return Err(CoreError::Validation {
+                field: "file",
+                message: "Images must be under 10 MB.".into(),
+                });
+                }
+
+                // Sniff the real format from magic bytes. A filename extension is a claim,
+                // not evidence.
+                let format = image::guess_format(bytes).map_err(|_| CoreError::Validation {
+                field: "file",
+                message: "That file is not a JPEG, PNG or WebP image.".into(),
+                })?;
+                if !matches!(format, ImageFormat::Jpeg | ImageFormat::Png | ImageFormat::WebP) {
+                return Err(CoreError::Validation {
+                field: "file", message: "Upload a JPEG, PNG or WebP image.".into(),
+                });
+                }
+
+                // Decoding and re-encoding drops every metadata block, including GPS
+                // coordinates that would otherwise reveal a contributor's home.
+                let img = image::load_from_memory_with_format(bytes, format)
+                .map_err(|e| CoreError::Internal(e.into()))?;
+                let (width, height) = (img.width(), img.height());
+
+                let variants = WIDTHS.iter()
+                .filter(|w| **w &lt;= width.max(WIDTHS[0]))
+                .map(|w| {
+                let resized = img.resize(*w, u32::MAX, image::imageops::FilterType::Lanczos3);
+                let mut buf = Vec::new();
+                resized.write_to(&amp;mut Cursor::new(&amp;mut buf), ImageFormat::WebP)?;
+                Ok(Variant { width: *w, bytes: buf, content_type: "image/webp" })
+                })
+                .collect::&lt;Result&lt;Vec&lt;_&gt;, image::ImageError&gt;&gt;()
+                .map_err(|e| CoreError::Internal(e.into()))?;
+
+                Ok(Processed { variants, width, height, blurhash: blurhash_of(&amp;img) })
+                }</pre>
+            </div>
+            <ul class="done">
+              <li>Media is served from a separate origin with <code>Content-Disposition</code> and a restrictive CSP, so
+                a crafted file cannot execute in the app's origin.</li>
+              <li>Orphaned uploads (never attached to a story within 24 hours) are swept by a housekeeping job.</li>
+              <li>Alt text is required by the publish mutation, not by the form alone.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-51</span>
+            <h3>Search</h3><span class="pill wk">Week 7</span><span class="pill">F-70</span>
+          </header>
+          <div class="del-body">
+            <div class="codeblock">
+              <header><span>migrations/0007 — generated tsvector columns and triggers</span><button
+                  class="copybtn">Copy</button></header>
+              <pre>-- Weighted: a title match should always outrank a body match.
+                CREATE OR REPLACE FUNCTION stories_tsv() RETURNS trigger AS $$
+                BEGIN
+                NEW.search_tsv :=
+                setweight(to_tsvector('english_unaccent', coalesce(NEW.title, '')), 'A')
+                || setweight(to_tsvector('english_unaccent', coalesce(NEW.dek, '')), 'B')
+                || setweight(to_tsvector('english_unaccent', coalesce(NEW.body_md,'')),'C');
+                RETURN NEW;
+                END;
+                $$ LANGUAGE plpgsql;
+
+                CREATE TRIGGER stories_tsv_update
+                BEFORE INSERT OR UPDATE OF title, dek, body_md ON stories
+                FOR EACH ROW EXECUTE FUNCTION stories_tsv();
+
+                -- Trigram index for typo tolerance on titles, used when FTS returns nothing.
+                CREATE INDEX stories_title_trgm_idx ON stories USING gin (title gin_trgm_ops);</pre>
+            </div>
+            <div class="codeblock">
+              <header><span>crates/core/src/search/repo.rs</span><button class="copybtn">Copy</button></header>
+              <pre>/// Two-stage: full-text first, trigram similarity only if that finds nothing.
+                /// Keeps common queries fast and still rescues "dexcom g7" typed as "dexom g7".
+                pub async fn search_stories(
+                exec: impl PgExecutor&lt;'_&gt; + Copy,
+                query: &amp;str,
+                limit: i64,
+                ) -&gt; Result&lt;Vec&lt;SearchHit&gt;, sqlx::Error&gt; {
+                let hits = sqlx::query_as!(
+                SearchHit,
+                r#"
+                SELECT s.id, s.title, s.slug,
+                ts_rank_cd(s.search_tsv, websearch_to_tsquery('english_unaccent', $1)) AS rank,
+                ts_headline('english_unaccent', s.dek,
+                websearch_to_tsquery('english_unaccent', $1),
+                'MaxFragments=1, MaxWords=24, MinWords=8') AS snippet
+                FROM stories s
+                WHERE s.status = 'published'
+                AND s.search_tsv @@ websearch_to_tsquery('english_unaccent', $1)
+                ORDER BY rank DESC, s.published_at DESC
+                LIMIT $2
+                "#,
+                query, limit
+                )
+                .fetch_all(exec)
+                .await?;
+
+                if !hits.is_empty() { return Ok(hits); }
+
+                sqlx::query_as!(
+                SearchHit,
+                r#"
+                SELECT s.id, s.title, s.slug,
+                similarity(s.title, $1) AS rank,
+                s.dek AS snippet
+                FROM stories s
+                WHERE s.status = 'published' AND s.title % $1
+                ORDER BY similarity(s.title, $1) DESC
+                LIMIT $2
+                "#,
+                query, limit
+                )
+                .fetch_all(exec)
+                .await
+                }</pre>
+            </div>
+            <div class="note ok"><b>When to outgrow this</b>Postgres FTS is genuinely fine to a few hundred thousand
+              documents. Move to a dedicated search engine when you need semantic matching, faceted counts across
+              millions of rows, or per-field boosting you cannot express in <code>ts_rank_cd</code> — not before.</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ================= OBSERVABILITY ================= -->
+    <section class="panel" id="p-obs" role="tabpanel" aria-labelledby="t-obs" hidden>
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Deliverable</span>
+          <h2>Observability and testing</h2>
+        </div>
+        <p class="sec-sub">A solo developer cannot watch the system. The system has to report on itself, and the test
+          suite has to be trusted enough to deploy on a Friday.</p>
+
+        <article class="del">
+          <header><span class="delid">B-60</span>
+            <h3>Telemetry</h3><span class="pill wk">Week 1</span><span class="pill">F-83</span>
+          </header>
+          <div class="del-body">
+            <div class="codeblock">
+              <header><span>crates/core/src/telemetry.rs</span><button class="copybtn">Copy</button></header>
+              <pre>use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+
+                pub fn init(config: &amp;Config) -&gt; anyhow::Result&lt;()&gt; {
+                let filter = EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| EnvFilter::new("info,sqlx=warn,hyper=warn,tower_http=info"));
+
+                let registry = tracing_subscriber::registry().with(filter);
+
+                if config.is_production() {
+                // JSON so the log shipper can index request_id, source, user_id.
+                registry.with(tracing_subscriber::fmt::layer().json().flatten_event(true)).init();
+                } else {
+                registry.with(tracing_subscriber::fmt::layer().pretty()).init();
+                }
+                Ok(())
+                }
+
+                /// Instrument every ingestion run. Fields become structured log attributes,
+                /// which is what makes "why did this source stop" answerable in one query.
+                #[tracing::instrument(
+                skip(pool, client, source),
+                fields(source.name = %source.name, source.kind = ?source.kind, items.new = tracing::field::Empty)
+                )]
+                pub async fn run_source(pool: &amp;PgPool, client: &amp;PoliteClient, source: &amp;Source)
+                -&gt; anyhow::Result&lt;FetchSummary&gt;
+                {
+                let summary = ingest::execute(pool, client, source).await?;
+                tracing::Span::current().record("items.new", summary.created);
+                Ok(summary)
+                }</pre>
+            </div>
+            <div class="tablewrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Signal</th>
+                    <th>Where it goes</th>
+                    <th>Alert threshold</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Request latency and error rate</td>
+                    <td>Traces plus the platform's metrics</td>
+                    <td>p95 above 800 ms for 10 minutes, or 5xx above 1%</td>
+                  </tr>
+                  <tr>
+                    <td>Ingestion freshness</td>
+                    <td><code>fetch_runs</code> plus <code>/readyz</code></td>
+                    <td>No successful run for any active source in 24 hours</td>
+                  </tr>
+                  <tr>
+                    <td>Paused sources</td>
+                    <td>Admin health dashboard</td>
+                    <td>Any source paused — a daily digest is enough</td>
+                  </tr>
+                  <tr>
+                    <td>Editorial backlog</td>
+                    <td>Count of pending items</td>
+                    <td>Above 200 pending for two days</td>
+                  </tr>
+                  <tr>
+                    <td>Unhandled internal errors</td>
+                    <td>Error reporting service with the request ID</td>
+                    <td>Any occurrence, deduplicated by fingerprint</td>
+                  </tr>
+                  <tr>
+                    <td>Database</td>
+                    <td>Connection saturation, slow queries</td>
+                    <td>Pool above 80% for 5 minutes</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-61</span>
+            <h3>Test strategy</h3><span class="pill wk">Every week</span>
+          </header>
+          <div class="del-body">
+            <p>The ratio that works for a solo build: heavy on integration tests against a real Postgres, light on unit
+              tests, and a handful of end-to-end tests covering the flows that would be embarrassing to break.</p>
+            <div class="codeblock">
+              <header><span>crates/core/tests/signal_dedup.rs</span><button class="copybtn">Copy</button></header>
+              <pre>/// #[sqlx::test] spins up an isolated database per test and applies migrations.
+                /// Tests run in parallel against real Postgres semantics, which is the only way
+                /// to catch a constraint that the application layer would happily violate.
+                #[sqlx::test(migrations = "./migrations")]
+                async fn syndicated_coverage_collapses_into_one_item(pool: PgPool) -&gt; sqlx::Result&lt;()&gt; {
+                let source_a = fixtures::source(&amp;pool, "Outlet A", TrustTier::Media).await;
+                let source_b = fixtures::source(&amp;pool, "Outlet B", TrustTier::Media).await;
+
+                let a = fixtures::raw_item("New AID system cleared for children aged two and up")
+                .url("https://outlet-a.example/news/aid-cleared?utm_source=twitter");
+                let b = fixtures::raw_item("New AID system cleared for children aged 2 and up")
+                .url("https://www.outlet-b.example/aid-cleared/");
+
+                let first = signal::service::ingest_item(&amp;pool, &amp;source_a, a).await.unwrap();
+                let second = signal::service::ingest_item(&amp;pool, &amp;source_b, b).await.unwrap();
+
+                assert!(matches!(first, IngestOutcome::Created(_)));
+                assert!(matches!(second, IngestOutcome::Merged(_)), "near-duplicate should merge");
+
+                let items: i64 = sqlx::query_scalar!("SELECT count(*) FROM news_items")
+                .fetch_one(&amp;pool).await?.unwrap();
+                let mentions: i64 = sqlx::query_scalar!("SELECT count(*) FROM item_mentions")
+                .fetch_one(&amp;pool).await?.unwrap();
+
+                assert_eq!(items, 1, "one real-world event");
+                assert_eq!(mentions, 2, "two outlets covering it");
+                Ok(())
+                }
+
+                #[sqlx::test(migrations = "./migrations")]
+                async fn ingestion_never_auto_publishes(pool: PgPool) -&gt; sqlx::Result&lt;()&gt; {
+                let source = fixtures::source(&amp;pool, "Regulator", TrustTier::Regulatory).await;
+                signal::service::ingest_item(&amp;pool, &amp;source, fixtures::raw_item("Recall notice"))
+                .await.unwrap();
+
+                let approved: i64 = sqlx::query_scalar!(
+                "SELECT count(*) FROM news_items WHERE status = 'approved'"
+                ).fetch_one(&amp;pool).await?.unwrap();
+
+                assert_eq!(approved, 0, "a human approves everything, without exception");
+                Ok(())
+                }</pre>
+            </div>
+            <div class="tablewrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Layer</th>
+                    <th>Tool</th>
+                    <th>What it must cover before launch</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Unit</td>
+                    <td><code>cargo test</code></td>
+                    <td>Canonicalisation, SimHash distance, scoring, cursor round-trips, Markdown sanitising, age-band
+                      mapping</td>
+                  </tr>
+                  <tr>
+                    <td>Integration</td>
+                    <td><code>#[sqlx::test]</code></td>
+                    <td>Every service function, all constraint violations, the publish state machine, dedup, idempotent
+                      ETL</td>
+                  </tr>
+                  <tr>
+                    <td>GraphQL</td>
+                    <td>Schema executed in-process</td>
+                    <td>Auth guards on every mutation, pagination, error codes, depth limit rejection</td>
+                  </tr>
+                  <tr>
+                    <td>Snapshot</td>
+                    <td><code>insta</code></td>
+                    <td>SDL — a schema change that would break the frontend fails CI loudly</td>
+                  </tr>
+                  <tr>
+                    <td>Adapters</td>
+                    <td><code>wiremock</code> plus recorded fixtures</td>
+                    <td>Every adapter against a saved real payload, including a malformed one</td>
+                  </tr>
+                  <tr>
+                    <td>End to end</td>
+                    <td>Playwright</td>
+                    <td>Sign up, publish a story, approve an item, run a search, load a chart, comment and report</td>
+                  </tr>
+                  <tr>
+                    <td>Accessibility</td>
+                    <td><code>axe</code> in the Playwright run</td>
+                    <td>The ten main templates, failing the build on a violation</td>
+                  </tr>
+                  <tr>
+                    <td>Load</td>
+                    <td><code>k6</code> or <code>oha</code></td>
+                    <td>Feed and search at 50 concurrent readers, once, in week 7</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ================= DEPLOY ================= -->
+    <section class="panel" id="p-deploy" role="tabpanel" aria-labelledby="t-deploy" hidden>
+      <div class="sec">
+        <div class="sec-head"><span class="eyebrow">Deliverable</span>
+          <h2>Deploy and operations</h2>
+        </div>
+        <p class="sec-sub">EU region, because the audience is largely European and the data is sensitive by context even
+          when it is not health data by definition.</p>
+
+        <article class="del">
+          <header><span class="delid">B-70</span>
+            <h3>Container build</h3><span class="pill wk">Week 1</span>
+          </header>
+          <div class="del-body">
+            <div class="codeblock">
+              <header><span>Dockerfile</span><button class="copybtn">Copy</button></header>
+              <pre># ---- build -------------------------------------------------------------
+                FROM rust:1-bookworm AS builder
+                WORKDIR /build
+
+                # Cache dependencies separately from source so a code change does not trigger
+                # a full dependency rebuild.
+                COPY Cargo.toml Cargo.lock ./
+                COPY crates/core/Cargo.toml crates/core/
+                COPY crates/api/Cargo.toml crates/api/
+                COPY crates/worker/Cargo.toml crates/worker/
+                RUN mkdir -p src crates/core/src crates/api/src crates/worker/src \
+                &amp;&amp; echo "fn main(){}" > src/main.rs \
+                &amp;&amp; touch crates/core/src/lib.rs crates/api/src/lib.rs crates/worker/src/lib.rs \
+                &amp;&amp; cargo build --release &amp;&amp; rm -rf src crates/*/src
+
+                COPY . .
+                # Offline mode: queries are verified against the committed .sqlx cache, so CI
+                # needs no database to compile.
+                ENV SQLX_OFFLINE=true
+                RUN cargo build --release --bin inrange
+
+                # ---- runtime -----------------------------------------------------------
+                FROM debian:bookworm-slim
+                RUN apt-get update \
+                &amp;&amp; apt-get install -y --no-install-recommends ca-certificates libssl3 \
+                &amp;&amp; rm -rf /var/lib/apt/lists/*
+                RUN useradd -r -u 10001 inrange
+                COPY --from=builder /build/target/release/inrange /usr/local/bin/inrange
+                USER inrange
+                EXPOSE 8080
+                HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
+                CMD ["/usr/local/bin/inrange", "healthcheck"]
+                ENTRYPOINT ["/usr/local/bin/inrange"]
+                CMD ["serve"]</pre>
+            </div>
+            <div class="codeblock">
+              <header><span>.github/workflows/ci.yml (essential jobs)</span><button class="copybtn">Copy</button>
+              </header>
+              <pre>jobs:
+                check:
+                runs-on: ubuntu-latest
+                services:
+                postgres:
+                image: postgres:16
+                env: { POSTGRES_PASSWORD: postgres }
+                options: &gt;-
+                --health-cmd pg_isready --health-interval 5s --health-retries 10
+                ports: ["5432:5432"]
+                env:
+                DATABASE_URL: postgres://postgres:postgres@localhost:5432/inrange_test
+                steps:
+                - uses: actions/checkout@v4
+                - uses: dtolnay/rust-toolchain@stable
+                with: { components: rustfmt, clippy }
+                - uses: Swatinem/rust-cache@v2
+                - run: cargo fmt --all --check
+                - run: cargo clippy --all-targets --all-features -- -D warnings
+                - run: cargo sqlx migrate run
+                # Fails if a query was changed without regenerating the offline cache.
+                - run: cargo sqlx prepare --check --workspace
+                - run: cargo test --workspace
+                - run: cargo audit
+                # The frontend's generated types must match the deployed schema.
+                - run: cargo run --bin inrange -- export-sdl > schema.graphql
+                - run: git diff --exit-code schema.graphql</pre>
+            </div>
+          </div>
+        </article>
+
+        <article class="del">
+          <header><span class="delid">B-71</span>
+            <h3>Runtime topology and operations</h3><span class="pill wk">Weeks 1 and 8</span><span
+              class="pill">F-85</span>
+          </header>
+          <div class="del-body">
+            <div class="tablewrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Component</th>
+                    <th>Sizing at launch</th>
+                    <th>Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>API</td>
+                    <td>2 instances, 1 vCPU / 1 GB each</td>
+                    <td>Rolling deploys, health-gated. Two instances so a deploy is never a full outage.</td>
+                  </tr>
+                  <tr>
+                    <td>Worker</td>
+                    <td>1 instance, 1 vCPU / 1 GB</td>
+                    <td>Safe to run several — <code>SKIP LOCKED</code> handles contention.</td>
+                  </tr>
+                  <tr>
+                    <td>Postgres</td>
+                    <td>2 vCPU / 4 GB, 40 GB storage</td>
+                    <td>Managed, EU region, point-in-time recovery enabled.</td>
+                  </tr>
+                  <tr>
+                    <td>Object storage</td>
+                    <td>S3-compatible bucket</td>
+                    <td>Separate origin, versioning on, lifecycle rule for orphaned uploads.</td>
+                  </tr>
+                  <tr>
+                    <td>Frontend</td>
+                    <td>Next.js on the same platform or an edge host</td>
+                    <td>ISR for story and device pages; the feed stays dynamic.</td>
+                  </tr>
+                  <tr>
+                    <td>Email</td>
+                    <td>Transactional provider</td>
+                    <td>Verification, reset and digest. SPF, DKIM and DMARC configured in week 1.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4>Launch checklist</h4>
+            <ul class="done">
+              <li>Migrations applied and reversible by a forward migration, never by a manual edit.</li>
+              <li>A restore from last night's backup rehearsed into a scratch database, with the row count verified.
+              </li>
+              <li>Alert routing tested by deliberately breaking a source in staging.</li>
+              <li>Rate limits verified against a scripted burst.</li>
+              <li>Security headers checked against the deployed origin, not against localhost.</li>
+              <li>Every aggregated source has a recorded licence note and a contact route for removal requests.</li>
+              <li>Privacy notice, editorial policy and safety page published and linked from every page.</li>
+              <li>A written runbook covering: a stuck worker, a flooded queue, a leaked session token, and a takedown
+                request.</li>
+            </ul>
+
+            <div class="note stop"><b>The one thing not to skip</b>Rehearse the restore. Everything else on this list
+              degrades gracefully if you get it slightly wrong. An unusable backup, discovered on the day you need it,
+              ends the project.</div>
+          </div>
+        </article>
+
+        <div class="corridor"></div>
+
+        <div class="sec">
+          <div class="sec-head"><span class="eyebrow">Effort</span>
+            <h2>Backend budget by week</h2>
+          </div>
+          <div class="tablewrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Week</th>
+                  <th>Backend deliverables</th>
+                  <th>Backend hours</th>
+                  <th>Frontend and content hours</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>W1</td>
+                  <td>B-01, B-02, B-10, B-11, B-20, B-21, B-60, B-70</td>
+                  <td>20</td>
+                  <td>10</td>
+                </tr>
+                <tr>
+                  <td>W2</td>
+                  <td>B-03, B-50, story services</td>
+                  <td>14</td>
+                  <td>16</td>
+                </tr>
+                <tr>
+                  <td>W3</td>
+                  <td>B-04, B-30 → B-34</td>
+                  <td>28</td>
+                  <td>4</td>
+                </tr>
+                <tr>
+                  <td>W4</td>
+                  <td>B-12, B-13, editorial mutations</td>
+                  <td>14</td>
+                  <td>16</td>
+                </tr>
+                <tr>
+                  <td>W5</td>
+                  <td>B-05, device services</td>
+                  <td>12</td>
+                  <td>18</td>
+                </tr>
+                <tr>
+                  <td>W6</td>
+                  <td>B-06, B-40, B-41</td>
+                  <td>20</td>
+                  <td>14</td>
+                </tr>
+                <tr>
+                  <td>W7</td>
+                  <td>B-07, B-51, moderation services</td>
+                  <td>16</td>
+                  <td>14</td>
+                </tr>
+                <tr>
+                  <td>W8</td>
+                  <td>B-71, hardening, export and delete</td>
+                  <td>12</td>
+                  <td>18</td>
+                </tr>
+                <tr>
+                  <td><strong>Total</strong></td>
+                  <td></td>
+                  <td><strong>136 h</strong></td>
+                  <td><strong>110 h</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="color:var(--muted);font-size:14.5px">246 hours across eight weeks is roughly 31 hours a week. That
+            is a sustainable solo pace alongside other commitments, and it matches the corridor in the roadmap chart —
+            with weeks 3 and 6 borrowing from the weeks either side of them.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="wrap">
+    <p>InRange backend specification · Deliverable IDs (B-nn) and feature IDs (F-nn) are cross-referenced with the MVP
+      plan. Crate versions and third-party API endpoints must be confirmed at build time.</p>
+  </footer>
+
+  <script>
+    (function () {
+      var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+      function show(id) {
+        tabs.forEach(function (t) {
+          var sel = t.id === 't-' + id;
+          t.setAttribute('aria-selected', sel ? 'true' : 'false');
+          var p = document.getElementById(t.getAttribute('aria-controls'));
+          if (p) p.hidden = !sel;
+        });
+      }
+      tabs.forEach(function (t) {
+        t.addEventListener('click', function () {
+          show(t.id.slice(2));
+          history.replaceState(null, '', '#' + t.id.slice(2));
+          window.scrollTo({top: 0});
+        });
+      });
+      tabs.forEach(function (t, i) {
+        t.addEventListener('keydown', function (e) {
+          var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+          if (!d) return;
+          e.preventDefault();
+          var n = tabs[(i + d + tabs.length) % tabs.length];
+          n.focus(); n.click();
+        });
+      });
+      var h = location.hash.slice(1);
+      if (h && document.getElementById('t-' + h)) show(h);
+
+      document.querySelectorAll('.copybtn').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var pre = b.closest('.codeblock').querySelector('pre');
+          navigator.clipboard.writeText(pre.textContent).then(function () {
+            var o = b.textContent; b.textContent = 'Copied';
+            setTimeout(function () {b.textContent = o;}, 1500);
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,115 @@
+Design a responsive web app called T1Diaries �� a publishing and reference platform for
+            the type 1 diabetes community. Desktop-first at 1440px with mobile at 390px. Light mode only for v1.
+
+            PRODUCT IN ONE LINE
+            Four surfaces in one calm, credible product: personal Stories from parents and people living with T1D;
+            Signal, a human-curated feed of device and research news; Devices, a sourced reference for CGMs, pumps and
+            automated insulin delivery systems; and Numbers, interactive charts of T1D epidemiology.
+
+            AUDIENCE
+            1. A parent four weeks after their child's diagnosis, reading on a phone at 2am, exhausted and scared.
+            2. An adult with T1D comparing hardware and following what is coming next.
+            3. A clinician, researcher or advocate who wants primary sources without wading through supplement
+            advertising.
+
+            TONE
+            Clinical calm, not corporate warmth. Confident and quiet. No stock photography of smiling people holding
+            fruit, no "journey" language, no inspirational overlays, no red alarm styling. The product's warmth comes
+            from the writing, so the interface should get out of its way. Every factual claim visibly carries its
+            source.
+
+            VISUAL LANGUAGE
+            Borrow from the ambulatory glucose profile report that every reader already knows: a horizontal target
+            corridor, a thin continuous trace, dashed threshold lines, small monospace axis labels. Use that corridor
+            motif as a section divider and as the progress and status device — never as decoration on unrelated content.
+
+            COLOR TOKENS
+            paper #EFF2F6 page background
+            card #FFFFFF surfaces
+            ink #0E141B primary text
+            muted #5B6674 secondary text
+            faint #8A94A2 labels, axis text
+            rule #D5DBE3 1px borders
+            trace #4A2FE7 primary action, links, data line
+            traceSoft #EDE9FE selected states, chips
+            band #CDEBD8 in-range fill, success
+            bandLine #2E9E63 in-range stroke, confirmed states
+            high #E8A33D caution, unverified, preprint badge
+            low #D9455F destructive, error, safety-critical
+            Do not introduce gradients. One accent only.
+
+            TYPOGRAPHY
+            Display: Bricolage Grotesque, 700/800, tight tracking (-2% to -4%). Used for page titles and section
+            headings only.
+            Body: IBM Plex Sans, 400/500/600. Body copy 16px/1.62, long-form story text 18px/1.7 at a 68-character
+            measure.
+            Utility: IBM Plex Mono, 400/500. Feature IDs, dates, source names, axis labels, badge text, all-caps
+            eyebrows at 11px with 0.12em letter-spacing.
+            Type scale: 48 / 34 / 24 / 20 / 17 / 15 / 13 / 11.
+
+            LAYOUT
+            1180px max content width, 12-column grid, 24px gutters. Long-form reading column 680px. 8px spacing base.
+            Border radius 10px on cards, 20px on pills, 5px on buttons. Borders instead of shadows; a single soft shadow
+            reserved for overlays only.
+
+            SCREENS TO DESIGN
+            1. Home — one lead story, a Signal strip of six items, a featured chart, entry points to Devices and
+            Numbers.
+            2. Story reader — title, byline with the author's relationship to T1D, content-warning interstitial state,
+            reading progress, "this helped me" reaction, related stories, comments.
+            3. Story editor — Markdown surface with live preview, autosave indicator, tag pickers for
+            audience/topic/devices, content-warning toggles, cover image, publish sheet.
+            4. Signal feed — filter rail for category, source type and date; cards showing headline, editor summary,
+            source, date, evidence badge, save control.
+            5. Signal item — headline, two-sentence summary, evidence badges, other outlets covering the same story,
+            prominent outbound link to the original.
+            6. Editorial queue (admin) — dense triage list with keyboard shortcuts, bulk select, inline summary editing,
+            source health strip.
+            7. Device directory — filterable grid with category, region and compatibility facets.
+            8. Device detail — sourced spec table where every value shows its citation and last-verified date,
+            compatibility section, related news.
+            9. Compare devices — up to three columns with differences highlighted.
+            10. Numbers explorer — choropleth plus time series, filter controls, methodology panel, export menu, and a
+            "view as table" state.
+            11. Search results — grouped by stories, news and devices.
+            12. Profile and reading list.
+            13. Sign-up and sign-in.
+            14. Moderation console.
+
+            COMPONENTS TO BUILD AS A LIBRARY
+            Buttons (primary, secondary, ghost, destructive), pill and badge set (priority, evidence type, verification
+            state, category), input, textarea, select, combobox, tag picker, card (story, news, device, chart), table
+            with sticky header, filter chip row, cursor-paginated list with loading skeletons, empty state, error state,
+            toast, modal, interstitial overlay, tab bar, breadcrumb, pagination, avatar, byline, citation footnote,
+            source-health indicator, chart frame with title, source line and export menu.
+
+            STATES REQUIRED FOR EVERY COMPONENT
+            Default, hover, focus-visible (2px trace-colour ring, 3px offset), active, disabled, loading, empty, error.
+
+            WRITING RULES FOR ALL UI COPY
+            Sentence case everywhere. Active voice. A button names its outcome and keeps that name through the flow:
+            "Publish" produces "Published". Errors state what happened and what to do next, and never apologise. Empty
+            states invite an action rather than describing absence. Unknown data reads "not published", never a blank or
+            a zero.
+
+            NON-NEGOTIABLES
+            - WCAG 2.2 AA: 4.5:1 on body text, 3:1 on large text and UI boundaries, visible focus on every interactive
+            element, and a 44px minimum touch target.
+            - Every chart needs an equivalent data table.
+            - A persistent, unobtrusive line stating this is not medical advice, present on the page and not only in the
+            footer.
+            - No third-party trackers or consent banners in the design.
+            - Design the loading and empty state for every list before the populated state.
+
+
+           STACKS
+           - NextJS 
+           - Typescript
+           - TailwindCSS
+           - Apollo Client
+
+
+
+            DELIVERABLES
+            A token set as Figma variables, a component library, the fourteen screens at both breakpoints, and a
+            one-page specimen sheet showing the type scale and the corridor motif in each of its uses.
