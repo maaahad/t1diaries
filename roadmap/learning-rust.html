@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>T1Diaries — Rust Book Reading Map</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #151822;
+      --panel2: #1b1f2b;
+      --border: #2a2f3d;
+      --text: #e7e9ee;
+      --muted: #a4abbd;
+      --accent: #5eb1ff;
+      --accent2: #7ee0c0;
+      --warn: #ffb75e;
+      --code-bg: #0b0d12;
+      --pill: #232838;
+      font-size: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Inter, system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 6rem;
+    }
+
+    header.hero {
+      padding: 3rem 2rem;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #182035, #0f1420 60%);
+      border: 1px solid var(--border);
+      margin-bottom: 2.5rem;
+    }
+
+    header.hero h1 {
+      font-size: 2.1rem;
+      margin: 0 0 .5rem;
+    }
+
+    header.hero p.tag {
+      color: var(--muted);
+      font-size: 1.05rem;
+      margin: 0;
+    }
+
+    .badges {
+      margin-top: 1rem;
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      background: var(--pill);
+      border: 1px solid var(--border);
+      color: var(--accent2);
+      padding: .25rem .7rem;
+      border-radius: 999px;
+      font-size: .8rem;
+    }
+
+    nav.toc {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    nav.toc h2 {
+      margin-top: 0;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+
+    nav.toc ol {
+      columns: 2;
+      gap: 2rem;
+      padding-left: 1.2rem;
+      margin: 0;
+    }
+
+    nav.toc a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    nav.toc a:hover {
+      text-decoration: underline;
+    }
+
+    section {
+      margin-bottom: 3rem;
+    }
+
+    h2.section-title {
+      font-size: 1.5rem;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: .6rem;
+      margin-bottom: 1.2rem;
+      scroll-margin-top: 1rem;
+    }
+
+    h3 {
+      color: var(--accent2);
+      font-size: 1.15rem;
+      margin-top: 1.8rem;
+      scroll-margin-top: 1rem;
+    }
+
+    h4 {
+      color: var(--text);
+      font-size: 1rem;
+      margin-top: 1.2rem;
+    }
+
+    p {
+      color: var(--text);
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    code {
+      background: var(--code-bg);
+      color: #c9e6ff;
+      padding: .15rem .4rem;
+      border-radius: 4px;
+      font-family: "Cascadia Code", Consolas, "SFMono-Regular", Menlo, monospace;
+      font-size: .9em;
+    }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      font-size: .87rem;
+      color: #d7ecff;
+      line-height: 1.55;
+    }
+
+    .filepath {
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: .8rem;
+      color: var(--warn);
+      margin-bottom: .35rem;
+      display: inline-block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: .92rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border);
+      padding: .6rem .8rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--panel2);
+      color: var(--accent2);
+    }
+
+    tr:nth-child(even) td {
+      background: rgba(255, 255, 255, .02);
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+    }
+
+    @media (max-width:800px) {
+
+      .grid2,
+      .grid3 {
+        grid-template-columns: 1fr;
+      }
+
+      nav.toc ol {
+        columns: 1;
+      }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem 1.4rem;
+    }
+
+    .card h4 {
+      margin-top: 0;
+      color: var(--accent);
+    }
+
+    .tree {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.3rem;
+      font-family: Consolas, monospace;
+      font-size: .85rem;
+      color: #dbe7f5;
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--panel2);
+      padding: .9rem 1.1rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1rem 0;
+    }
+
+    .callout.warn {
+      border-left-color: var(--warn);
+    }
+
+    .callout.good {
+      border-left-color: var(--accent2);
+    }
+
+    .step {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      margin-bottom: 2rem;
+    }
+
+    .step .num {
+      flex: 0 0 auto;
+      width: 2.4rem;
+      height: 2.4rem;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #04121f;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+    }
+
+    .step .body {
+      flex: 1;
+    }
+
+    footer.pagefoot {
+      margin-top: 4rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: .85rem;
+    }
+
+    .crate-tag {
+      display: inline-block;
+      background: var(--pill);
+      color: var(--accent2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .1rem .5rem;
+      font-family: Consolas, monospace;
+      font-size: .8rem;
+      margin-right: .3rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <header class="hero">
+      <h1>📖 Rust Book Reading Map for T1Diaries</h1>
+      <p class="tag">Which sections of <a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">
+          "The Rust Programming Language"</a> (the official Rust Book, current edition at doc.rust-lang.org/book) to
+        read
+        before implementing each part of the T1Diaries backend — so you learn concepts exactly when you're about to use
+        them, instead of front-loading the whole book.</p>
+      <div class="badges">
+        <span class="badge">Source: doc.rust-lang.org/book</span>
+        <span class="badge">Companion to: Repo Template Build Guide</span>
+      </div>
+    </header>
+
+    <div class="callout good">
+      <strong>How to use this document:</strong> it is ordered to match the Build Guide's steps 1–15, not the book's own
+      chapter order. Each entry names the exact chapter(s)/section(s), a one-line summary of what's in them, and — most
+      importantly — <em>why</em> that chapter matters for the specific piece of code you're about to write. You do not
+      need to read the book cover to cover before starting; read each row right before the matching build step.
+    </div>
+
+    <nav class="toc">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#full-toc">Full chapter reference table</a></li>
+        <li><a href="#phase0">Before Phase 0 — Scaffolding &amp; workspace</a></li>
+        <li><a href="#phase1">Before Phase 1 — Auth (signup/signin/JWT/hashing)</a></li>
+        <li><a href="#phase2">Before Phase 2 — Users/Profile</a></li>
+        <li><a href="#phase3">Before Phase 3 — Blogs (posts &amp; comments)</a></li>
+        <li><a href="#phase4">Before Phase 4 — Stats (background jobs, scraping)</a></li>
+        <li><a href="#phase5">Before Phase 5 — Devices (read-mostly domain)</a></li>
+        <li><a href="#phase6">Before Phase 6 — Hardening (concurrency, tracing, production)</a></li>
+        <li><a href="#graphql-note">A note on GraphQL macros vs. "plain" Rust</a></li>
+        <li><a href="#skip">Chapters you can skip or skim for this project</a></li>
+      </ol>
+    </nav>
+
+    <section id="full-toc">
+      <h2 class="section-title">Full chapter reference table</h2>
+      <p class="muted">For orientation — the current online Rust Book table of contents in full, so you can see where
+        each recommendation below sits in the whole book.</p>
+      <table>
+        <tr>
+          <th>#</th>
+          <th>Chapter</th>
+          <th>Relevance to T1Diaries</th>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>Getting Started</td>
+          <td>Required — install &amp; <code>cargo new</code> basics.</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Programming a Guessing Game</td>
+          <td>Optional warm-up; good first exercise if Rust is brand new to you.</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Common Programming Concepts</td>
+          <td>Required — variables, types, functions, control flow.</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Understanding Ownership</td>
+          <td><strong>Critical.</strong> Everything else in the book depends on this.</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Using Structs to Structure Related Data</td>
+          <td>Required — every model/DTO/config struct.</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>Enums and Pattern Matching</td>
+          <td>Required — <code>AppError</code>, <code>Option</code>/<code>Result</code> handling, GraphQL enums.</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>Managing Growing Projects with Packages, Crates, and Modules</td>
+          <td><strong>Critical</strong> for the workspace layout itself.</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>Common Collections</td>
+          <td>Required — <code>Vec</code>, <code>HashMap</code>, <code>String</code> used everywhere.</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td>Error Handling</td>
+          <td><strong>Critical</strong> — the whole <code>AppError</code>/<code>AppResult</code> pattern.</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>Generic Types, Traits, and Lifetimes</td>
+          <td><strong>Critical</strong> — every repository/service trait.</td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td>Writing Automated Tests</td>
+          <td>Required before Step 14 (testing setup).</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td>An I/O Project: Building a Command Line Program</td>
+          <td>Optional — good applied practice, not required.</td>
+        </tr>
+        <tr>
+          <td>13</td>
+          <td>Functional Language Features: Iterators and Closures</td>
+          <td>Required — mapping DB rows to GraphQL types, filters, pagination.</td>
+        </tr>
+        <tr>
+          <td>14</td>
+          <td>More About Cargo and Crates.io</td>
+          <td>Useful — workspaces, profiles, publishing (skim, we cover workspaces directly in the Build Guide).</td>
+        </tr>
+        <tr>
+          <td>15</td>
+          <td>Smart Pointers</td>
+          <td>Required — <code>Arc&lt;dyn Trait&gt;</code> is used constantly for services/repositories.</td>
+        </tr>
+        <tr>
+          <td>16</td>
+          <td>Fearless Concurrency</td>
+          <td>Required — foundation for understanding async/await and shared pools.</td>
+        </tr>
+        <tr>
+          <td>17</td>
+          <td>Fundamentals of Asynchronous Programming</td>
+          <td><strong>Critical</strong> — axum, sqlx, and async-graphql are all async-first.</td>
+        </tr>
+        <tr>
+          <td>18</td>
+          <td>Object-Oriented Programming Features</td>
+          <td>Required — trait objects, the "interface" pattern used for every service.</td>
+        </tr>
+        <tr>
+          <td>19</td>
+          <td>Patterns and Matching</td>
+          <td>Useful reference — deep dive on everything ch.6 introduced.</td>
+        </tr>
+        <tr>
+          <td>20</td>
+          <td>Advanced Features</td>
+          <td>Useful for understanding derive macros (<code>#[derive(SimpleObject)]</code> etc.) at a conceptual level.
+          </td>
+        </tr>
+        <tr>
+          <td>21</td>
+          <td>Final Project: Building a Multithreaded Web Server</td>
+          <td>Required conceptually — mirrors exactly what axum automates.</td>
+        </tr>
+      </table>
+    </section>
+
+    <section id="phase0">
+      <h2 class="section-title">Before Phase 0 — Scaffolding &amp; workspace (Build Guide Steps 1–2)</h2>
+      <div class="grid2">
+        <div class="card">
+          <h4>Ch.1 — Getting Started</h4>
+          <p>Installing rustup, your first <code>cargo new</code>, <code>cargo build</code>/<code>run</code>. Read
+            fully if this is your first Rust project.</p>
+        </div>
+        <div class="card">
+          <h4>Ch.3 — Common Programming Concepts</h4>
+          <p>Variables/mutability, data types, functions, comments, control flow (<code>if</code>, <code>loop</code>,
+            <code>match</code> preview). Skim if you know a C-like language already; read fully otherwise.
+          </p>
+        </div>
+        <div class="card">
+          <h4>Ch.4 — Understanding Ownership <span class="badge">critical</span></h4>
+          <p>Ownership, references &amp; borrowing, the borrow checker, slices. This is <em>the</em> Rust concept —
+            you will hit borrow-checker errors the moment you write your first <code>&amp;self</code> method, and this
+            chapter is the only thing that makes those errors make sense instead of feeling arbitrary.</p>
+        </div>
+        <div class="card">
+          <h4>Ch.7 — Packages, Crates, and Modules <span class="badge">critical</span></h4>
+          <p>The exact vocabulary of what you're building in Step 2: a <em>package</em> (one <code>Cargo.toml</code>)
+            can contain multiple <em>crates</em>; a workspace groups multiple packages;
+            <code>mod</code>/<code>pub</code>
+            control visibility (this is why <code>crates/graphql</code> can see
+            <code>t1diaries_auth::graphql::AuthQuery</code>
+            but not its private repository internals).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="phase1">
+      <h2 class="section-title">Before Phase 1 — Auth (Build Guide Step 7)</h2>
+      <p>This is the densest step in the whole build guide, and correspondingly needs the most reading. Read these
+        <em>in order</em> before opening <code>crates/auth</code>:
+      </p>
+      <div class="grid2">
+        <div class="card">
+          <h4>Ch.5 — Structs</h4>
+          <p><code>UserRecord</code>, <code>SignUpInput</code>, <code>Claims</code> — every DTO in the auth flow is a
+            struct. Pay attention to the section on methods (<code>impl</code> blocks) — <code>AuthService</code>'s
+            methods are defined exactly this way.</p>
+        </div>
+        <div class="card">
+          <h4>Ch.6 — Enums and Pattern Matching</h4>
+          <p><code>AppError</code> is an enum; <code>match</code> on it (as in the GraphQL error-extension mapping)
+            is exhaustive-checked by the compiler — read the section on <code>match</code> and the
+            <code>Option&lt;T&gt;</code> enum specifically, since <code>find_by_email</code> returns
+            <code>Option&lt;UserRecord&gt;</code>.
+          </p>
+        </div>
+        <div class="card">
+          <h4>Ch.9 — Error Handling <span class="badge">critical</span></h4>
+          <p>The <code>Result&lt;T, E&gt;</code> type, the <code>?</code> operator (used in nearly every line of
+            <code>repository.rs</code> and <code>service.rs</code>), and when to <code>panic!</code> vs. return
+            <code>Result</code>. This chapter is the direct justification for the <code>AppError</code>/
+            <code>AppResult&lt;T&gt;</code> pattern from Build Guide Step 3.
+          </p>
+        </div>
+        <div class="card">
+          <h4>Ch.10 — Generics, Traits, and Lifetimes <span class="badge">critical</span></h4>
+          <p>Traits are how <code>AuthRepository</code> is defined as an interface with a Postgres implementation
+            (<code>PgAuthRepository</code>) swapped in — read the "Traits as Parameters" and "Trait Objects" framing
+            carefully; it's the exact shape of <code>Arc&lt;dyn AuthRepository&gt;</code>.</p>
+        </div>
+        <div class="card">
+          <h4>Ch.13.2 — Closures</h4>
+          <p>Short section, but the token-claims construction and iterator-based row-mapping (later, in blogs/devices)
+            use closures constantly — <code>|r| Device { ... }</code> in Step 8 is a closure.</p>
+        </div>
+        <div class="card">
+          <h4>Ch.15 — Smart Pointers <span class="badge">critical</span></h4>
+          <p>Focus on <code>Box&lt;T&gt;</code> and <code>Rc&lt;T&gt;</code> (shared ownership) — this is the mental
+            model behind <code>Arc&lt;dyn AuthRepository&gt;</code> and <code>Arc&lt;dyn EmailSender&gt;</code> in
+            <code>AuthService</code> (Arc is Rc's thread-safe sibling, introduced in the next chapter).
+          </p>
+        </div>
+        <div class="card">
+          <h4>Ch.16 — Fearless Concurrency</h4>
+          <p>Read 16.1–16.3 (threads, message passing, shared state via
+            <code>Mutex&lt;T&gt;</code>/<code>Arc&lt;T&gt;</code>).
+            You won't spawn raw OS threads in this project, but this chapter is the prerequisite for understanding
+            <em>why</em> <code>Arc</code> exists and why cloning a <code>PgPool</code> or a service is cheap and safe
+            across concurrent axum requests.
+          </p>
+        </div>
+        <div class="card">
+          <h4>Ch.17 — Fundamentals of Asynchronous Programming <span class="badge">critical</span></h4>
+          <p>Futures, <code>async</code>/<code>.await</code>, and why an async runtime (tokio) is needed. Every
+            function in <code>AuthService</code>, every axum handler, and every async-graphql resolver is an
+            <code>async fn</code> — this chapter explains what that actually means under the hood (a suspended state
+            machine polled by tokio), not just the syntax.
+          </p>
+        </div>
+        <div class="card">
+          <h4>Ch.18 — Object-Oriented Programming Features</h4>
+          <p>Specifically the "Using Trait Objects That Allow for Values of Different Types" section — this is the
+            formal explanation of the <code>dyn AuthRepository</code> pattern used throughout <code>AppState</code>.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>async-trait note:</strong> the code in Build Guide Step 7 uses the <code>#[async_trait]</code> macro
+        from the <code>async-trait</code> crate to put <code>async fn</code> inside a trait — native async fns in
+        traits landed in stable Rust but still have limitations with trait objects (<code>dyn Trait</code>), which is
+        exactly what <code>Arc&lt;dyn AuthRepository&gt;</code> needs. The Rust Book's Ch.17/18 explain the underlying
+        "why," but the crate itself isn't covered in the book — its docs on crates.io are the reference for the macro's
+        exact behavior.
+      </div>
+    </section>
+
+    <section id="phase2">
+      <h2 class="section-title">Before Phase 2 — Users/Profile</h2>
+      <p>No new chapters — Phase 2 reuses the exact struct/trait/error/async patterns from Phase 1. This is a good
+        point to <strong>re-skim Ch.9 and Ch.10</strong> if the auth code didn't fully click the first time; writing the
+        same pattern a second time for a new domain is often when it actually sinks in.</p>
+    </section>
+
+    <section id="phase3">
+      <h2 class="section-title">Before Phase 3 — Blogs (posts &amp; comments)</h2>
+      <div class="grid2">
+        <div class="card">
+          <h4>Ch.8 — Common Collections <span class="badge">critical</span></h4>
+          <p><code>Vec&lt;Post&gt;</code>, <code>Vec&lt;Comment&gt;</code>, tag lists, and building comment trees
+            (parent/child) all lean on <code>Vec</code> and <code>HashMap</code> — read the <code>HashMap</code>
+            section specifically before implementing comment-thread grouping (grouping comments by
+            <code>parent_comment_id</code>).
+          </p>
+        </div>
+        <div class="card">
+          <h4>Ch.13 (full) — Iterators and Closures <span class="badge">critical</span></h4>
+          <p>Cursor-based pagination, DataLoader batching, and comment-tree building are all naturally expressed as
+            iterator chains (<code>.filter()</code>, <code>.map()</code>, <code>.collect()</code>, <code>.fold()</code>)
+            —
+            read the full chapter this time, not just the closures section from Phase 1.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="phase4">
+      <h2 class="section-title">Before Phase 4 — Stats (background jobs, scraping)</h2>
+      <div class="grid2">
+        <div class="card">
+          <h4>Ch.16 (re-read fully) — Fearless Concurrency</h4>
+          <p>The stats ingestion job runs on a schedule, independent of any HTTP request — read 16.1
+            (<code>thread::spawn</code>) again, now thinking about its async cousin, <code>tokio::spawn</code>, which is
+            what actually runs the periodic scraper alongside the axum server in the same process.</p>
+        </div>
+        <div class="card">
+          <h4>Ch.17 (re-read) — Async fundamentals</h4>
+          <p>Specifically anything on running multiple futures concurrently — the scraper fetches from several
+            external sources; understanding <code>join!</code>/concurrent futures (covered conceptually here, with
+            tokio-specific APIs in tokio's own docs) avoids writing an accidentally-sequential scraper.</p>
+        </div>
+      </div>
+      <div class="callout warn">
+        The book teaches async fundamentals but not tokio's specific scheduler APIs (<code>tokio::spawn</code>,
+        <code>tokio::time::interval</code>) or a cron-style crate like <code>tokio-cron-scheduler</code> — once Ch.17's
+        concepts click, go to tokio's own documentation for the concrete scheduling API used in the background job.
+      </div>
+    </section>
+
+    <section id="phase5">
+      <h2 class="section-title">Before Phase 5 — Devices (read-mostly domain)</h2>
+      <p>No new chapters required — by this point you've written the repository→service→graphql pattern three times
+        (auth, users, blogs). Devices is the simplest of the four domains (query-only), so it doubles as a good
+        self-check: if you can write it without re-reading anything, Ch.9/10/13 have become comfortable.</p>
+    </section>
+
+    <section id="phase6">
+      <h2 class="section-title">Before Phase 6 — Hardening (concurrency, tracing, production)</h2>
+      <div class="grid2">
+        <div class="card">
+          <h4>Ch.16.3 — Shared-State Concurrency</h4>
+          <p><code>Mutex&lt;T&gt;</code> and <code>Arc&lt;Mutex&lt;T&gt;&gt;</code> — relevant if you implement
+            in-memory rate limiting or counters rather than pushing that entirely into Redis.</p>
+        </div>
+        <div class="card">
+          <h4>Ch.11 — Writing Automated Tests</h4>
+          <p><code>#[test]</code>/<code>#[should_panic]</code>, organizing unit vs. integration tests
+            (<code>tests/</code> directory per crate) — read before Build Guide Step 14 if you skipped it earlier.</p>
+        </div>
+        <div class="card">
+          <h4>Ch.20 — Advanced Features (skim)</h4>
+          <p>The sections on advanced traits (associated types) and a conceptual intro to macros help demystify what
+            <code>#[derive(SimpleObject)]</code>, <code>#[Object]</code>, and <code>sqlx::query_as!</code> are doing ���
+            they're procedural macros generating code at compile time, which this chapter introduces at a basic level
+            (the book does not cover writing your own proc macros in depth).
+          </p>
+        </div>
+        <div class="card">
+          <h4>Ch.21 — Final Project: Multithreaded Web Server</h4>
+          <p>If you skipped this before Step 10, read it now with fresh eyes: you'll recognize axum's
+            <code>Router</code>/listener/handler flow as a productionized version of exactly what this chapter builds by
+            hand (TCP listener → parse request → route → thread pool → response).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="graphql-note">
+      <h2 class="section-title">A note on GraphQL macros vs. "plain" Rust</h2>
+      <p>The Rust Book does not cover <code>async-graphql</code>, <code>axum</code>, or <code>sqlx</code> — it teaches
+        the language itself. Once you understand <em>why</em> traits, generics, and async/await work the way they do
+        (Ch.9, 10, 17, 18), the following crate-specific patterns become readable as "just" applications of those
+        concepts rather than new magic:</p>
+      <table>
+        <tr>
+          <th>Pattern you'll see in code</th>
+          <th>Book concept it's built on</th>
+        </tr>
+        <tr>
+          <td><code>#[derive(SimpleObject)]</code> on a struct</td>
+          <td>Ch.5 (Structs) + Ch.20 (macros, conceptually)</td>
+        </tr>
+        <tr>
+          <td><code>#[Object] impl AuthMutation { async fn ... }</code></td>
+          <td>Ch.5 (impl blocks) + Ch.17 (async fns)</td>
+        </tr>
+        <tr>
+          <td><code>ctx.data::&lt;AuthService&gt;()?</code></td>
+          <td>Ch.10 (generics — <code>data::&lt;T&gt;</code> is a generic method) + Ch.9 (the <code>?</code> operator)
+          </td>
+        </tr>
+        <tr>
+          <td><code>Arc&lt;dyn AuthRepository&gt;</code></td>
+          <td>Ch.15 (smart pointers) + Ch.18 (trait objects)</td>
+        </tr>
+        <tr>
+          <td><code>sqlx::query_as!(...)</code></td>
+          <td>Ch.20 (macros) — a compile-time-checked SQL macro; the SQL itself isn't a Rust Book topic</td>
+        </tr>
+        <tr>
+          <td><code>#[derive(MergedObject)]</code></td>
+          <td>Ch.7 (modules — this is literally module composition, expressed as a derive macro)</td>
+        </tr>
+      </table>
+    </section>
+
+    <section id="skip">
+      <h2 class="section-title">Chapters you can skip or skim for this project</h2>
+      <ul>
+        <li><strong>Ch.2 — Programming a Guessing Game.</strong> A standalone learning exercise; nothing here is
+          reused directly in T1Diaries. Skip if you already know another programming language.</li>
+        <li><strong>Ch.12 — I/O Project (minigrep).</strong> Good practice for structuring a small CLI, but T1Diaries
+          has no CLI component — skip unless you want the extra exercise.</li>
+        <li><strong>Ch.14 — More About Cargo and Crates.io.</strong> Covers release profiles and publishing to
+          crates.io; the workspace-specific parts you need are already covered directly in the Build Guide. Skim only if
+          curious about custom build profiles.</li>
+        <li><strong>Ch.19 — Patterns and Matching (deep dive).</strong> A reference chapter expanding on Ch.6; read it
+          only if you hit a pattern-matching construct (e.g. <code>@</code>-bindings, match guards) that Ch.6 didn't
+          cover.</li>
+      </ul>
+    </section>
+
+    <footer class="pagefoot">
+      T1Diaries — Rust Book Reading Map. Source text: <a href="https://doc.rust-lang.org/book/" target="_blank"
+        rel="noopener">doc.rust-lang.org/book</a>. Companion documents: <em>Project Roadmap &amp; Architecture</em> and
+      <em>Repo Template Build Guide</em>.
+    </footer>
+
+  </div>
+</body>
+UseFormReset<SignupFormData()=> void></SignupFormData>
+
+</html>

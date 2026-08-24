@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>T1Diaries — Repo Template Build Guide</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #151822;
+      --panel2: #1b1f2b;
+      --border: #2a2f3d;
+      --text: #e7e9ee;
+      --muted: #a4abbd;
+      --accent: #5eb1ff;
+      --accent2: #7ee0c0;
+      --warn: #ffb75e;
+      --code-bg: #0b0d12;
+      --pill: #232838;
+      font-size: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Inter, system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 6rem;
+    }
+
+    header.hero {
+      padding: 3rem 2rem;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #182035, #0f1420 60%);
+      border: 1px solid var(--border);
+      margin-bottom: 2.5rem;
+    }
+
+    header.hero h1 {
+      font-size: 2.1rem;
+      margin: 0 0 .5rem;
+    }
+
+    header.hero p.tag {
+      color: var(--muted);
+      font-size: 1.05rem;
+      margin: 0;
+    }
+
+    .badges {
+      margin-top: 1rem;
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      background: var(--pill);
+      border: 1px solid var(--border);
+      color: var(--accent2);
+      padding: .25rem .7rem;
+      border-radius: 999px;
+      font-size: .8rem;
+    }
+
+    nav.toc {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    nav.toc h2 {
+      margin-top: 0;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+
+    nav.toc ol {
+      columns: 2;
+      gap: 2rem;
+      padding-left: 1.2rem;
+      margin: 0;
+    }
+
+    nav.toc a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    nav.toc a:hover {
+      text-decoration: underline;
+    }
+
+    section {
+      margin-bottom: 3rem;
+    }
+
+    h2.section-title {
+      font-size: 1.5rem;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: .6rem;
+      margin-bottom: 1.2rem;
+      scroll-margin-top: 1rem;
+    }
+
+    h3 {
+      color: var(--accent2);
+      font-size: 1.15rem;
+      margin-top: 1.8rem;
+      scroll-margin-top: 1rem;
+    }
+
+    h4 {
+      color: var(--text);
+      font-size: 1rem;
+      margin-top: 1.2rem;
+    }
+
+    p {
+      color: var(--text);
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    code {
+      background: var(--code-bg);
+      color: #c9e6ff;
+      padding: .15rem .4rem;
+      border-radius: 4px;
+      font-family: "Cascadia Code", Consolas, "SFMono-Regular", Menlo, monospace;
+      font-size: .9em;
+    }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      font-size: .87rem;
+      color: #d7ecff;
+      line-height: 1.55;
+    }
+
+    .filepath {
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: .8rem;
+      color: var(--warn);
+      margin-bottom: .35rem;
+      display: inline-block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: .92rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border);
+      padding: .6rem .8rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--panel2);
+      color: var(--accent2);
+    }
+
+    tr:nth-child(even) td {
+      background: rgba(255, 255, 255, .02);
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+    }
+
+    @media (max-width:800px) {
+
+      .grid2,
+      .grid3 {
+        grid-template-columns: 1fr;
+      }
+
+      nav.toc ol {
+        columns: 1;
+      }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem 1.4rem;
+    }
+
+    .card h4 {
+      margin-top: 0;
+      color: var(--accent);
+    }
+
+    .tree {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.3rem;
+      font-family: Consolas, monospace;
+      font-size: .85rem;
+      color: #dbe7f5;
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--panel2);
+      padding: .9rem 1.1rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1rem 0;
+    }
+
+    .callout.warn {
+      border-left-color: var(--warn);
+    }
+
+    .callout.good {
+      border-left-color: var(--accent2);
+    }
+
+    .step {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      margin-bottom: 2rem;
+    }
+
+    .step .num {
+      flex: 0 0 auto;
+      width: 2.4rem;
+      height: 2.4rem;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #04121f;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+    }
+
+    .step .body {
+      flex: 1;
+    }
+
+    footer.pagefoot {
+      margin-top: 4rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: .85rem;
+    }
+
+    .crate-tag {
+      display: inline-block;
+      background: var(--pill);
+      color: var(--accent2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .1rem .5rem;
+      font-family: Consolas, monospace;
+      font-size: .8rem;
+      margin-right: .3rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <header class="hero">
+      <h1>🛠️ T1Diaries — Repo Template Build Guide</h1>
+      <p class="tag">A from-zero, step-by-step walkthrough to stand up the Cargo + pnpm monorepo: every crate,
+        every <code>Cargo.toml</code>, every axum/async-graphql wiring point, explained as you type it.</p>
+      <div class="badges">
+        <span class="badge">Companion to: Project Roadmap.html</span>
+        <span class="badge">Read alongside: Rust Book Reading Map.html</span>
+      </div>
+    </header>
+
+    <nav class="toc">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#prereqs">0. Prerequisites &amp; tool install</a></li>
+        <li><a href="#step1">1. Create the monorepo skeleton</a></li>
+        <li><a href="#step2">2. Initialize the Cargo workspace</a></li>
+        <li><a href="#step3">3. crates/error — shared error type</a></li>
+        <li><a href="#step4">4. crates/config — environment config</a></li>
+        <li><a href="#step5">5. crates/db — Postgres pool &amp; migrations</a></li>
+        <li><a href="#step6">6. crates/cache — Redis pool</a></li>
+        <li><a href="#step7">7. crates/auth — signup/signin/verify/reset + JWT</a></li>
+        <li><a href="#step8">8. crates/users, crates/blogs, crates/stats, crates/devices (domain pattern)</a></li>
+        <li><a href="#step9">9. crates/graphql — the thin composition layer</a></li>
+        <li><a href="#step10">10. apps/api — axum main.rs wiring</a></li>
+        <li><a href="#step11">11. Docker Compose for local dev</a></li>
+        <li><a href="#step12">12. Frontend: pnpm workspace + Vite app</a></li>
+        <li><a href="#step13">13. GraphQL code generation (frontend)</a></li>
+        <li><a href="#step14">14. Testing setup (backend &amp; frontend)</a></li>
+        <li><a href="#step15">15. Final tree &amp; sanity-check commands</a></li>
+      </ol>
+    </nav>
+
+    <section id="prereqs">
+      <h2 class="section-title">0. Prerequisites &amp; tool install</h2>
+      <table>
+        <tr>
+          <th>Tool</th>
+          <th>Install</th>
+          <th>Used for</th>
+        </tr>
+        <tr>
+          <td>Rust (via rustup)</td>
+          <td><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh</code></td>
+          <td>Compiler, cargo, clippy, rustfmt</td>
+        </tr>
+        <tr>
+          <td>Node.js 20+</td>
+          <td><code>nvm install 20 &amp;&amp; nvm use 20</code></td>
+          <td>Frontend build tooling</td>
+        </tr>
+        <tr>
+          <td>pnpm</td>
+          <td><code>corepack enable &amp;&amp; corepack prepare pnpm@9 --activate</code></td>
+          <td>JS package manager / workspaces</td>
+        </tr>
+        <tr>
+          <td>Docker + Docker Compose</td>
+          <td>Docker Desktop / Docker Engine</td>
+          <td>Local Postgres, Redis, Mailhog</td>
+        </tr>
+        <tr>
+          <td>sqlx-cli</td>
+          <td><code>cargo install sqlx-cli --no-default-features --features rustls,postgres</code></td>
+          <td>Create/run SQL migrations</td>
+        </tr>
+        <tr>
+          <td>cargo-watch</td>
+          <td><code>cargo install cargo-watch</code></td>
+          <td>Auto-reload the API during dev</td>
+        </tr>
+      </table>
+      <div class="callout warn">
+        <strong>Rust Book checkpoint:</strong> if you are new to Rust, read <em>Ch.1 (Getting Started)</em> and skim
+        <em>Ch.3 (Common Programming Concepts)</em> now — see the companion "Rust Book Reading Map" document. You don't
+        need to read the whole book before starting; each step below tells you exactly which chapter to read first.
+      </div>
+    </section>
+
+    <section id="step1">
+      <h2 class="section-title">1. Create the monorepo skeleton</h2>
+      <div class="step">
+        <div class="num">1</div>
+        <div class="body">
+          <p>Create the root folder and the directories the roadmap document defined:</p>
+          <pre><code>mkdir t1diaries &amp;&amp; cd t1diaries
+              git init
+
+              mkdir -p apps/api apps/web
+              mkdir -p crates/{config,error,db,cache,auth,users,blogs,stats,devices,email,graphql}
+              mkdir -p packages/{ui,graphql-client,config-eslint,config-typescript}
+              mkdir -p migrations infra/docker infra/github-actions docs
+
+              touch README.md .env.example .gitignore
+            </code></pre>
+          <p>Add a baseline <code>.gitignore</code>:</p>
+          <span class="filepath">.gitignore</span>
+          <pre><code>/target
+              node_modules
+              dist
+              .env
+              .turbo
+              .sqlx
+              *.log
+            </code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="step2">
+      <h2 class="section-title">2. Initialize the Cargo workspace</h2>
+      <div class="callout">
+        <strong>Read first:</strong> Rust Book <em>Ch.7 — Managing Growing Projects with Packages, Crates, and
+          Modules</em>. This chapter is the entire reason the workspace layout below makes sense — it explains the
+        difference between a <em>package</em>, a <em>crate</em>, and a <em>module</em>, which is exactly what we're
+        setting up.
+      </div>
+      <div class="step">
+        <div class="num">1</div>
+        <div class="body">
+          <p>Create the root workspace manifest (already shown in full in the Roadmap doc §4 — reproduced here so you
+            can
+            paste it directly):</p>
+          <span class="filepath">/Cargo.toml</span>
+          <pre><code>[workspace]
+              resolver = "2"
+              members = [
+              "apps/api",
+              "crates/config", "crates/error", "crates/db", "crates/cache",
+              "crates/auth", "crates/users", "crates/blogs", "crates/stats",
+              "crates/devices", "crates/email", "crates/graphql",
+              ]
+
+              [workspace.dependencies]
+              tokio = { version = "1", features = ["full"] }
+              axum = { version = "0.8" }
+              tower = { version = "0.5" }
+              tower-http = { version = "0.6", features = ["cors", "trace", "compression-full"] }
+              tower-cookies = { version = "0.11" }
+              async-graphql = { version = "7", features = ["chrono", "uuid"] }
+              async-graphql-axum = { version = "7" }
+              sqlx = { version = "0.8", features = ["runtime-tokio", "postgres", "uuid", "chrono", "migrate"] }
+              deadpool-redis = { version = "0.16" }
+              redis = { version = "0.27" }
+              serde = { version = "1", features = ["derive"] }
+              serde_json = { version = "1" }
+              uuid = { version = "1", features = ["v4", "v7", "serde"] }
+              chrono = { version = "0.4", features = ["serde"] }
+              thiserror = { version = "2" }
+              anyhow = { version = "1" }
+              tracing = { version = "0.1" }
+              tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+              argon2 = { version = "0.5" }
+              rand_core = { version = "0.6", features = ["std"] }
+              jsonwebtoken = { version = "9" }
+              validator = { version = "0.18", features = ["derive"] }
+              dotenvy = { version = "0.15" }
+              config = { version = "0.14" }
+              lettre = { version = "0.11", default-features = false, features = ["tokio1", "tokio1-rustls-tls",
+              "smtp-transport", "builder"] }
+
+              [workspace.package]
+              edition = "2021"
+              version = "0.1.0"
+            </code></pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div class="body">
+          <p>Every crate under <code>crates/*</code> gets initialized as a library, and <code>apps/api</code> as a
+            binary:</p>
+          <pre><code>cargo init --lib crates/config
+              cargo init --lib crates/error
+              cargo init --lib crates/db
+              cargo init --lib crates/cache
+              cargo init --lib crates/auth
+              cargo init --lib crates/users
+              cargo init --lib crates/blogs
+              cargo init --lib crates/stats
+              cargo init --lib crates/devices
+              cargo init --lib crates/email
+              cargo init --lib crates/graphql
+              cargo init --bin apps/api
+
+              cargo build # should succeed: 12 trivial crates compiling
+            </code></pre>
+          <p class="muted">Each crate's own <code>Cargo.toml</code> gets a <code>name</code> prefixed with
+            <code>t1diaries-</code>, e.g. <code>name = "t1diaries-auth"</code>, so cross-crate imports read as
+            <code>use t1diaries_auth::...</code> (Cargo converts hyphens to underscores for the Rust identifier).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="step3">
+      <h2 class="section-title">3. crates/error — shared error type</h2>
+      <div class="callout">
+        <strong>Read first:</strong> Rust Book <em>Ch.9 — Error Handling</em> (all three sub-sections: unrecoverable
+        errors with <code>panic!</code>, recoverable errors with <code>Result</code>, and "to panic or not to panic").
+        Also skim <em>Ch.6 — Enums and Pattern Matching</em> since <code>AppError</code> is an enum.
+      </div>
+      <p><span class="crate-tag">thiserror</span> derives <code>std::error::Error</code> + <code>Display</code> for an
+        enum without boilerplate. This is the single error type every domain crate returns from its service layer.</p>
+      <span class="filepath">crates/error/Cargo.toml</span>
+      <pre><code>[package]
+          name = "t1diaries-error"
+          edition.workspace = true
+          version.workspace = true
+
+          [dependencies]
+          thiserror = { workspace = true }
+          async-graphql = { workspace = true }
+        </code></pre>
+      <span class="filepath">crates/error/src/lib.rs</span>
+      <pre><code>use async_graphql::{Error as GqlError, ErrorExtensions};
+          use thiserror::Error;
+
+          #[derive(Debug, Error)]
+          pub enum AppError {
+          #[error("not found")]
+          NotFound,
+
+          #[error("validation failed: {0}")]
+          Validation(String),
+
+          #[error("unauthenticated")]
+          Unauthenticated,
+
+          #[error("forbidden")]
+          Forbidden,
+
+          #[error("conflict: {0}")]
+          Conflict(String),
+
+          #[error("internal error")]
+          Internal(#[from] anyhow::Error),
+
+          #[error("database error")]
+          Database(#[from] sqlx::Error),
+          }
+
+          // Single place that maps our domain errors into GraphQL errors with an
+          // `extensions.code` the frontend can branch on (e.g. "UNAUTHENTICATED").
+          impl ErrorExtensions for AppError {
+          fn extend(&amp;self) -> GqlError {
+          GqlError::new(self.to_string()).extend_with(|_, e| {
+          let code = match self {
+          AppError::NotFound => "NOT_FOUND",
+          AppError::Validation(_) => "VALIDATION",
+          AppError::Unauthenticated => "UNAUTHENTICATED",
+          AppError::Forbidden => "FORBIDDEN",
+          AppError::Conflict(_) => "CONFLICT",
+          AppError::Database(_) | AppError::Internal(_) => "INTERNAL",
+          };
+          e.set("code", code);
+          })
+          }
+          }
+
+          pub type AppResult&lt;T&gt; = Result&lt;T, AppError&gt;;
+        </code></pre>
+      <p class="muted">Note <code>sqlx = { workspace = true }</code> also needs adding to this crate's dependencies for
+        the
+        <code>#[from] sqlx::Error</code> conversion to compile — add it alongside <code>anyhow</code>.
+      </p>
+    </section>
+
+    <section id="step4">
+      <h2 class="section-title">4. crates/config — environment config</h2>
+      <div class="callout">
+        <strong>Read first:</strong> Rust Book <em>Ch.5 — Using Structs to Structure Related Data</em> (structs +
+        derived traits) and the <em>Ch.10</em> section on trait bounds if you want to understand how
+        <code>serde</code>'s
+        <code>Deserialize</code> derive plugs in.
+      </div>
+      <p><span class="crate-tag">config</span> layers configuration sources (defaults → files → environment variables);
+        <span class="crate-tag">dotenvy</span> loads a local <code>.env</code> file into <code>std::env</code> so
+        <code>config</code>'s environment layer can see it.
+      </p>
+      <span class="filepath">crates/config/Cargo.toml</span>
+      <pre><code>[package]
+          name = "t1diaries-config"
+          edition.workspace = true
+          version.workspace = true
+
+          [dependencies]
+          serde = { workspace = true }
+          config = { workspace = true }
+          dotenvy = { workspace = true }
+        </code></pre>
+      <span class="filepath">crates/config/src/lib.rs</span>
+      <pre><code>use serde::Deserialize;
+
+          #[derive(Debug, Clone, Deserialize)]
+          pub struct AppConfig {
+          pub app_port: u16,
+          pub database_url: String,
+          pub redis_url: String,
+          pub jwt_secret: String,
+          pub access_token_ttl_secs: i64,
+          pub refresh_token_ttl_secs: i64,
+          pub smtp_host: String,
+          pub smtp_username: String,
+          pub smtp_password: String,
+          pub email_from: String,
+          pub frontend_base_url: String,
+          }
+
+          impl AppConfig {
+          pub fn load() -> anyhow::Result&lt;Self&gt; {
+          dotenvy::dotenv().ok(); // fine if missing (e.g. in prod, real env vars are set)
+
+          let cfg = config::Config::builder()
+          .add_source(config::Environment::default())
+          .build()?;
+
+          Ok(cfg.try_deserialize()?)
+          }
+          }
+        </code></pre>
+      <span class="filepath">.env.example</span>
+      <pre><code>APP_PORT=8080
+          DATABASE_URL=postgres://t1diaries:t1diaries@localhost:5432/t1diaries
+          REDIS_URL=redis://localhost:6379
+          JWT_SECRET=change-me-to-a-long-random-string
+          ACCESS_TOKEN_TTL_SECS=900
+          REFRESH_TOKEN_TTL_SECS=2592000
+          SMTP_HOST=localhost
+          SMTP_USERNAME=
+          SMTP_PASSWORD=
+          EMAIL_FROM=noreply@t1diaries.app
+          FRONTEND_BASE_URL=http://localhost:5173
+        </code></pre>
+      <div class="callout good">
+        Copy this to <code>.env</code> locally (<code>cp .env.example .env</code>) — never commit the real
+        <code>.env</code>, only <code>.env.example</code>.
+      </div>
+    </section>
+
+    <section id="step5">
+      <h2 class="section-title">5. crates/db — Postgres pool &amp; migrations</h2>
+      <div class="callout">
+        <strong>Read first:</strong> Rust Book <em>Ch.15 — Smart Pointers</em> (specifically <code>Rc&lt;T&gt;</code> /
+        the idea of shared ownership) since a connection pool is conceptually "one thing, many shared handles" — in
+        practice <code>sqlx::PgPool</code> is already internally an <code>Arc</code>, so cloning it is cheap. Also
+        read <em>Ch.16.1-16.3</em> on threads/message passing to understand why an async pool is safe to share across
+        tokio tasks.
+      </div>
+      <span class="filepath">crates/db/Cargo.toml</span>
+      <pre><code>[package]
+          name = "t1diaries-db"
+          edition.workspace = true
+          version.workspace = true
+
+          [dependencies]
+          sqlx = { workspace = true }
+          tokio = { workspace = true }
+          tracing = { workspace = true }
+          anyhow = { workspace = true }
+        </code></pre>
+      <span class="filepath">crates/db/src/lib.rs</span>
+      <pre><code>use sqlx::postgres::{PgPool, PgPoolOptions};
+
+          pub async fn create_pool(database_url: &amp;str) -> anyhow::Result&lt;PgPool&gt; {
+          let pool = PgPoolOptions::new()
+          .max_connections(10)
+          .connect(database_url)
+          .await?;
+          Ok(pool)
+          }
+
+          pub async fn run_migrations(pool: &amp;PgPool) -> anyhow::Result&lt;()&gt; {
+          sqlx::migrate!("../../migrations").run(pool).await?;
+          Ok(())
+          }
+        </code></pre>
+      <p>Create the first migration with sqlx-cli (run from the repo root):</p>
+      <pre><code>sqlx migrate add -r create_users_table</code></pre>
+      <p>This generates <code>migrations/&lt;timestamp&gt;_create_users_table.up.sql</code> and a matching
+        <code>.down.sql</code>:
+      </p>
+      <span class="filepath">migrations/..._create_users_table.up.sql</span>
+      <pre><code>CREATE TABLE users (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          email TEXT NOT NULL UNIQUE,
+          password_hash TEXT NOT NULL,
+          display_name TEXT NOT NULL,
+          role TEXT NOT NULL DEFAULT 'member', -- member | moderator | admin
+          diabetes_type TEXT, -- 'T1', 'LADA', 'other', nullable
+          diagnosis_year SMALLINT,
+          country TEXT,
+          bio TEXT,
+          avatar_url TEXT,
+          email_verified_at TIMESTAMPTZ,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+          );
+
+          CREATE INDEX idx_users_email ON users (email);
+        </code></pre>
+      <span class="filepath">migrations/..._create_users_table.down.sql</span>
+      <pre><code>DROP TABLE IF EXISTS users;</code></pre>
+      <p>Apply it:</p>
+      <pre><code>export DATABASE_URL=postgres://t1diaries:t1diaries@localhost:5432/t1diaries
+          sqlx migrate run
+        </code></pre>
+      <div class="callout warn">
+        <code>sqlx</code>'s <code>query!</code>/<code>query_as!</code> macros check your SQL against the <em>real
+          database schema</em> at compile time. That means <code>DATABASE_URL</code> must be set (or you must run
+        <code>cargo sqlx prepare</code> to cache query metadata into <code>.sqlx/</code> for offline/CI builds)
+        before <code>cargo build</code> will succeed on code that uses those macros.
+      </div>
+    </section>
+
+    <section id="step6">
+      <h2 class="section-title">6. crates/cache — Redis pool</h2>
+      <span class="filepath">crates/cache/Cargo.toml</span>
+      <pre><code>[package]
+          name = "t1diaries-cache"
+          edition.workspace = true
+          version.workspace = true
+
+          [dependencies]
+          deadpool-redis = { workspace = true }
+          redis = { workspace = true }
+          anyhow = { workspace = true }
+          serde_json = { workspace = true }
+        </code></pre>
+      <span class="filepath">crates/cache/src/lib.rs</span>
+      <pre><code>use deadpool_redis::{Config, Pool, Runtime};
+
+          pub type RedisPool = Pool;
+
+          pub fn create_pool(redis_url: &amp;str) -> anyhow::Result&lt;RedisPool&gt; {
+          let cfg = Config::from_url(redis_url);
+          let pool = cfg.create_pool(Some(Runtime::Tokio1))?;
+          Ok(pool)
+          }
+        </code></pre>
+      <p class="muted">This pool is used by <code>crates/auth</code> (refresh tokens, verification/reset tokens with
+        TTL)
+        and <code>crates/stats</code> (caching the externally-sourced statistics payload).</p>
+    </section>
+
+    <section id="step7">
+      <h2 class="section-title">7. crates/auth — signup/signin/verify/reset + JWT</h2>
+      <div class="callout">
+        <strong>Read first:</strong> Rust Book <em>Ch.10 — Generics, Traits, and Lifetimes</em> (we define an
+        <code>AuthRepository</code> trait), <em>Ch.13.2 — Closures</em> (used in the token-claims mapping), and
+        <em>Ch.17 — Fundamentals of Asynchronous Programming</em> for the async-fn-in-trait patterns axum handlers
+        use everywhere.
+      </div>
+
+      <span class="filepath">crates/auth/Cargo.toml</span>
+      <pre><code>[package]
+          name = "t1diaries-auth"
+          edition.workspace = true
+          version.workspace = true
+
+          [dependencies]
+          t1diaries-error = { path = "../error" }
+          t1diaries-db = { path = "../db" }
+          t1diaries-cache = { path = "../cache" }
+          t1diaries-email = { path = "../email" }
+
+          async-graphql = { workspace = true }
+          sqlx = { workspace = true }
+          tokio = { workspace = true }
+          serde = { workspace = true }
+          uuid = { workspace = true }
+          chrono = { workspace = true }
+          argon2 = { workspace = true }
+          rand_core = { workspace = true }
+          jsonwebtoken = { workspace = true }
+          validator = { workspace = true }
+          anyhow = { workspace = true }
+          tracing = { workspace = true }
+          deadpool-redis = { workspace = true }
+          redis = { workspace = true }
+        </code></pre>
+
+      <h3>7.1 Domain model + repository trait</h3>
+      <span class="filepath">crates/auth/src/model.rs</span>
+      <pre><code>use chrono::{DateTime, Utc};
+          use uuid::Uuid;
+
+          #[derive(Debug, Clone, sqlx::FromRow)]
+          pub struct UserRecord {
+          pub id: Uuid,
+          pub email: String,
+          pub password_hash: String,
+          pub display_name: String,
+          pub role: String,
+          pub email_verified_at: Option&lt;DateTime&lt;Utc&gt;&gt;,
+          pub created_at: DateTime&lt;Utc&gt;,
+          }
+        </code></pre>
+      <span class="filepath">crates/auth/src/repository.rs</span>
+      <pre><code>use async_trait::async_trait; // add `async-trait = "0.1"` to Cargo.toml
+          use sqlx::PgPool;
+          use t1diaries_error::AppResult;
+          use uuid::Uuid;
+
+          use crate::model::UserRecord;
+
+          #[async_trait]
+          pub trait AuthRepository: Send + Sync {
+          async fn find_by_email(&amp;self, email: &amp;str) -> AppResult&lt;Option&lt;UserRecord&gt;&gt;;
+          async fn insert_user(&amp;self, email: &amp;str, password_hash: &amp;str, display_name: &amp;str) ->
+          AppResult&lt;UserRecord&gt;;
+          async fn mark_email_verified(&amp;self, user_id: Uuid) -> AppResult&lt;()&gt;;
+          async fn update_password_hash(&amp;self, user_id: Uuid, new_hash: &amp;str) -> AppResult&lt;()&gt;;
+          }
+
+          pub struct PgAuthRepository {
+          pub pool: PgPool,
+          }
+
+          #[async_trait]
+          impl AuthRepository for PgAuthRepository {
+          async fn find_by_email(&amp;self, email: &amp;str) -> AppResult&lt;Option&lt;UserRecord&gt;&gt; {
+          let user = sqlx::query_as!(
+          UserRecord,
+          r#"SELECT id, email, password_hash, display_name, role,
+          email_verified_at, created_at
+          FROM users WHERE email = $1"#,
+          email
+          )
+          .fetch_optional(&amp;self.pool)
+          .await?;
+          Ok(user)
+          }
+
+          async fn insert_user(&amp;self, email: &amp;str, password_hash: &amp;str, display_name: &amp;str) ->
+          AppResult&lt;UserRecord&gt; {
+          let user = sqlx::query_as!(
+          UserRecord,
+          r#"INSERT INTO users (email, password_hash, display_name)
+          VALUES ($1, $2, $3)
+          RETURNING id, email, password_hash, display_name, role,
+          email_verified_at, created_at"#,
+          email, password_hash, display_name
+          )
+          .fetch_one(&amp;self.pool)
+          .await?;
+          Ok(user)
+          }
+
+          async fn mark_email_verified(&amp;self, user_id: Uuid) -> AppResult&lt;()&gt; {
+          sqlx::query!("UPDATE users SET email_verified_at = now() WHERE id = $1", user_id)
+          .execute(&amp;self.pool)
+          .await?;
+          Ok(())
+          }
+
+          async fn update_password_hash(&amp;self, user_id: Uuid, new_hash: &amp;str) -> AppResult&lt;()&gt; {
+          sqlx::query!("UPDATE users SET password_hash = $1 WHERE id = $2", new_hash, user_id)
+          .execute(&amp;self.pool)
+          .await?;
+          Ok(())
+          }
+          }
+        </code></pre>
+
+      <h3>7.2 Password hashing (argon2)</h3>
+      <span class="filepath">crates/auth/src/password.rs</span>
+      <pre><code>use argon2::{
+          password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
+          Argon2,
+          };
+          use t1diaries_error::{AppError, AppResult};
+
+          pub fn hash_password(plain: &amp;str) -> AppResult&lt;String&gt; {
+          let salt = SaltString::generate(&amp;mut OsRng);
+          let hash = Argon2::default()
+          .hash_password(plain.as_bytes(), &amp;salt)
+          .map_err(|e| AppError::Internal(anyhow::anyhow!(e.to_string())))?;
+          Ok(hash.to_string())
+          }
+
+          pub fn verify_password(plain: &amp;str, hash: &amp;str) -> AppResult&lt;bool&gt; {
+          let parsed = PasswordHash::new(hash)
+          .map_err(|e| AppError::Internal(anyhow::anyhow!(e.to_string())))?;
+          Ok(Argon2::default().verify_password(plain.as_bytes(), &amp;parsed).is_ok())
+          }
+        </code></pre>
+      <div class="callout">
+        <strong>Why argon2 over bcrypt?</strong> Argon2id (the default variant) is memory-hard, which makes GPU/ASIC
+        brute-forcing significantly more expensive than bcrypt for equivalent CPU cost — it's the current OWASP
+        recommendation for new applications.
+      </div>
+
+      <h3>7.3 JWT issuing &amp; verification</h3>
+      <span class="filepath">crates/auth/src/jwt.rs</span>
+      <pre><code>use chrono::{Duration, Utc};
+          use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
+          use serde::{Deserialize, Serialize};
+          use t1diaries_error::{AppError, AppResult};
+          use uuid::Uuid;
+
+          #[derive(Debug, Serialize, Deserialize)]
+          pub struct Claims {
+          pub sub: Uuid, // user id
+          pub role: String,
+          pub exp: i64, // expiry (unix timestamp)
+          }
+
+          pub fn issue_access_token(user_id: Uuid, role: &amp;str, secret: &amp;str, ttl_secs: i64) ->
+          AppResult&lt;String&gt; {
+          let claims = Claims {
+          sub: user_id,
+          role: role.to_string(),
+          exp: (Utc::now() + Duration::seconds(ttl_secs)).timestamp(),
+          };
+          encode(&amp;Header::default(), &amp;claims, &amp;EncodingKey::from_secret(secret.as_bytes()))
+          .map_err(|e| AppError::Internal(anyhow::anyhow!(e)))
+          }
+
+          pub fn verify_access_token(token: &amp;str, secret: &amp;str) -> AppResult&lt;Claims&gt; {
+          let data = decode::&lt;Claims&gt;(
+          token,
+          &amp;DecodingKey::from_secret(secret.as_bytes()),
+          &amp;Validation::default(),
+          )
+          .map_err(|_| AppError::Unauthenticated)?;
+          Ok(data.claims)
+          }
+        </code></pre>
+      <p class="muted">The <strong>refresh token</strong> is a random opaque string (not a JWT) stored server-side in
+        Redis as <code>refresh:&lt;token&gt; -> user_id</code> with a TTL, and set as an <code>httpOnly</code>,
+        <code>Secure</code>, <code>SameSite=Lax</code> cookie via <code>tower-cookies</code>. This lets sign-out and
+        password-reset instantly revoke sessions server-side — something a stateless JWT alone can't do.
+      </p>
+
+      <h3>7.4 Service layer (business logic — this is where "the work" happens)</h3>
+      <span class="filepath">crates/auth/src/service.rs</span>
+      <pre><code>use std::sync::Arc;
+          use uuid::Uuid;
+          use validator::Validate;
+          use t1diaries_error::{AppError, AppResult};
+          use t1diaries_email::EmailSender;
+
+          use crate::{jwt, password, repository::AuthRepository};
+
+          #[derive(Debug, Validate)]
+          pub struct SignUpInput {
+          #[validate(email)]
+          pub email: String,
+          #[validate(length(min = 8, message = "password must be at least 8 characters"))]
+          pub password: String,
+          #[validate(length(min = 2, max = 60))]
+          pub display_name: String,
+          }
+
+          pub struct AuthTokens {
+          pub access_token: String,
+          pub refresh_token: String,
+          }
+
+          pub struct AuthService {
+          pub repo: Arc&lt;dyn AuthRepository&gt;,
+          pub email_sender: Arc&lt;dyn EmailSender&gt;,
+          pub jwt_secret: String,
+          pub access_ttl_secs: i64,
+          }
+
+          impl AuthService {
+          pub async fn sign_up(&amp;self, input: SignUpInput) -> AppResult&lt;AuthTokens&gt; {
+          input.validate().map_err(|e| AppError::Validation(e.to_string()))?;
+
+          if self.repo.find_by_email(&amp;input.email).await?.is_some() {
+          return Err(AppError::Conflict("email already registered".into()));
+          }
+
+          let hash = password::hash_password(&amp;input.password)?;
+          let user = self.repo.insert_user(&amp;input.email, &amp;hash, &amp;input.display_name).await?;
+
+          // Fire-and-forget style is fine here, but we `.await` for simplicity/reliability
+          let verify_link = format!("https://t1diaries.app/verify?user={}", user.id);
+          self.email_sender.send_verification_email(&amp;user.email, &amp;verify_link).await?;
+
+          self.issue_tokens(user.id, &amp;user.role)
+          }
+
+          pub async fn sign_in(&amp;self, email: &amp;str, password_plain: &amp;str) -> AppResult&lt;AuthTokens&gt; {
+          let user = self.repo.find_by_email(email).await?.ok_or(AppError::Unauthenticated)?;
+
+          if !password::verify_password(password_plain, &amp;user.password_hash)? {
+          return Err(AppError::Unauthenticated);
+          }
+
+          self.issue_tokens(user.id, &amp;user.role)
+          }
+
+          fn issue_tokens(&amp;self, user_id: Uuid, role: &amp;str) -> AppResult&lt;AuthTokens&gt; {
+          let access_token = jwt::issue_access_token(user_id, role, &amp;self.jwt_secret, self.access_ttl_secs)?;
+          // In the real implementation, generate a random refresh token,
+          // store it in Redis via crates/cache, and return it here.
+          let refresh_token = Uuid::new_v4().to_string();
+          Ok(AuthTokens { access_token, refresh_token })
+          }
+          }
+        </code></pre>
+      <div class="callout good">
+        Notice: <strong>nothing in <code>service.rs</code> knows it's being called from GraphQL.</strong> You can
+        write <code>#[tokio::test] async fn sign_up_rejects_duplicate_email()</code> directly against
+        <code>AuthService</code> with a mock <code>AuthRepository</code>, with zero HTTP or schema involved.
+      </div>
+
+      <h3>7.5 The GraphQL layer for auth (thin resolvers)</h3>
+      <span class="filepath">crates/auth/src/graphql/mutation.rs</span>
+      <pre><code>use async_graphql::{Context, InputObject, Object, Result, SimpleObject};
+
+          use crate::service::{AuthService, SignUpInput as ServiceSignUpInput};
+
+          #[derive(InputObject)]
+          pub struct SignUpInput {
+          pub email: String,
+          pub password: String,
+          pub display_name: String,
+          }
+
+          #[derive(InputObject)]
+          pub struct SignInInput {
+          pub email: String,
+          pub password: String,
+          }
+
+          #[derive(SimpleObject)]
+          pub struct AuthPayload {
+          pub access_token: String,
+          }
+
+          #[derive(Default)]
+          pub struct AuthMutation;
+
+          #[Object]
+          impl AuthMutation {
+          async fn sign_up(&amp;self, ctx: &amp;Context&lt;'_&gt;, input: SignUpInput) -> Result&lt;AuthPayload&gt; {
+          let service = ctx.data::&lt;AuthService&gt;()?;
+          let tokens = service
+          .sign_up(ServiceSignUpInput {
+          email: input.email,
+          password: input.password,
+          display_name: input.display_name,
+          })
+          .await?;
+          // NOTE: in apps/api, an axum middleware/extension sets the refresh
+          // token as an httpOnly cookie on the outgoing response; the resolver
+          // only returns the short-lived access token in the payload body.
+          Ok(AuthPayload { access_token: tokens.access_token })
+          }
+
+          async fn sign_in(&amp;self, ctx: &amp;Context&lt;'_&gt;, input: SignInInput) -> Result&lt;AuthPayload&gt; {
+          let service = ctx.data::&lt;AuthService&gt;()?;
+          let tokens = service.sign_in(&amp;input.email, &amp;input.password).await?;
+          Ok(AuthPayload { access_token: tokens.access_token })
+          }
+
+          async fn sign_out(&amp;self, _ctx: &amp;Context&lt;'_&gt;) -> Result&lt;bool&gt; {
+          // revoke refresh token from Redis (via cache crate) — omitted for brevity
+          Ok(true)
+          }
+          }
+        </code></pre>
+      <span class="filepath">crates/auth/src/graphql/query.rs</span>
+      <pre><code>use async_graphql::{Context, Object, Result};
+
+          #[derive(Default)]
+          pub struct AuthQuery;
+
+          #[Object]
+          impl AuthQuery {
+          /// Returns true if the currently-attached JWT is valid — a lightweight
+          /// health check the frontend can use before rendering protected UI.
+          async fn is_authenticated(&amp;self, ctx: &amp;Context&lt;'_&gt;) -> Result&lt;bool&gt; {
+          Ok(ctx.data_opt::&lt;crate::CurrentUser&gt;().is_some())
+          }
+          }
+        </code></pre>
+      <span class="filepath">crates/auth/src/graphql/mod.rs</span>
+      <pre><code>mod mutation;
+          mod query;
+          pub use mutation::AuthMutation;
+          pub use query::AuthQuery;
+        </code></pre>
+      <p class="muted">This <code>query.rs</code> / <code>mutation.rs</code> split, re-exported through a
+        <code>graphql/mod.rs</code>, is the modularization pattern repeated identically in
+        <code>crates/users</code>, <code>crates/blogs</code>, <code>crates/stats</code>, and
+        <code>crates/devices</code> — see Step 8.
+      </p>
+    </section>
+
+    <section id="step8">
+      <h2 class="section-title">8. crates/users, blogs, stats, devices — the repeatable domain pattern</h2>
+      <div class="callout">
+        <strong>Read first:</strong> Rust Book <em>Ch.13 — Functional Language Features (Iterators &amp; Closures)</em>
+        — used heavily when mapping DB rows to GraphQL types and filtering/paginating collections; <em>Ch.18 —
+          Object-Oriented Programming Features</em> for the trait-object (<code>Arc&lt;dyn Trait&gt;</code>) pattern
+        used for every repository/service.
+      </div>
+      <p>Every remaining domain crate follows the exact same four-file skeleton as <code>crates/auth</code>:</p>
+      <div class="tree">crates/&lt;domain&gt;/src/
+        ├── model.rs # sqlx::FromRow structs mapping DB rows
+        ├── repository.rs # trait + Postgres impl (raw data access)
+        ├── service.rs # business logic, calls repository, returns AppResult&lt;T&gt;
+        ├── graphql/
+        │ ├── mod.rs # pub use query::*; pub use mutation::*;
+        │ ├── query.rs # #[Object] impl exposing read fields
+        │ └── mutation.rs # #[Object] impl exposing write fields (if any)
+        └── lib.rs # pub mod model; pub mod repository; pub mod service; pub mod graphql;
+      </div>
+
+      <h3>8.1 Worked example: crates/devices (read-mostly domain)</h3>
+      <span class="filepath">crates/devices/src/model.rs</span>
+      <pre><code>use chrono::NaiveDate;
+          use serde_json::Value as Json;
+          use uuid::Uuid;
+
+          #[derive(Debug, Clone, sqlx::FromRow)]
+          pub struct DeviceRecord {
+          pub id: Uuid,
+          pub name: String,
+          pub manufacturer: String,
+          pub category: String, // "cgm" | "pump" | "closed_loop" | "pen"
+          pub release_date: NaiveDate,
+          pub specs: Json,
+          pub image_url: Option&lt;String&gt;,
+          pub description: Option&lt;String&gt;,
+          }
+        </code></pre>
+      <span class="filepath">crates/devices/src/repository.rs</span>
+      <pre><code>use async_trait::async_trait;
+          use sqlx::PgPool;
+          use t1diaries_error::AppResult;
+
+          use crate::model::DeviceRecord;
+
+          #[async_trait]
+          pub trait DeviceRepository: Send + Sync {
+          async fn latest(&amp;self, limit: i64) -> AppResult&lt;Vec&lt;DeviceRecord&gt;&gt;;
+          async fn find_by_id(&amp;self, id: uuid::Uuid) -> AppResult&lt;Option&lt;DeviceRecord&gt;&gt;;
+          }
+
+          pub struct PgDeviceRepository {
+          pub pool: PgPool,
+          }
+
+          #[async_trait]
+          impl DeviceRepository for PgDeviceRepository {
+          async fn latest(&amp;self, limit: i64) -> AppResult&lt;Vec&lt;DeviceRecord&gt;&gt; {
+          let rows = sqlx::query_as!(
+          DeviceRecord,
+          r#"SELECT id, name, manufacturer, category, release_date,
+          specs, image_url, description
+          FROM devices ORDER BY release_date DESC LIMIT $1"#,
+          limit
+          )
+          .fetch_all(&amp;self.pool)
+          .await?;
+          Ok(rows)
+          }
+
+          async fn find_by_id(&amp;self, id: uuid::Uuid) -> AppResult&lt;Option&lt;DeviceRecord&gt;&gt; {
+          let row = sqlx::query_as!(
+          DeviceRecord,
+          r#"SELECT id, name, manufacturer, category, release_date,
+          specs, image_url, description
+          FROM devices WHERE id = $1"#,
+          id
+          )
+          .fetch_optional(&amp;self.pool)
+          .await?;
+          Ok(row)
+          }
+          }
+        </code></pre>
+      <span class="filepath">crates/devices/src/graphql/query.rs</span>
+      <pre><code>use async_graphql::{Context, Object, Result, SimpleObject};
+          use std::sync::Arc;
+
+          use crate::repository::DeviceRepository;
+
+          #[derive(SimpleObject)]
+          pub struct Device {
+          pub id: async_graphql::ID,
+          pub name: String,
+          pub manufacturer: String,
+          pub category: String,
+          pub release_date: String,
+          }
+
+          #[derive(Default)]
+          pub struct DeviceQuery;
+
+          #[Object]
+          impl DeviceQuery {
+          async fn latest_devices(&amp;self, ctx: &amp;Context&lt;'_&gt;, limit: Option&lt;i64&gt;) ->
+          Result&lt;Vec&lt;Device&gt;&gt; {
+          let repo = ctx.data::&lt;Arc&lt;dyn DeviceRepository&gt;&gt;()?;
+          let rows = repo.latest(limit.unwrap_or(10)).await?;
+          Ok(rows
+          .into_iter()
+          .map(|r| Device {
+          id: r.id.into(),
+          name: r.name,
+          manufacturer: r.manufacturer,
+          category: r.category,
+          release_date: r.release_date.to_string(),
+          })
+          .collect())
+          }
+          }
+        </code></pre>
+      <p class="muted">Since <code>devices</code> has no user-facing mutation (curation is an internal/admin tool), its
+        <code>graphql/mod.rs</code> only exports <code>DeviceQuery</code> — the root <code>RootMutation</code> in
+        Step 9 simply doesn't include a <code>DeviceMutation</code> member. <code>blogs</code> and <code>users</code>
+        follow the identical repository→service→graphql pattern but export both Query and Mutation, and
+        <code>stats</code> is query-only (populated by a background job, not user mutations) — apply the same
+        four-file skeleton to each using the field lists from the Roadmap document §6.
+      </p>
+    </section>
+
+    <section id="step9">
+      <h2 class="section-title">9. crates/graphql — the thin composition layer</h2>
+      <span class="filepath">crates/graphql/Cargo.toml</span>
+      <pre><code>[package]
+          name = "t1diaries-graphql"
+          edition.workspace = true
+          version.workspace = true
+
+          [dependencies]
+          t1diaries-auth = { path = "../auth" }
+          t1diaries-users = { path = "../users" }
+          t1diaries-blogs = { path = "../blogs" }
+          t1diaries-stats = { path = "../stats" }
+          t1diaries-devices = { path = "../devices" }
+
+          async-graphql = { workspace = true }
+        </code></pre>
+      <span class="filepath">crates/graphql/src/lib.rs</span>
+      <pre><code>mod schema;
+          pub use schema::{build_schema, AppSchema, AppState};
+        </code></pre>
+      <span class="filepath">crates/graphql/src/schema.rs</span>
+      <pre><code>use async_graphql::{EmptySubscription, MergedObject, Schema};
+          use std::sync::Arc;
+
+          use t1diaries_auth::{graphql::{AuthMutation, AuthQuery}, service::AuthService};
+          use t1diaries_blogs::graphql::{BlogMutation, BlogQuery};
+          use t1diaries_devices::{graphql::DeviceQuery, repository::DeviceRepository};
+          use t1diaries_stats::graphql::StatsQuery;
+          use t1diaries_users::graphql::{UserMutation, UserQuery};
+
+          #[derive(MergedObject, Default)]
+          pub struct RootQuery(AuthQuery, UserQuery, BlogQuery, StatsQuery, DeviceQuery);
+
+          #[derive(MergedObject, Default)]
+          pub struct RootMutation(AuthMutation, UserMutation, BlogMutation);
+
+          pub type AppSchema = Schema&lt;RootQuery, RootMutation, EmptySubscription&gt;;
+
+          /// Everything a resolver anywhere in the tree might need to pull out of
+          /// `ctx.data::&lt;T&gt;()`. Built once in apps/api::main and injected via `.data(...)`.
+          pub struct AppState {
+          pub auth_service: AuthService,
+          pub device_repo: Arc&lt;dyn DeviceRepository&gt;,
+          // ...user_service, blog_service, stats_service, etc.
+          }
+
+          pub fn build_schema(state: AppState) -> AppSchema {
+          Schema::build(RootQuery::default(), RootMutation::default(), EmptySubscription)
+          .data(state.auth_service)
+          .data(state.device_repo)
+          .finish()
+          }
+        </code></pre>
+      <div class="callout">
+        This file is intentionally the <em>only</em> place in the backend that knows about every domain crate at once.
+        Everything else only knows about <code>t1diaries-error</code> and its own dependencies — this is what keeps
+        <code>cargo build -p t1diaries-blogs</code> fast and decoupled.
+      </div>
+    </section>
+
+    <section id="step10">
+      <h2 class="section-title">10. apps/api — axum main.rs wiring</h2>
+      <div class="callout">
+        <strong>Read first:</strong> Rust Book <em>Ch.21 — Final Project: Building a Multithreaded Web Server</em>.
+        Even though it predates axum, it teaches exactly the mental model axum automates for you: listener → accept
+        connection → route → handle → respond.
+      </div>
+      <span class="filepath">apps/api/Cargo.toml</span>
+      <pre><code>[package]
+          name = "t1diaries-api"
+          edition.workspace = true
+          version.workspace = true
+
+          [dependencies]
+          t1diaries-config = { path = "../../crates/config" }
+          t1diaries-db = { path = "../../crates/db" }
+          t1diaries-cache = { path = "../../crates/cache" }
+          t1diaries-graphql = { path = "../../crates/graphql" }
+          t1diaries-auth = { path = "../../crates/auth" }
+          t1diaries-devices = { path = "../../crates/devices" }
+          t1diaries-email = { path = "../../crates/email" }
+
+          tokio = { workspace = true }
+          axum = { workspace = true }
+          tower = { workspace = true }
+          tower-http = { workspace = true }
+          async-graphql = { workspace = true }
+          async-graphql-axum = { workspace = true }
+          tracing = { workspace = true }
+          tracing-subscriber = { workspace = true }
+          anyhow = { workspace = true }
+        </code></pre>
+      <span class="filepath">apps/api/src/main.rs</span>
+      <pre><code>use std::sync::Arc;
+
+          use async_graphql::http::GraphiQLSource;
+          use async_graphql_axum::GraphQL;
+          use axum::{response::{Html, IntoResponse}, routing::get, Router};
+          use tower_http::{cors::CorsLayer, trace::TraceLayer};
+
+          use t1diaries_auth::service::AuthService;
+          use t1diaries_config::AppConfig;
+          use t1diaries_devices::repository::PgDeviceRepository;
+          use t1diaries_graphql::{build_schema, AppState};
+
+          #[tokio::main]
+          async fn main() -> anyhow::Result&lt;()&gt; {
+          tracing_subscriber::fmt::init();
+
+          let config = AppConfig::load()?;
+          let pool = t1diaries_db::create_pool(&amp;config.database_url).await?;
+          t1diaries_db::run_migrations(&amp;pool).await?;
+          let _redis = t1diaries_cache::create_pool(&amp;config.redis_url)?;
+
+          // Wire concrete implementations into each service (dependency injection,
+          // done by hand — no DI framework needed at this scale).
+          let auth_service = AuthService {
+          repo: Arc::new(t1diaries_auth::repository::PgAuthRepository { pool: pool.clone() }),
+          email_sender: Arc::new(t1diaries_email::SmtpEmailSender::new(&amp;config)?),
+          jwt_secret: config.jwt_secret.clone(),
+          access_ttl_secs: config.access_token_ttl_secs,
+          };
+          let device_repo: Arc&lt;dyn t1diaries_devices::repository::DeviceRepository&gt; =
+          Arc::new(PgDeviceRepository { pool: pool.clone() });
+
+          let schema = build_schema(AppState { auth_service, device_repo });
+
+          let app = Router::new()
+          .route("/graphql", get(graphiql).post_service(GraphQL::new(schema)))
+          .route("/healthz", get(|| async { "ok" }))
+          .layer(CorsLayer::permissive()) // tighten to explicit origin in production
+          .layer(TraceLayer::new_for_http());
+
+          let listener = tokio::net::TcpListener::bind(("0.0.0.0", config.app_port)).await?;
+          tracing::info!("listening on {}", listener.local_addr()?);
+          axum::serve(listener, app).await?;
+          Ok(())
+          }
+
+          async fn graphiql() -> impl IntoResponse {
+          Html(GraphiQLSource::build().endpoint("/graphql").finish())
+          }
+        </code></pre>
+      <div class="callout good">
+        Run it: <code>cargo run -p t1diaries-api</code>, then open <code>http://localhost:8080/graphql</code> — the
+        GraphiQL playground lets you fire <code>mutation { signUp(input: {...}) { accessToken } }</code> immediately.
+      </div>
+    </section>
+
+    <section id="step11">
+      <h2 class="section-title">11. Docker Compose for local dev</h2>
+      <span class="filepath">infra/docker-compose.yml</span>
+      <pre><code>version: "3.9"
+          services:
+          postgres:
+          image: postgres:16-alpine
+          environment:
+          POSTGRES_USER: t1diaries
+          POSTGRES_PASSWORD: t1diaries
+          POSTGRES_DB: t1diaries
+          ports: ["5432:5432"]
+          volumes: ["pgdata:/var/lib/postgresql/data"]
+
+          redis:
+          image: redis:7-alpine
+          ports: ["6379:6379"]
+
+          mailhog:
+          image: mailhog/mailhog
+          ports:
+          - "1025:1025" # SMTP
+          - "8025:8025" # web UI
+
+          volumes:
+          pgdata:
+        </code></pre>
+      <pre><code>docker compose -f infra/docker-compose.yml up -d
+          cargo run -p t1diaries-api # or: cargo watch -x 'run -p t1diaries-api'
+        </code></pre>
+    </section>
+
+    <section id="step12">
+      <h2 class="section-title">12. Frontend: pnpm workspace + Vite app</h2>
+      <span class="filepath">/pnpm-workspace.yaml</span>
+      <pre><code>packages:
+          - "apps/*"
+          - "packages/*"
+        </code></pre>
+      <span class="filepath">/package.json (root)</span>
+      <pre><code>{
+          "name": "t1diaries",
+          "private": true,
+          "scripts": {
+          "dev": "turbo run dev",
+          "build": "turbo run build",
+          "lint": "turbo run lint",
+          "test": "turbo run test",
+          "codegen": "turbo run codegen"
+          },
+          "devDependencies": {
+          "turbo": "^2.1.0",
+          "typescript": "^5.6.0"
+          },
+          "packageManager": "pnpm@9.12.0"
+          }
+        </code></pre>
+      <span class="filepath">/turbo.json</span>
+      <pre><code>{
+          "$schema": "https://turbo.build/schema.json",
+          "tasks": {
+          "build": { "dependsOn": ["^build"], "outputs": ["dist/**"] },
+          "dev": { "cache": false, "persistent": true },
+          "lint": {},
+          "test": {},
+          "codegen": { "outputs": ["src/gql/**"] }
+          }
+          }
+        </code></pre>
+      <div class="step">
+        <div class="num">1</div>
+        <div class="body">
+          <p>Scaffold the Vite app:</p>
+          <pre><code>pnpm create vite apps/web --template react-ts
+              cd apps/web
+              pnpm add @tanstack/react-query graphql-request graphql react-router-dom zustand
+              pnpm add react-hook-form zod @hookform/resolvers
+              pnpm add -D tailwindcss postcss autoprefixer
+              pnpm exec tailwindcss init -p
+            </code></pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div class="body">
+          <p>Configure Tailwind:</p>
+          <span class="filepath">apps/web/tailwind.config.ts</span>
+          <pre><code>import type { Config } from "tailwindcss";
+
+              export default {
+              content: ["./index.html", "./src/**/*.{ts,tsx}"],
+              theme: {
+              extend: {
+              colors: {
+              brand: { DEFAULT: "#5eb1ff", dark: "#1c4f7c" },
+              },
+              },
+              },
+              plugins: [],
+              } satisfies Config;
+            </code></pre>
+          <span class="filepath">apps/web/src/index.css</span>
+          <pre><code>@tailwind base;
+              @tailwind components;
+              @tailwind utilities;
+            </code></pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div class="body">
+          <p>Wire React Query + the GraphQL client:</p>
+          <span class="filepath">apps/web/src/app/providers.tsx</span>
+          <pre><code>import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+              import { PropsWithChildren, useState } from "react";
+
+              export function AppProviders({ children }: PropsWithChildren) {
+              const [client] = useState(() => new QueryClient({
+              defaultOptions: { queries: { staleTime: 30_000, retry: 1 } },
+              }));
+              return &lt;QueryClientProvider client={client}&gt;{children}&lt;/QueryClientProvider&gt;;
+              }
+            </code></pre>
+          <span class="filepath">packages/graphql-client/src/client.ts</span>
+          <pre><code>import { GraphQLClient } from "graphql-request";
+
+              export const gqlClient = new GraphQLClient(
+              import.meta.env.VITE_GRAPHQL_URL ?? "http://localhost:8080/graphql",
+              { credentials: "include" } // sends the httpOnly refresh-token cookie
+              );
+
+              let accessToken: string | null = null;
+              export function setAccessToken(token: string | null) {
+              accessToken = token;
+              gqlClient.setHeader("authorization", token ? `Bearer ${token}` : "");
+              }
+            </code></pre>
+          <span class="filepath">apps/web/src/features/auth/api/useSignIn.ts</span>
+          <pre><code>import { useMutation, useQueryClient } from "@tanstack/react-query";
+              import { gqlClient, setAccessToken } from "@t1diaries/graphql-client";
+              import { SignInDocument } from "@t1diaries/graphql-client/generated"; // from codegen, see Step 13
+
+              export function useSignIn() {
+              const qc = useQueryClient();
+              return useMutation({
+              mutationFn: (input: { email: string; password: string }) =>
+              gqlClient.request(SignInDocument, { input }),
+              onSuccess: (data) => {
+              setAccessToken(data.signIn.accessToken);
+              qc.invalidateQueries({ queryKey: ["me"] });
+              },
+              });
+              }
+            </code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="step13">
+      <h2 class="section-title">13. GraphQL code generation (frontend)</h2>
+      <pre><code>pnpm add -D @graphql-codegen/cli @graphql-codegen/typescript \
+          @graphql-codegen/typescript-operations @graphql-codegen/typescript-graphql-request
+        </code></pre>
+      <span class="filepath">apps/web/codegen.ts</span>
+      <pre><code>import type { CodegenConfig } from "@graphql-codegen/cli";
+
+          const config: CodegenConfig = {
+          schema: "http://localhost:8080/graphql", // or a committed schema.graphql file in CI
+          documents: ["src/**/*.graphql"],
+          generates: {
+          "../../packages/graphql-client/src/generated.ts": {
+          plugins: [
+          "typescript",
+          "typescript-operations",
+          "typescript-graphql-request",
+          ],
+          },
+          },
+          };
+
+          export default config;
+        </code></pre>
+      <span class="filepath">apps/web/src/features/auth/api/signIn.graphql</span>
+      <pre><code>mutation SignIn($input: SignInInput!) {
+          signIn(input: $input) {
+          accessToken
+          }
+          }
+        </code></pre>
+      <pre><code>pnpm --filter web exec graphql-codegen --config codegen.ts</code></pre>
+      <div class="callout good">
+        Run <code>apps/api</code> first (so the schema is introspectable), then run codegen. In CI, export the SDL to a
+        committed <code>schema.graphql</code> file (async-graphql's <code>Schema::sdl()</code>) so codegen doesn't need
+        a live server — and diff it against the previous commit to catch breaking changes before merge.
+      </div>
+    </section>
+
+    <section id="step14">
+      <h2 class="section-title">14. Testing setup</h2>
+      <h3>Backend</h3>
+      <pre><code>[dev-dependencies]
+          tokio = { workspace = true, features = ["test-util", "macros"] }
+        </code></pre>
+      <pre><code>#[tokio::test]
+          async fn sign_up_rejects_duplicate_email() {
+          let repo = Arc::new(InMemoryAuthRepository::seeded_with("taken@example.com"));
+          let service = AuthService { repo, /* ... mock email sender ... */ };
+
+          let result = service.sign_up(SignUpInput {
+          email: "taken@example.com".into(),
+          password: "supersecret".into(),
+          display_name: "Alex".into(),
+          }).await;
+
+          assert!(matches!(result, Err(AppError::Conflict(_))));
+          }
+        </code></pre>
+      <p class="muted">For repository-level integration tests (actually hitting SQL), use
+        <span class="crate-tag">testcontainers</span> to boot a throwaway Postgres container per test run, apply
+        migrations, and exercise <code>PgAuthRepository</code> directly.
+      </p>
+      <h3>Frontend</h3>
+      <pre><code>pnpm add -D vitest @testing-library/react @testing-library/jest-dom msw</code></pre>
+      <p>Use <strong>MSW</strong> to intercept the <code>/graphql</code> POST call and return fixture responses,
+        so component tests for <code>SignInForm</code> or <code>PostCard</code> never hit a real backend.</p>
+    </section>
+
+    <section id="step15">
+      <h2 class="section-title">15. Final tree &amp; sanity-check commands</h2>
+      <pre><code># Backend
+          cargo fmt --check
+          cargo clippy --workspace -- -D warnings
+          cargo test --workspace
+          cargo run -p t1diaries-api
+
+          # Frontend (from repo root, via turbo)
+          pnpm install
+          pnpm codegen
+          pnpm build
+          pnpm test
+          pnpm dev
+        </code></pre>
+      <div class="callout">
+        At this point you have: a working GraphQL API with signup/signin/verify/reset, a blogs domain skeleton, a
+        stats domain skeleton, a devices "latest" query, a typed React frontend consuming all of it through
+        React Query, and CI-ready fmt/lint/test scripts on both sides. From here, flesh out
+        <code>crates/blogs</code>, <code>crates/stats</code>, and <code>crates/users</code> using the exact
+        four-file pattern from Step 8, following the field lists in the Roadmap document §6 and the phased plan
+        in Roadmap §10.
+      </div>
+    </section>
+
+    <footer class="pagefoot">
+      T1Diaries — Repo Template Build Guide. See also: <em>Project Roadmap &amp; Architecture</em> (the "why") and
+      <em>Rust Book Reading Map</em> (background reading matched to each step above).
+    </footer>
+
+  </div>
+</body>
+
+</html>
