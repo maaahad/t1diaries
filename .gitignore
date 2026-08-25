@@ -1,1 +1,12 @@
 .DS_Store
+
+/target
+
+node_modules
+dist
+
+.env
+.turbo
+.sqlx
+
+*.log
