@@ -1,14 +1,26 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+// use async_graphql::{Error as GqlError, ErrorExtensions};
+use thiserror::Error;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+#[derive(Debug, Error)]
+pub enum AppError {
+    #[error("not found")]
+    NotFound,
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+    #[error("validation failed: {0}")]
+    Validation(String),
+
+    #[error("unauthenticated")]
+    Unauthenticated,
+
+    #[error("forbidden")]
+    Forbidden,
+
+    #[error("conflict: {0}")]
+    Conflict(String),
+
+    #[error("internal error")]
+    Internal(#[from] anyhow::Error),
+
+    #[error("database error")]
+    Database(#[from] sqlx::Error),
 }
