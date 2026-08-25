@@ -4,3 +4,5 @@ edition.workspace = true
 version.workspace = true
 
 [dependencies]
+config = { path = "../../crates/config" }
+chrono = { workspace = true }
