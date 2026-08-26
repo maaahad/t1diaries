@@ -4,3 +4,7 @@ edition.workspace = true
 version.workspace = true
 
 [dependencies]
+config = "0.15.25"
+serde = { workspace = true }
+thiserror = { workspace = true }
+secrecy = { version = "0.10.3", features = ["serde"] }
