@@ -2,8 +2,23 @@ use config::ConfigError;
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct AppConfig {
+pub struct Config {
+    pub app: AppConig,
     pub server: ServerConfig,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Environment {
+    Local,
+    Test,
+    Production,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct AppConig {
+    pub name: String,
+    pub environment: Environment,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -12,7 +27,7 @@ pub struct ServerConfig {
     pub port: u16,
 }
 
-impl AppConfig {
+impl Config {
     pub fn load() -> Result<Self, ConfigError> {
         let builder =
             config::Config::builder().add_source(config::File::with_name("config/default"));
