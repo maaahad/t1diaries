@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
   "apps/api",
-  "crates/config",
+  "crates/app-config",
   "crates/error",
   "crates/db",
   "crates/cache",

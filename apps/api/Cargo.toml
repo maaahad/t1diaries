@@ -4,5 +4,5 @@ edition.workspace = true
 version.workspace = true
 
 [dependencies]
-config = { path = "../../crates/config" }
+app-config = { path = "../../crates/app-config" }
 chrono = { workspace = true }
