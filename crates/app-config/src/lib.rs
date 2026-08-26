@@ -1,4 +1,5 @@
-use config::ConfigError;
+use config::{ConfigError, File};
+use dotenvy::dotenv;
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
@@ -29,11 +30,23 @@ pub struct ServerConfig {
 
 impl Config {
     pub fn load() -> Result<Self, ConfigError> {
-        let builder =
-            config::Config::builder().add_source(config::File::with_name("config/default"));
-        // TODO:  add_source for .env file (with secret for local development)
+        let _ = dotenv();
+        let environment = std::env::var("APP_ENV").unwrap_or_else(|_| "local".to_owned());
 
-        builder.build()?.try_deserialize()
+        let builder = config::Config::builder()
+            .add_source(File::with_name("config/default"))
+            .add_source(File::with_name(&format!("config/{environment}")).required(false))
+            .add_source(
+                config::Environment::default()
+                    .separator("__")
+                    .try_parsing(true),
+            );
+
+        let config: Config = builder.build()?.try_deserialize()?;
+
+        config.validate()?;
+
+        Ok(config)
     }
 
     pub fn validate(&self) -> Result<(), ConfigError> {
