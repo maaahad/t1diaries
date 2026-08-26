@@ -1,6 +1,5 @@
 [app]
 name = "t1diaries-api"
-environment = "test"
 
 [server]
 host = "0.0.0.0"
