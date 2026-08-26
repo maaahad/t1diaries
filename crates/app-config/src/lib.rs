@@ -1,14 +1,22 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+use serde::Deserialize;
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct AppConfig {
+    pub server: ServerConfig,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+#[derive(Debug, Clone, Deserialize)]
+pub struct ServerConfig {
+    pub host: String,
+    pub port: u16,
+}
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+impl AppConfig {
+    pub fn load() -> Result<Self, config::ConfigError> {
+        let builder =
+            config::Config::builder().add_source(config::File::with_name("config/default"));
+        // TODO:  add_source for .env file (with secret for local development)
+
+        builder.build()?.try_deserialize()
     }
 }

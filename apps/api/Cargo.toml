@@ -6,3 +6,4 @@ version.workspace = true
 [dependencies]
 app-config = { path = "../../crates/app-config" }
 chrono = { workspace = true }
+tokio = { workspace = true }
