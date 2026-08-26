@@ -19,7 +19,7 @@ members = [
 tokio = { version = "1", features = ["full"] }
 axum = { version = "0.8" }
 tower = { version = "0.5" }
-tower-http = { version = "0.6", features = [
+tower-http = { version = "0.7.0", features = [
   "cors",
   "trace",
   "compression-full",
@@ -27,15 +27,15 @@ tower-http = { version = "0.6", features = [
 tower-cookies = { version = "0.11" }
 async-graphql = { version = "7", features = ["chrono", "uuid"] }
 async-graphql-axum = { version = "7" }
-sqlx = { version = "0.8", features = [
+sqlx = { version = "0.9.0", features = [
   "runtime-tokio",
   "postgres",
   "uuid",
   "chrono",
   "migrate",
 ] }
-deadpool-redis = { version = "0.16" }
-redis = { version = "0.27" }
+deadpool-redis = { version = "0.23.0" }
+redis = { version = "1.6.0" }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
 uuid = { version = "1", features = ["v4", "v7", "serde"] }
@@ -45,11 +45,11 @@ anyhow = { version = "1" }
 tracing = { version = "0.1" }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 argon2 = { version = "0.5" }
-rand_core = { version = "0.6", features = ["std"] }
-jsonwebtoken = { version = "9" }
-validator = { version = "0.18", features = ["derive"] }
+rand_core = { version = "0.10.1" }
+jsonwebtoken = { version = "11.0.0" }
+validator = { version = "0.21.0", features = ["derive"] }
 dotenvy = { version = "0.15" }
-config = { version = "0.14" }
+config = { version = "0.15.25" }
 lettre = { version = "0.11", default-features = false, features = [
   "tokio1",
   "tokio1-rustls-tls",
