@@ -49,9 +49,9 @@ impl Config {
         Ok(config)
     }
 
+    // TODO: (maaahad) this is not done yet, just testing
     pub fn validate(&self) -> Result<(), ConfigError> {
         if self.server.port == 0 {
-            // FIXME: need right error type
             return Err(ConfigError::Message("server port can not be 0".into()));
         }
 

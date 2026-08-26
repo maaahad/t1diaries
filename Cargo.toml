@@ -58,5 +58,5 @@ lettre = { version = "0.11", default-features = false, features = [
 ] }
 
 [workspace.package]
-edition = "2021"
+edition = "2024"
 version = "0.1.0"
