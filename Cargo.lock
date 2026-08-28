@@ -70,6 +70,7 @@ dependencies = [
  "db",
  "graphql",
  "tokio",
+ "tower",
  "tower-http",
  "tracing",
  "tracing-subscriber",
