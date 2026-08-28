@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
   "apps/api",
+  "apps/worker",
   "crates/app-config",
   "crates/error",
   "crates/db",
@@ -13,6 +14,7 @@ members = [
   "crates/devices",
   "crates/email",
   "crates/graphql",
+  "apps/worker",
 ]
 
 [workspace.dependencies]

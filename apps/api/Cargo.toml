@@ -2,6 +2,7 @@
 name = "api"
 edition.workspace = true
 version.workspace = true
+default-run = "api"
 
 [dependencies]
 app-config = { path = "../../crates/app-config" }
