@@ -11,7 +11,7 @@ pub struct Config {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Environment {
-    Local,
+    Development,
     Test,
     Production,
 }
@@ -34,7 +34,7 @@ impl Config {
         let environment = std::env::var("APP_ENV").unwrap_or_else(|_| "local".to_owned());
 
         let builder = config::Config::builder()
-            .add_source(File::with_name("config/default"))
+            .add_source(File::with_name("config/base"))
             .add_source(File::with_name(&format!("config/{environment}")).required(false))
             .add_source(
                 config::Environment::default()

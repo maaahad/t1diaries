@@ -6,8 +6,8 @@ node_modules
 dist
 
 .env
-.env.local
-.env.*.local
+.env.development
+.env.*.development
 .turbo
 .sqlx
 
