@@ -28,6 +28,7 @@ pub struct ServerConfig {
     pub port: u16,
 }
 
+// TODO: (maaahad) let's rename it to AppConfig instead
 impl Config {
     pub fn load() -> Result<Self, ConfigError> {
         let _ = dotenv();
