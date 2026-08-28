@@ -1,3 +1,4 @@
+mod router;
 mod state;
 
 #[tokio::main]
