@@ -1,7 +1,10 @@
+mod graphql_handlers;
+mod middleware;
 mod router;
 mod shutdown;
 mod state;
 
+use graphql::build_schema;
 use observability::init_tracing;
 use std::net::SocketAddr;
 use tracing::info;
@@ -13,7 +16,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     init_tracing();
 
     let config = app_config::Config::load()?;
-    let state = AppState::new(config);
+    let schema = build_schema();
+    let state = AppState::new(config, schema);
 
     let app = build_router(state.clone());
 
