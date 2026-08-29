@@ -16,6 +16,7 @@ members = [
   "crates/graphql",
   "apps/worker",
   "crates/app-error",
+  "crates/observability",
 ]
 
 [workspace.dependencies]
@@ -46,7 +47,7 @@ chrono = { version = "0.4", features = ["serde"] }
 thiserror = { version = "2" }
 anyhow = { version = "1" }
 tracing = { version = "0.1" }
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 argon2 = { version = "0.5" }
 rand_core = { version = "0.10.1" }
 jsonwebtoken = { version = "11.0.0" }

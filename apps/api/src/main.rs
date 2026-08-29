@@ -1,6 +1,7 @@
 mod router;
 mod state;
 
+use observability::init_tracing;
 use std::net::SocketAddr;
 use tracing::info;
 
@@ -8,7 +9,7 @@ use crate::{router::build_router, state::AppState};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // init_tracing(); // TODO: (maaahad) separate crate crates/observability
+    init_tracing();
 
     let config = app_config::Config::load()?;
     let state = AppState::new(config);
