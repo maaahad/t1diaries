@@ -1,11 +1,12 @@
 mod router;
+mod shutdown;
 mod state;
 
 use observability::init_tracing;
 use std::net::SocketAddr;
 use tracing::info;
 
-use crate::{router::build_router, state::AppState};
+use crate::{router::build_router, shutdown::shutdown_signal, state::AppState};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -22,7 +23,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     info!(address = %address, "t1diaries api started");
 
-    axum::serve(listener, app).await?; // TODO: with_graceful_shutdown(shutdown_signal())
+    axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown_signal())
+        .await?;
 
     Ok(())
 }
