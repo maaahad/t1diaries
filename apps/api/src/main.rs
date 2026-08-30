@@ -8,6 +8,7 @@ use api::{router::build_router, shutdown::shutdown_signal, state::AppState};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     init_tracing();
+    info!("starting T1Diaries API");
 
     let app_config = app_config::AppConfig::load()?;
     let schema = build_schema();
@@ -19,11 +20,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let listener = tokio::net::TcpListener::bind(address).await?;
 
-    info!(address = %address, "t1diaries api started");
+    info!(address = %address, "API server listening");
 
     axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())
         .await?;
+
+    info!("T1Diaries API stopped");
 
     Ok(())
 }
