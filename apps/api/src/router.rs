@@ -1,9 +1,7 @@
-use crate::graphql_handlers::{graphiql_handler, graphql_handler};
+use crate::graphql_handlers::{graphiql_handler, graphql_handler, health};
 use crate::state::AppState;
 use axum::{
     Router,
-    http::StatusCode,
-    response::IntoResponse,
     routing::{get, post},
 };
 
@@ -18,8 +16,4 @@ pub fn build_router(state: AppState) -> Router {
         .route("/healthz", get(health))
         .merge(graphql_routes)
         .with_state(state)
-}
-
-async fn health() -> impl IntoResponse {
-    StatusCode::OK
 }
