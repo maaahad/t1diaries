@@ -16,10 +16,16 @@ pub fn build_router(state: AppState) -> Router {
 
     Router::new()
         .route("/healthz", get(health))
+        .route("/readyz", get(readiness))
         .merge(graphql_routes)
         .with_state(state)
 }
 
 async fn health() -> impl IntoResponse {
+    StatusCode::OK
+}
+
+async fn readiness() -> impl IntoResponse {
+    // TODO: need to check db::health_check and return Result<IntoResponse, StatusCode>
     StatusCode::OK
 }
