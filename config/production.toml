@@ -1,2 +1,5 @@
 [app]
 environment = "production"
+
+[graphql]
+graphiql = false

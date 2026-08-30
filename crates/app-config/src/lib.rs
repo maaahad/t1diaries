@@ -6,6 +6,7 @@ use serde::Deserialize;
 pub struct Config {
     pub app: AppConig,
     pub server: ServerConfig,
+    pub graphql: GraphqlConfig,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -26,6 +27,11 @@ pub struct AppConig {
 pub struct ServerConfig {
     pub host: String,
     pub port: u16,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct GraphqlConfig {
+    pub graphiql: bool,
 }
 
 // TODO: (maaahad) let's rename it to AppConfig instead
