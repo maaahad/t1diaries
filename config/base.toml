@@ -1,4 +1,4 @@
-[app]
+[meta]
 name = "t1diaries-api"
 environment = "development"
 

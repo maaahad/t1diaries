@@ -15,9 +15,9 @@ use crate::{router::build_router, shutdown::shutdown_signal, state::AppState};
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     init_tracing();
 
-    let config = app_config::Config::load()?;
+    let app_config = app_config::AppConfig::load()?;
     let schema = build_schema();
-    let state = AppState::new(config, schema);
+    let state = AppState::new(app_config, schema);
 
     let app = build_router(state.clone());
 

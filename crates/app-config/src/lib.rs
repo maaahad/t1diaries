@@ -3,8 +3,8 @@ use dotenvy::dotenv;
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct Config {
-    pub app: AppConig,
+pub struct AppConfig {
+    pub meta: MetaConfig,
     pub server: ServerConfig,
     pub graphql: GraphqlConfig,
 }
@@ -18,7 +18,7 @@ pub enum Environment {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct AppConig {
+pub struct MetaConfig {
     pub name: String,
     pub environment: Environment,
 }
@@ -35,7 +35,7 @@ pub struct GraphqlConfig {
 }
 
 // TODO: (maaahad) let's rename it to AppConfig instead
-impl Config {
+impl AppConfig {
     pub fn load() -> Result<Self, ConfigError> {
         let _ = dotenv();
         let environment = std::env::var("APP_ENV").unwrap_or_else(|_| "local".to_owned());
@@ -49,7 +49,7 @@ impl Config {
                     .try_parsing(true),
             );
 
-        let config: Config = builder.build()?.try_deserialize()?;
+        let config: AppConfig = builder.build()?.try_deserialize()?;
 
         config.validate()?;
 
