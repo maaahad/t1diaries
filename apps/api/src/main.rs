@@ -1,9 +1,3 @@
-// mod graphql_handlers;
-// mod middleware;
-// mod router;
-// mod shutdown;
-// mod state;
-
 use graphql::build_schema;
 use observability::init_tracing;
 use std::net::SocketAddr;
