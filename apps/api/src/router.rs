@@ -1,4 +1,3 @@
-// use crate::graphql_handlers::{graphiql_handler, graphql_handler};
 use crate::handlers::{
     graphql::{graphiql_handler, graphql_handler},
     health::health,
