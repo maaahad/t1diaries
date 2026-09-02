@@ -15,9 +15,4 @@ impl AppState {
             schema,
         }
     }
-
-    #[cfg(test)]
-    pub fn test() -> Self {
-        todo!("test state will be implemented")
-    }
 }
