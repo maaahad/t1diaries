@@ -1,0 +1,5 @@
+[meta]
+environment = "production"
+
+[graphql]
+graphiql = false

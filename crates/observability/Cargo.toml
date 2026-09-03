@@ -1,0 +1,7 @@
+[package]
+name = "observability"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+tracing-subscriber = { workspace = true }

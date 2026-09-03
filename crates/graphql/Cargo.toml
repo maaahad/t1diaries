@@ -1,0 +1,7 @@
+[package]
+name = "graphql"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+async-graphql.workspace = true

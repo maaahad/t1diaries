@@ -1,1 +1,14 @@
 .DS_Store
+
+/target
+
+node_modules
+dist
+
+.env
+.env.development
+.env.*.development
+.turbo
+.sqlx
+
+*.log
