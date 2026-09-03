@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: t1diaries-postgres
+
+    environment:
+      POSTGRES_DB: t1diaries
+      POSTGRES_USER: t1diaries
+      POSTGRES_PASSWORD: t1diaries_dev
+
+    ports:
+      - "127.0.0.1:5431:5431"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U t1diaries -d t1diaries"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  postgres_data:
