@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:18
+    image: postgres:latest
     container_name: t1diaries-postgres
 
     environment:
@@ -12,7 +12,7 @@ services:
       - "127.0.0.1:5431:5431"
 
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
 
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U t1diaries -d t1diaries"]
