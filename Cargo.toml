@@ -5,7 +5,7 @@ members = [
   "apps/worker",
   "crates/app-config",
   "crates/app-error",
-  "crates/db",
+  "crates/database",
   "crates/cache",
   "crates/auth",
   "crates/users",

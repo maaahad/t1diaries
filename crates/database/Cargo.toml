@@ -1,5 +1,5 @@
 [package]
-name = "db"
+name = "database"
 edition.workspace = true
 version.workspace = true
 
