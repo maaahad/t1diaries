@@ -2,6 +2,7 @@ services:
   postgres:
     image: postgres:latest
     container_name: t1diaries-postgres
+    restart: unless-stopped
 
     environment:
       POSTGRES_DB: t1diaries
@@ -9,6 +10,7 @@ services:
       POSTGRES_PASSWORD: t1diaries_dev
 
     ports:
+      # Expose PostgreSQL only to the local machine
       - "127.0.0.1:5431:5431"
 
     volumes:
