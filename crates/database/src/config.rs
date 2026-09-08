@@ -1,5 +1,7 @@
 use serde::Deserialize;
 
+use crate::error::DatabaseError;
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct DatabaseConfig {
     pub url: String,
@@ -11,12 +13,16 @@ pub struct DatabaseConfig {
 }
 
 impl DatabaseConfig {
-    pub fn new(url: String, max_connections: u32, min_connections: u32) -> Self {
-        DatabaseConfig {
+    pub fn new(
+        url: String,
+        max_connections: u32,
+        min_connections: u32,
+    ) -> Result<Self, DatabaseError> {
+        Ok(DatabaseConfig {
             url,
             max_connections,
             min_connections,
-        }
+        })
     }
 }
 
@@ -32,7 +38,15 @@ mod tests {
             5,
         );
 
-        assert_eq!(config.max_connections, 10);
-        assert_eq!(config.min_connections, 5);
+        assert!(config.is_ok());
+
+        let DatabaseConfig {
+            max_connections,
+            min_connections,
+            ..
+        } = config.unwrap();
+
+        assert_eq!(max_connections, 10);
+        assert_eq!(min_connections, 5);
     }
 }
