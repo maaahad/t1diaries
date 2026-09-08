@@ -49,4 +49,36 @@ mod tests {
         assert_eq!(max_connections, 10);
         assert_eq!(min_connections, 5);
     }
+
+    #[test]
+    fn rejects_zero_max_connections() {
+        let config = DatabaseConfig::new(
+            String::from("postgres://user:password@localhost:5432/t1diaries"),
+            0,
+            5,
+        );
+
+        assert!(matches!(
+            config,
+            Err(DatabaseError::InvalidConfiguration(
+                "max_connection should be greater than zero"
+            ))
+        ));
+    }
+
+    #[test]
+    fn rejects_min_connections_greater_than_max_connections() {
+        let config = DatabaseConfig::new(
+            String::from("postgres://user:password@localhost:5432/t1diaries"),
+            4,
+            5,
+        );
+
+        assert!(matches!(
+            config,
+            Err(DatabaseError::InvalidConfiguration(
+                "max_connections should be greater than min_connections"
+            ))
+        ));
+    }
 }
