@@ -1,6 +1,5 @@
-use serde::Deserialize;
-
 use crate::error::DatabaseError;
+use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct DatabaseConfig {
@@ -18,6 +17,18 @@ impl DatabaseConfig {
         max_connections: u32,
         min_connections: u32,
     ) -> Result<Self, DatabaseError> {
+        if max_connections == 0 {
+            return Err(DatabaseError::InvalidConfiguration(
+                "max_connection should be greater than zero",
+            ));
+        }
+
+        if max_connections < min_connections {
+            return Err(DatabaseError::InvalidConfiguration(
+                "max_connections should be greater than min_connections",
+            ));
+        }
+
         Ok(DatabaseConfig {
             url,
             max_connections,
