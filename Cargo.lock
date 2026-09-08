@@ -84,6 +84,7 @@ name = "app-config"
 version = "0.1.0"
 dependencies = [
  "config",
+ "database",
  "dotenvy",
  "secrecy",
  "serde",
