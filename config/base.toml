@@ -8,3 +8,7 @@ port = 8080
 
 [graphql]
 graphiql = false
+
+[database]
+max_connections = 10
+min_connections = 5
