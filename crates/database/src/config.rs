@@ -10,17 +10,28 @@ pub struct DatabaseConfig {
     // pub max_lifetime: std::time::Duration,
 }
 
+impl DatabaseConfig {
+    pub fn new(url: String, max_connections: u32, min_connections: u32) -> Self {
+        DatabaseConfig {
+            url,
+            max_connections,
+            min_connections,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn database_config_accepts_valid_values() {
-        let config = DatabaseConfig {
-            url: String::from("postgres://user:password@localhost:5432/t1diaries"),
-            max_connections: 10,
-            min_connections: 5,
-        };
+        let config = DatabaseConfig::new(
+            String::from("postgres://user:password@localhost:5432/t1diaries"),
+            10,
+            5,
+        );
+
         assert_eq!(config.max_connections, 10);
         assert_eq!(config.min_connections, 5);
     }
