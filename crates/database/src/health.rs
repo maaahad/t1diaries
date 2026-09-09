@@ -1,5 +1,3 @@
-use sqlx::Executor;
-
 use crate::{error::DatabaseError, pool::Database};
 
 impl Database {
