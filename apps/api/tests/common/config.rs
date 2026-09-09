@@ -1,5 +1,5 @@
 use app_config::{AppConfig, Environment, GraphqlConfig, MetaConfig, ServerConfig};
-use database::config::DatabaseConfig;
+use database::DatabaseConfig;
 use std::time::Duration;
 
 pub struct TestAppConfig {

@@ -1,5 +1,5 @@
 use config::{ConfigError, File};
-use database::config::DatabaseConfig;
+use database::DatabaseConfig;
 use dotenvy::dotenv;
 use serde::Deserialize;
 

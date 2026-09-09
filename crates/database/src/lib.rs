@@ -1,3 +1,7 @@
-pub mod config;
-pub mod error;
-pub mod pool;
+mod config;
+mod error;
+mod pool;
+
+pub use config::DatabaseConfig;
+pub use error::DatabaseError;
+pub use pool::Database;
