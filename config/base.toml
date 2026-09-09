@@ -12,6 +12,6 @@ graphiql = false
 [database]
 max_connections = 10
 min_connections = 5
-acquire_timeout = 5
-idle_timeout = 600
-max_lifetime = 1800
+acquire_timeout = "5s"
+idle_timeout = "600s"
+max_lifetime = "1800s"

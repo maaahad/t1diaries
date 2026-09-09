@@ -4,6 +4,8 @@ edition.workspace = true
 version.workspace = true
 
 [dependencies]
+humantime-serde = "1.1.1"
+
 sqlx = { workspace = true }
 thiserror = { workspace = true }
 serde = { workspace = true }
