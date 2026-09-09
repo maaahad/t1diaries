@@ -9,7 +9,7 @@ pub struct Database {
 }
 
 impl Database {
-    pub async fn connect(config: DatabaseConfig) -> Result<Self, DatabaseError> {
+    pub async fn connect(config: &DatabaseConfig) -> Result<Self, DatabaseError> {
         let pool = PgPoolOptions::new()
             .max_connections(config.max_connections)
             .min_connections(config.min_connections)
