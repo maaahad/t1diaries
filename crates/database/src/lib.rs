@@ -1,5 +1,6 @@
 mod config;
 mod error;
+mod health;
 mod pool;
 
 pub use config::DatabaseConfig;
