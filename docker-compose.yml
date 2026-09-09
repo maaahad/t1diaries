@@ -11,7 +11,7 @@ services:
 
     ports:
       # Expose PostgreSQL only to the local machine
-      - "127.0.0.1:5431:5431"
+      - "127.0.0.1:5432:5432"
 
     volumes:
       - postgres_data:/var/lib/postgresql
