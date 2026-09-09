@@ -2,7 +2,7 @@ use database::{Database, DatabaseConfig};
 use std::time::Duration;
 
 #[tokio::test]
-async fn connects_to_database() {
+async fn connects_to_postgresql() {
     let config = DatabaseConfig::new(
         std::env::var("DATABASE_URL").expect("DATABASE_URL must be set"),
         10,
