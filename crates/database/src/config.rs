@@ -1,14 +1,15 @@
 use crate::error::DatabaseError;
 use serde::Deserialize;
+use std::time::Duration;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct DatabaseConfig {
     pub url: String,
     pub max_connections: u32,
     pub min_connections: u32,
-    // pub acquire_timeout: std::time::Duration,
-    // pub idle_timeout: std::time::Duration,
-    // pub max_lifetime: std::time::Duration,
+    pub acquire_timeout: Duration,
+    pub idle_timeout: Duration,
+    pub max_lifetime: Duration,
 }
 
 impl DatabaseConfig {
@@ -16,6 +17,9 @@ impl DatabaseConfig {
         url: String,
         max_connections: u32,
         min_connections: u32,
+        acquire_timeout: Duration,
+        idle_timeout: Duration,
+        max_lifetime: Duration,
     ) -> Result<Self, DatabaseError> {
         if max_connections == 0 {
             return Err(DatabaseError::InvalidConfiguration(
@@ -33,6 +37,9 @@ impl DatabaseConfig {
             url,
             max_connections,
             min_connections,
+            acquire_timeout,
+            idle_timeout,
+            max_lifetime,
         })
     }
 }
@@ -47,6 +54,9 @@ mod tests {
             String::from("postgres://user:password@localhost:5432/t1diaries"),
             10,
             5,
+            Duration::from_secs(5),
+            Duration::from_secs(600),
+            Duration::from_secs(1800),
         );
 
         assert!(config.is_ok());
@@ -67,6 +77,9 @@ mod tests {
             String::from("postgres://user:password@localhost:5432/t1diaries"),
             0,
             5,
+            Duration::from_secs(5),
+            Duration::from_secs(600),
+            Duration::from_secs(1800),
         );
 
         assert!(matches!(
@@ -83,6 +96,9 @@ mod tests {
             String::from("postgres://user:password@localhost:5432/t1diaries"),
             4,
             5,
+            Duration::from_secs(5),
+            Duration::from_secs(600),
+            Duration::from_secs(1800),
         );
 
         assert!(matches!(
