@@ -8,3 +8,10 @@ port = 8080
 
 [graphql]
 graphiql = false
+
+[database]
+max_connections = 10
+min_connections = 5
+acquire_timeout = "5s"
+idle_timeout = "600s"
+max_lifetime = "1800s"

@@ -1,4 +1,5 @@
 use config::{ConfigError, File};
+use database::DatabaseConfig;
 use dotenvy::dotenv;
 use serde::Deserialize;
 
@@ -7,6 +8,7 @@ pub struct AppConfig {
     pub meta: MetaConfig,
     pub server: ServerConfig,
     pub graphql: GraphqlConfig,
+    pub database: DatabaseConfig,
 }
 
 #[derive(Debug, Clone, Deserialize)]

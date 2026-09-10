@@ -8,7 +8,7 @@ default-run = "api"
 app-config = { path = "../../crates/app-config" }
 app-error = { path = "../../crates/app-error" }
 graphql = { path = "../../crates/graphql" }
-db = { path = "../../crates/db" }
+database = { path = "../../crates/database" }
 observability = { path = "../../crates/observability" }
 
 tokio = { workspace = true }

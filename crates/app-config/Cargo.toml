@@ -9,3 +9,5 @@ serde = { workspace = true }
 thiserror = { workspace = true }
 secrecy = { version = "0.10.3", features = ["serde"] }
 dotenvy = { workspace = true }
+
+database = { path = "../database/" }
