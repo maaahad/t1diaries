@@ -1,1 +1,1 @@
--- Add migration script here
+-- initial database migration
