@@ -2,6 +2,7 @@ use sqlx::{PgPool, postgres::PgPoolOptions};
 
 use crate::config::DatabaseConfig;
 use crate::error::DatabaseError;
+use crate::migration;
 
 #[derive(Clone)]
 pub struct Database {
@@ -18,6 +19,12 @@ impl Database {
             .map_err(DatabaseError::ConnectionFailed)?;
 
         Ok(Self { pool })
+    }
+
+    pub async fn migrate(&self) -> Result<(), DatabaseError> {
+        migration::run(&self.pool)
+            .await
+            .map_err(DatabaseError::Migration)
     }
 
     pub fn pool(&self) -> &PgPool {

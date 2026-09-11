@@ -15,4 +15,7 @@ pub enum DatabaseError {
 
     #[error("database health check failed")]
     HealthCheckFailed(#[source] sqlx::Error),
+
+    #[error("database migration failed")]
+    Migration(#[source] sqlx::migrate::MigrateError),
 }
