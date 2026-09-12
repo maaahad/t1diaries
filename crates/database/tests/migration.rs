@@ -19,7 +19,15 @@ async fn applies_pending_migration() {
         .await
         .expect("database should connect");
 
-    database.migrate().await.expect("migration should succeed");
+    database
+        .migrate()
+        .await
+        .expect("first migration should succeed");
+
+    database
+        .migrate()
+        .await
+        .expect("second migration should succeed");
 
     let count: i64 = sqlx::query_scalar("SELECT COUNT(*) from _sqlx_migrations")
         .fetch_one(database.pool())
