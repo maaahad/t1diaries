@@ -11,7 +11,7 @@ use crate::common::app::TestApp;
 #[tokio::test]
 async fn health_endpoint_returns_ok() {
     // Arrange
-    let app = TestApp::new().build();
+    let app = TestApp::new().await.build();
     let request = Request::builder()
         .uri("/healthz")
         .body(Body::empty())
