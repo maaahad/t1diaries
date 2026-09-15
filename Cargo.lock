@@ -2804,6 +2804,12 @@ dependencies = [
 [[package]]
 name = "users"
 version = "0.1.0"
+dependencies = [
+ "chrono",
+ "sqlx",
+ "thiserror",
+ "uuid",
+]
 
 [[package]]
 name = "utf8_iter"
