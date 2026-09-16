@@ -12,7 +12,7 @@ impl UserRepository {
         Self { pool }
     }
 
-    pub async fn create(user: User) -> Result<(), UserRepositoryError> {
+    pub async fn create(&self, user: &User) -> Result<(), UserRepositoryError> {
         todo!()
     }
 
