@@ -13,7 +13,26 @@ impl UserRepository {
     }
 
     pub async fn create(&self, user: &User) -> Result<(), UserRepositoryError> {
-        todo!()
+        sqlx::query!(
+            r#"
+            INSERT INTO users (
+                id, 
+                email, 
+                created_at, 
+                updated_at
+            )
+            VALUES ($1, $2, $3, $4)
+            "#,
+            user.id,
+            user.email,
+            user.created_at,
+            user.updated_at
+        )
+        .execute(&self.pool)
+        .await
+        .map_err(UserRepositoryError::Create)?;
+
+        Ok(())
     }
 
     pub async fn find_by_id(&self, id: Uuid) -> Result<Option<User>, UserRepositoryError> {
