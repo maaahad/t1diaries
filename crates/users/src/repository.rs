@@ -36,7 +36,22 @@ impl UserRepository {
     }
 
     pub async fn find_by_id(&self, id: Uuid) -> Result<Option<User>, UserRepositoryError> {
-        todo!()
+        sqlx::query_as!(
+            User,
+            r#"
+                SELECT
+                    id,
+                    email,
+                    created_at,
+                    updated_at
+                FROM users
+                WHERE id = $1
+                "#,
+            id
+        )
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(UserRepositoryError::Create)
     }
 
     pub async fn find_by_email(&self, email: &str) -> Result<Option<User>, UserRepositoryError> {
