@@ -71,3 +71,54 @@ pub async fn find_by_id_returns_none_for_missing_user(pool: PgPool) {
 
     assert_eq!(result, None);
 }
+
+#[sqlx::test(migrations = "../../migrations")]
+pub async fn find_by_email_returns_existing_user(pool: PgPool) {
+    let repository = UserRepository::new(pool.clone());
+    let now = Utc::now();
+    let email = "example@example.com";
+
+    let user = User {
+        id: Uuid::new_v4(),
+        email: email.to_owned(),
+        created_at: now,
+        updated_at: Some(now),
+    };
+
+    repository
+        .create(&user)
+        .await
+        .expect("user should be created");
+
+    let result = repository
+        .find_by_email(email)
+        .await
+        .expect("query should succeed");
+
+    assert_eq!(result, Some(user));
+}
+
+#[sqlx::test(migrations = "../../migrations")]
+pub async fn find_by_email_is_case_insensitive(pool: PgPool) {
+    let repository = UserRepository::new(pool.clone());
+    let now = Utc::now();
+
+    let user = User {
+        id: Uuid::new_v4(),
+        email: "example@example.com".to_owned(),
+        created_at: now,
+        updated_at: Some(now),
+    };
+
+    repository
+        .create(&user)
+        .await
+        .expect("user should be created");
+
+    let result = repository
+        .find_by_email("EXAMPLE@EXAMPLE.COM")
+        .await
+        .expect("query should succeed");
+
+    assert_eq!(result, Some(user));
+}
