@@ -122,3 +122,32 @@ pub async fn find_by_email_is_case_insensitive(pool: PgPool) {
 
     assert_eq!(result, Some(user));
 }
+
+#[sqlx::test(migrations = "../../migrations")]
+pub async fn duplicate_email_is_rejected(pool: PgPool) {
+    let repository = UserRepository::new(pool.clone());
+    let now = Utc::now();
+
+    let first = User {
+        id: Uuid::new_v4(),
+        email: "example@example.com".to_owned(),
+        created_at: now,
+        updated_at: Some(now),
+    };
+
+    let second = User {
+        id: Uuid::new_v4(),
+        email: "EXAMPLE@example.com".to_owned(),
+        created_at: now,
+        updated_at: Some(now),
+    };
+
+    repository
+        .create(&first)
+        .await
+        .expect("first user should be created");
+
+    let result = repository.create(&second).await;
+
+    assert!(result.is_err());
+}
